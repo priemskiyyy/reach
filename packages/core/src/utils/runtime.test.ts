@@ -6,8 +6,8 @@ import { observed } from "src/mock/observed";
 import { MOCK_CAPABILITIES } from "src/mock/utils/constants/capabilities";
 import type { NetworkAdapter } from "src/types/NetworkAdapter";
 import type { NetworkCapabilities } from "src/types/NetworkCapabilities";
-import type { RefreshRequest } from "src/types/RefreshRequest";
 import type { ReachDiagnosticEvent } from "src/types/ReachDiagnosticEvent";
+import type { RefreshRequest } from "src/types/RefreshRequest";
 import { UNKNOWN_NETWORK_STATE } from "src/utils/constants/network";
 import {
   CONNECTED_CELLULAR,
@@ -677,6 +677,35 @@ test("T158 a throwing cleanup is reported, and the rest of disposal still runs",
   expect(reach.status.get().state).toBe("disposed");
 });
 
+test("ending a session aborts a refresh in flight and leaves no timer armed", async () => {
+  const requests: RefreshRequest[] = [];
+
+  const adapter: NetworkAdapter<null> = {
+    name: "held-refresh",
+    available: () => true,
+    open: () => ({
+      native: null,
+      capabilities: MOCK_CAPABILITIES,
+      refresh: (request) => {
+        requests.push(request);
+
+        return new Promise<void>(() => {});
+      },
+    }),
+  };
+
+  const clock = createTestClock();
+  const reach = new Reach({ adapter, clock });
+  const lease = reach.start();
+  const refreshing = reach.refresh();
+
+  lease.release();
+
+  await expect(refreshing).rejects.toMatchObject({ code: "SUPERSEDED" });
+  expect(requests[0]?.signal.aborted).toBe(true);
+  expect(clock.pendingTimers()).toBe(0);
+});
+
 test("an available() that throws fails the opening instead of escaping start", async () => {
   const mock = createMockNetwork();
   let probes = 0;
@@ -706,55 +735,6 @@ test("an available() that throws fails the opening instead of escaping start", a
 
   expect(reach.status.get()).toEqual({ state: "idle" });
   expect(reach.diagnostics.get().leases).toBe(0);
-});
-
-test("a session whose capabilities cannot be read fails its opening instead of hanging", async () => {
-  // An untyped adapter: JSON erases the types, as plain JavaScript would.
-  const capabilities: NetworkCapabilities = JSON.parse(
-    JSON.stringify({ ...MOCK_CAPABILITIES, "cost.expensive": undefined }),
-  );
-
-  const adapter: NetworkAdapter<null> = {
-    name: "malformed",
-    available: () => true,
-    open: () => Promise.resolve({ native: null, capabilities }),
-  };
-
-  const reach = new Reach({ adapter, clock: createTestClock() });
-
-  await expect(reach.start().ready).rejects.toMatchObject({
-    code: "SOURCE_ERROR",
-  });
-  expect(reach.status.get()).toMatchObject({ state: "error" });
-});
-
-test("ending a session aborts a refresh in flight and leaves no timer armed", async () => {
-  const requests: RefreshRequest[] = [];
-
-  const adapter: NetworkAdapter<null> = {
-    name: "held-refresh",
-    available: () => true,
-    open: () => ({
-      native: null,
-      capabilities: MOCK_CAPABILITIES,
-      refresh: (request) => {
-        requests.push(request);
-
-        return new Promise<void>(() => {});
-      },
-    }),
-  };
-
-  const clock = createTestClock();
-  const reach = new Reach({ adapter, clock });
-  const lease = reach.start();
-  const refreshing = reach.refresh();
-
-  lease.release();
-
-  await expect(refreshing).rejects.toMatchObject({ code: "SUPERSEDED" });
-  expect(requests[0]?.signal.aborted).toBe(true);
-  expect(clock.pendingTimers()).toBe(0);
 });
 
 test("a refresh that reports nothing while a newer event arrives is superseded, never credited with it", async () => {
@@ -798,4 +778,24 @@ test("a failed refresh installs its errors before it reads as ended", async () =
 
   await expect(refreshing).rejects.toMatchObject({ code: "SOURCE_ERROR" });
   expect(seen).toEqual(["error"]);
+});
+
+test("a session whose capabilities cannot be read fails its opening instead of hanging", async () => {
+  // An untyped adapter: JSON erases the types, as plain JavaScript would.
+  const capabilities: NetworkCapabilities = JSON.parse(
+    JSON.stringify({ ...MOCK_CAPABILITIES, "cost.expensive": undefined }),
+  );
+
+  const adapter: NetworkAdapter<null> = {
+    name: "malformed",
+    available: () => true,
+    open: () => Promise.resolve({ native: null, capabilities }),
+  };
+
+  const reach = new Reach({ adapter, clock: createTestClock() });
+
+  await expect(reach.start().ready).rejects.toMatchObject({
+    code: "SOURCE_ERROR",
+  });
+  expect(reach.status.get()).toMatchObject({ state: "error" });
 });
