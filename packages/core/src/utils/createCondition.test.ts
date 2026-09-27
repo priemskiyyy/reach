@@ -176,3 +176,31 @@ test("a met evaluation carries no reasons", () => {
 
   expect(condition.get()).toEqual({ status: "met", reasons: [] });
 });
+
+test("an onError that throws never escapes a read", () => {
+  const reported: unknown[] = [];
+
+  vi.spyOn(globalThis, "queueMicrotask").mockImplementation((task) => {
+    try {
+      task();
+    } catch (error) {
+      reported.push(error);
+    }
+  });
+
+  const failure = new Error("onError");
+  const source = new ValueStore(1);
+
+  const condition = createCondition({
+    sources: { source: source.observable },
+    evaluate: () => {
+      throw new Error("evaluator");
+    },
+    onError: () => {
+      throw failure;
+    },
+  });
+
+  expect(condition.get().status).toBe("unknown");
+  expect(reported).toEqual([failure]);
+});

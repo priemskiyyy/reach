@@ -5,6 +5,7 @@ import { EVALUATION_ERROR_CONDITION_STATE } from "src/utils/constants/conditions
 import { isSameConditionState } from "src/utils/internal/conditions/isSameConditionState";
 import { DerivedValue } from "src/utils/internal/observable/DerivedValue";
 import { Listeners } from "src/utils/internal/observable/Listeners";
+import { isolate } from "src/utils/internal/reporting/isolate";
 import { reportUnhandledError } from "src/utils/internal/reporting/reportUnhandledError";
 import { ReachError } from "src/utils/ReachError";
 
@@ -28,13 +29,13 @@ export const deriveCondition = (
       try {
         return evaluate();
       } catch (error) {
-        report(
-          new ReachError({
-            code: "EVALUATION_ERROR",
-            message: "A condition's evaluator or one of its sources threw.",
-            cause: error,
-          }),
-        );
+        const failure = new ReachError({
+          code: "EVALUATION_ERROR",
+          message: "A condition's evaluator or one of its sources threw.",
+          cause: error,
+        });
+
+        isolate(() => report(failure), reportUnhandledError);
 
         return EVALUATION_ERROR_CONDITION_STATE;
       }
