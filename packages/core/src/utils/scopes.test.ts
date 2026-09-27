@@ -226,11 +226,11 @@ test("a throwing scope makes the endpoint ineligible, never another account's", 
   reach.start();
 
   await expect(reach.endpoint("api").check()).rejects.toMatchObject({
-    code: "SOURCE_ERROR",
+    code: "SCOPE_UNAVAILABLE",
   });
   expect(reach.endpoint("api").state.get()).toMatchObject({
     scope: "unavailable",
-    error: { code: "SOURCE_ERROR" },
+    error: { code: "SCOPE_UNAVAILABLE" },
   });
   expect(probe.calls).toHaveLength(0);
 });

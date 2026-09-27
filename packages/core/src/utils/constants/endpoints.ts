@@ -13,6 +13,6 @@ export const EMPTY_RECORD_STATE: EndpointRecordState = Object.freeze({
 
 /** Why a scoped endpoint whose scope getter threw cannot check. */
 export const SCOPE_ERROR: ReachErrorInfo = Object.freeze({
-  code: "SOURCE_ERROR",
+  code: "SCOPE_UNAVAILABLE",
   message: "The endpoint's scope threw when it was read.",
 });
