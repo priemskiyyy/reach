@@ -10,6 +10,7 @@ import { reportUnhandledError } from "src/utils/internal/reporting/reportUnhandl
 import { ReachError } from "src/utils/ReachError";
 
 type DeriveConditionOptions = {
+  /** Receives each evaluation failure once, until an evaluation succeeds again. */
   report?: (error: ReachError) => void;
   listeners?: Listeners;
 };
@@ -22,13 +23,26 @@ export const deriveCondition = (
     report = reportUnhandledError,
     listeners = new Listeners(),
   }: DeriveConditionOptions = {},
-): Condition =>
-  new DerivedValue({
+): Condition => {
+  // A throwing source is read again on every read; it is reported once, not on each.
+  let failing = false;
+
+  return new DerivedValue({
     sources,
     compute: () => {
       try {
-        return evaluate();
+        const state = evaluate();
+
+        failing = false;
+
+        return state;
       } catch (error) {
+        if (failing) {
+          return EVALUATION_ERROR_CONDITION_STATE;
+        }
+
+        failing = true;
+
         const failure = new ReachError({
           code: "EVALUATION_ERROR",
           message: "A condition's evaluator or one of its sources threw.",
@@ -43,3 +57,4 @@ export const deriveCondition = (
     isEqual: isSameConditionState,
     listeners,
   }).observable;
+};

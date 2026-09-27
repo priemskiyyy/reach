@@ -204,3 +204,40 @@ test("an onError that throws never escapes a read", () => {
   expect(condition.get().status).toBe("unknown");
   expect(reported).toEqual([failure]);
 });
+
+test("a failing evaluation is reported once until it recovers", () => {
+  const onError = vi.fn();
+  const source = new ValueStore(1);
+  let broken = true;
+
+  const condition = createCondition({
+    sources: {
+      value: {
+        get: () => {
+          if (broken) {
+            throw new Error("source");
+          }
+
+          return source.get();
+        },
+        subscribe: source.subscribe,
+      },
+    },
+    evaluate: ({ value }) => (value > 0 ? "met" : "unmet"),
+    onError,
+  });
+
+  condition.get();
+  condition.get();
+  condition.get();
+
+  expect(onError).toHaveBeenCalledTimes(1);
+
+  broken = false;
+  expect(condition.get().status).toBe("met");
+
+  broken = true;
+  condition.get();
+
+  expect(onError).toHaveBeenCalledTimes(2);
+});
