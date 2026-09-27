@@ -28,4 +28,22 @@ declare global {
 
   /** The application's Reach, created once at bootstrap. */
   const network: Reach<unknown, "api">;
+
+  /** The application's Silo store, with one boolean preference. */
+  const silo: {
+    value: (key: "allowMeteredUploads") => ObservableValue<boolean> & {
+      status: ObservableValue<{ state: "hydrating" | "ready" | "error" }>;
+    };
+  };
+
+  /** The application's Flare, with its positional breadcrumb method. */
+  const flare: {
+    breadcrumb: (name: string, data?: Record<string, unknown>) => void;
+  };
+
+  /** The application's Simulcast client. */
+  const realtime: {
+    connection: ObservableValue<"connecting" | "connected" | "disconnected">;
+    connect: () => () => void;
+  };
 }
