@@ -32,6 +32,7 @@ import { waitWithSignal } from "src/utils/internal/common/waitWithSignal";
 import { createAbortedError } from "src/utils/internal/errors/createAbortedError";
 import { createDisposedError } from "src/utils/internal/errors/createDisposedError";
 import { createNotStartedError } from "src/utils/internal/errors/createNotStartedError";
+import { copyCapabilities } from "src/utils/internal/evidence/copyCapabilities";
 import { getFailedFacts } from "src/utils/internal/evidence/getFailedFacts";
 import { getStaleFacts } from "src/utils/internal/evidence/getStaleFacts";
 import { isRouteChange } from "src/utils/internal/evidence/isRouteChange";
@@ -483,7 +484,7 @@ export class NetworkRuntime<TNative> {
       this.#getAdoptedFacts(pending),
       state.generation + 1,
     );
-    transaction.set(this.capabilities, source.capabilities);
+    transaction.set(this.capabilities, copyCapabilities(source.capabilities));
     transaction.set(this.native, source.native);
     transaction.set(this.status, RUNNING_STATUS);
     transaction.commit();
