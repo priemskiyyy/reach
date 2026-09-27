@@ -310,3 +310,41 @@ test("a scope change never runs two checks at once for one endpoint", async () =
   expect(reach.diagnostics.get().checks.outstanding).toBe(1);
   expect(probe.calls).toHaveLength(2);
 });
+
+test("a check whose new key stops the runtime never starts", async () => {
+  const key = { current: "account-a" };
+
+  // A scope read on demand, whose store never notifies.
+  const probe = createMockEndpoint({
+    staleAfter: 30_000,
+    scope: { get: () => key.current, subscribe: () => () => {} },
+  });
+
+  const reach = new Reach({
+    adapter: createMockNetwork({ initial: CONNECTED_WIFI }).adapter,
+    clock: createTestClock(),
+    endpoints: { api: probe.definition },
+  });
+
+  const api = reach.endpoint("api");
+  const lease = reach.start();
+  const first = api.check();
+
+  probe.pass();
+  await first;
+
+  // Forgetting the old key's result is the first thing the new key does.
+  api.state.subscribe(() => {
+    if (api.state.get().freshness !== "never") {
+      return;
+    }
+
+    lease.release();
+  });
+
+  key.current = "account-b";
+
+  await expect(api.check()).rejects.toMatchObject({ code: "NOT_STARTED" });
+  expect(probe.calls).toHaveLength(1);
+  expect(reach.diagnostics.get().checks.outstanding).toBe(0);
+});

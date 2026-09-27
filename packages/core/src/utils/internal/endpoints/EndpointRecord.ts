@@ -251,6 +251,11 @@ export class EndpointRecord {
 
     const { reading } = this.reconcileScope();
 
+    // A listener of the new key may have stopped the runtime.
+    if (!this.#environment.network.isRunning()) {
+      return Promise.reject(createNotStartedError());
+    }
+
     if (reading.error !== null) {
       return Promise.reject(new ReachError(reading.error));
     }
