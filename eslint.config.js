@@ -167,7 +167,14 @@ const clockReads = [
 
 export default tseslint.config(
   {
-    ignores: ["**/dist/**", "**/node_modules/**", ".artifacts/**", "tasks/**"],
+    ignores: [
+      "**/dist/**",
+      "**/node_modules/**",
+      ".artifacts/**",
+      "tasks/**",
+      "test-results/**",
+      "playwright-report/**",
+    ],
   },
   {
     // No inline comment can switch a rule off; an exception is a file-scoped block here.
@@ -267,7 +274,11 @@ export default tseslint.config(
   },
   {
     // React rules only where React runs.
-    files: ["packages/react/**/*.{ts,tsx}"],
+    files: [
+      "packages/react/**/*.{ts,tsx}",
+      "examples/react/**/*.{ts,tsx}",
+      "examples/expo/**/*.{ts,tsx}",
+    ],
     plugins: { "react-hooks": reactHooks },
     rules: reactHooks.configs.recommended.rules,
   },
