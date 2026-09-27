@@ -3,9 +3,10 @@ import type { ObservationInput } from "src/mock/types/ObservationInput";
 import type { NetworkAdapter } from "src/types/NetworkAdapter";
 
 /**
- * A scriptable connectivity source and the adapter over it. Each report goes
- * to the latest session; `unsafe` reaches a closed one on purpose, to prove
- * that Reach ignores it.
+ * A scriptable connectivity source and the adapter over it. Each report
+ * changes the source and reaches the open session, if there is one; the next
+ * session reads it. `unsafe` reaches a closed one on purpose, to prove that
+ * Reach ignores it.
  *
  * @example
  * ```ts

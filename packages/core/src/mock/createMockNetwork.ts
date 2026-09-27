@@ -24,8 +24,8 @@ type HeldRefresh = {
 
 /**
  * A well-behaved adapter over a scriptable source, for tests. Every session
- * registers one cleanup, reports `initial` while it opens, and reports
- * nothing else until the test says so.
+ * registers one cleanup, reports the source's latest report while it opens,
+ * `initial` at first, and reports nothing else until the test says so.
  *
  * @example
  * ```ts
@@ -49,7 +49,9 @@ export const createMockNetwork = ({
   let cleanups = 0;
   let refreshes = 0;
   let latest: NetworkAdapterContext | null = null;
+  let active: NetworkAdapterContext | null = null;
   let current: NetworkObservation = createObservation(initial);
+  let reported = initial !== undefined;
   let nextFailure: { error: unknown } | null = null;
   const heldOpens: HeldOpen[] = [];
   const heldRefreshes: HeldRefresh[] = [];
@@ -64,6 +66,7 @@ export const createMockNetwork = ({
 
   const report = (input?: ObservationInput) => {
     current = createObservation(input);
+    reported = true;
 
     return current;
   };
@@ -93,8 +96,13 @@ export const createMockNetwork = ({
       open: (context: NetworkAdapterContext) => {
         opens += 1;
         latest = context;
+        active = context;
         context.onDispose(() => {
           cleanups += 1;
+
+          if (active === context) {
+            active = null;
+          }
         });
 
         const failure = nextFailure;
@@ -105,8 +113,9 @@ export const createMockNetwork = ({
           throw failure.error;
         }
 
-        if (initial !== undefined) {
-          context.emit(report(initial));
+        // A new session reads the source as it is now.
+        if (reported) {
+          context.emit(current);
         }
 
         const session = createSession();
@@ -120,8 +129,9 @@ export const createMockNetwork = ({
         });
       },
     }),
+    // The source changes whether or not a session is open; only an open one hears it.
     emit: (input?: ObservationInput) => {
-      getLatest().emit(report(input));
+      active?.emit(report(input));
     },
     reserve: () => {
       const slot = getLatest().reserve();
