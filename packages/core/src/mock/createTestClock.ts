@@ -2,6 +2,15 @@ import type { TestClock } from "src/mock/types/TestClock";
 
 type Timer = { id: number; at: number; callback: () => void };
 
+// Moved only forward, as the monotonic clock it stands in for.
+const assertForward = (milliseconds: number) => {
+  if (Number.isFinite(milliseconds) && milliseconds >= 0) {
+    return;
+  }
+
+  throw new Error("A test clock moves forward by zero or more milliseconds.");
+};
+
 /**
  * A manual clock that starts at the given epoch and monotonic times, zero by
  * default, and runs its timers only when a test advances it.
@@ -68,6 +77,8 @@ export const createTestClock = ({
     },
     random: () => random,
     advance: (milliseconds: number) => {
+      assertForward(milliseconds);
+
       const target = monotonic + milliseconds;
 
       let next = getNextDue(target);
@@ -81,7 +92,10 @@ export const createTestClock = ({
 
       move(target - monotonic);
     },
-    skip: move,
+    skip: (milliseconds: number) => {
+      assertForward(milliseconds);
+      move(milliseconds);
+    },
     runDue: () => {
       let next = getNextDue(monotonic);
 

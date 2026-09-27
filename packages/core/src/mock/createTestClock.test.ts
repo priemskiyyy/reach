@@ -85,3 +85,18 @@ test("an overdue timer runs at the time it runs, never back at its due time", ()
 
   expect(seen).toEqual([1_000]);
 });
+
+test("time never moves backwards or by a duration that is not a number of milliseconds", () => {
+  const clock = createTestClock();
+
+  for (const milliseconds of [-1, Number.NaN, Number.POSITIVE_INFINITY]) {
+    expect(() => clock.advance(milliseconds)).toThrow(
+      "A test clock moves forward by zero or more milliseconds.",
+    );
+    expect(() => clock.skip(milliseconds)).toThrow(
+      "A test clock moves forward by zero or more milliseconds.",
+    );
+  }
+
+  expect(clock.monotonic()).toBe(0);
+});
