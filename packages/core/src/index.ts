@@ -3,6 +3,7 @@ export { any } from "src/utils/any";
 export { createCondition } from "src/utils/createCondition";
 export { not } from "src/utils/not";
 export { ReachError } from "src/utils/ReachError";
+export { UNKNOWN_NETWORK_STATE } from "src/utils/constants/network";
 
 export type { Activity } from "src/types/Activity";
 export type { CheckResult } from "src/types/CheckResult";
