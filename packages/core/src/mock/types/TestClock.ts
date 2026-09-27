@@ -1,9 +1,10 @@
 import type { ReachClock } from "src/types/ReachClock";
 
 /**
- * A manual `ReachClock` for tests. Only `advance` runs timers, in the order
- * they fall due and at their own time; `skip` moves time as a frozen page
- * does, and `setNow` moves epoch time alone, backwards included.
+ * A manual `ReachClock` for tests. `advance` runs timers in the order they
+ * fall due and at their own time, and `runDue` runs those already due; `skip`
+ * moves time as a frozen page does, and `setNow` moves epoch time alone,
+ * backwards included.
  *
  * @example
  * ```ts

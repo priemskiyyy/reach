@@ -7,12 +7,10 @@ import type { NetworkObservation } from "src/types/NetworkObservation";
  *
  * @example
  * ```ts
- * mock.emit(
- *   createObservation({
- *     connection: { status: observed("connected"), type: observed("wifi") },
- *     cost: { metered: observed(false, "native-metering") },
- *   }),
- * );
+ * const observation = createObservation({
+ *   connection: { status: observed("connected"), type: observed("wifi") },
+ *   cost: { metered: observed(false, "native-metering") },
+ * });
  * ```
  */
 export const createObservation = ({
