@@ -10,8 +10,6 @@ export class ResourceScope {
     this.#report = report;
   }
 
-  isActive = () => this.#active;
-
   add = (cleanup: () => void) => {
     if (this.#active) {
       this.#cleanups.push(cleanup);

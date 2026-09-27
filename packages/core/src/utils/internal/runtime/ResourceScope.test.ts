@@ -12,7 +12,10 @@ test("T037 cleanups run once, in reverse order", () => {
   scope.dispose();
 
   expect(order).toEqual(["second", "first"]);
-  expect(scope.isActive()).toBe(false);
+
+  scope.add(() => order.push("late"));
+
+  expect(order).toEqual(["second", "first", "late"]);
 });
 
 test("T158 a throwing cleanup is reported and the rest still run", () => {
