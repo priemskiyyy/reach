@@ -1,5 +1,6 @@
 export { all } from "src/utils/all";
 export { any } from "src/utils/any";
+export { createCondition } from "src/utils/createCondition";
 export { not } from "src/utils/not";
 export { ReachError } from "src/utils/ReachError";
 
