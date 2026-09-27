@@ -1,4 +1,5 @@
 import eslint from "@eslint/js";
+import reactHooks from "eslint-plugin-react-hooks";
 import tseslint from "typescript-eslint";
 
 const toRestrictions = (entries) =>
@@ -244,6 +245,31 @@ export default tseslint.config(
       "no-restricted-globals": ["error", ...hostTimers],
       "no-restricted-properties": ["error", ...clockReads],
     },
+  },
+  {
+    // Bindings read Reach's observables and never a provider SDK or the host's timers.
+    files: [
+      "packages/react/src/**/*.{ts,tsx}",
+      "packages/tanstack-query/src/**/*.ts",
+    ],
+    ignores: tests,
+    rules: {
+      ...restrictImports([sdks, testRunners]),
+      "no-restricted-globals": ["error", ...hostTimers],
+      "no-restricted-properties": ["error", ...clockReads],
+    },
+  },
+  {
+    // Only the React binding imports React.
+    files: ["packages/tanstack-query/src/**/*.ts"],
+    ignores: tests,
+    rules: restrictImports([react, sdks, testRunners]),
+  },
+  {
+    // React rules only where React runs.
+    files: ["packages/react/**/*.{ts,tsx}"],
+    plugins: { "react-hooks": reactHooks },
+    rules: reactHooks.configs.recommended.rules,
   },
   {
     files: ["**/*.{js,mjs}"],
