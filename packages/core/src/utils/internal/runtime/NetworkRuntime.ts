@@ -248,6 +248,8 @@ export class NetworkRuntime<TNative> {
 
     this.#leases.clear();
     this.#rejectWaiters(error);
+    this.#publishStopped(ownership, error, "runtime-disposed", DISPOSED_STATUS);
+    this.#hooks.record("disposed");
 
     const session = this.#sessionOf(ownership);
 
@@ -255,8 +257,6 @@ export class NetworkRuntime<TNative> {
       this.#endSession(session, error);
     }
 
-    this.#publishStopped(ownership, error, "runtime-disposed", DISPOSED_STATUS);
-    this.#hooks.record("disposed");
     this.state.close();
     this.status.close();
     this.capabilities.close();
@@ -398,15 +398,10 @@ export class NetworkRuntime<TNative> {
       message: "The runtime stopped before this settled.",
     });
 
-    this.#endSession(ownership.session, stopped);
-
-    // A cleanup that called back may have started or disposed the runtime, and published that itself.
-    if (this.#ownership !== IDLE) {
-      return;
-    }
-
+    // Published before the session's cleanups run, so a cleanup that calls back finds the runtime stopped.
     this.#publishStopped(ownership, stopped, "runtime-idle", IDLE_STATUS);
     this.#hooks.record("session-stopped");
+    this.#endSession(ownership.session, stopped);
   }
 
   // One transaction for a source that stopped: checks learn why they end

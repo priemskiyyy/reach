@@ -165,3 +165,153 @@ test("an adapter cleanup that disposes during the last release leaves the Reach 
   expect(reach.status.get()).toEqual({ state: "disposed" });
   expect(reach.capabilities.get()).toBeNull();
 });
+
+test("a cleanup that disposes during the last release leaves no fact current", () => {
+  const mock = createMockNetwork({ initial: CONNECTED_WIFI });
+
+  const reachRef: { current: Reach<{ session: number }> | null } = {
+    current: null,
+  };
+
+  const reach = new Reach({
+    adapter: {
+      ...mock.adapter,
+      open: (context) => {
+        context.onDispose(() => reachRef.current?.dispose());
+
+        return mock.adapter.open(context);
+      },
+    },
+    clock: createTestClock(),
+  });
+
+  reachRef.current = reach;
+  reach.start().release();
+
+  expect(reach.status.get()).toEqual({ state: "disposed" });
+  expect(reach.state.get().evidence["connection.status"].status).toBe("stale");
+});
+
+test("a cleanup that starts again during the last release stops the old session first", () => {
+  const mock = createMockNetwork({ initial: CONNECTED_WIFI });
+  const { activity, subscribers } = createCountingActivity();
+
+  const reachRef: { current: Reach<{ session: number }> | null } = {
+    current: null,
+  };
+
+  let opens = 0;
+
+  const reach = new Reach({
+    adapter: {
+      ...mock.adapter,
+      open: (context) => {
+        opens += 1;
+
+        if (opens === 1) {
+          context.onDispose(() => {
+            reachRef.current?.start();
+          });
+        }
+
+        return mock.adapter.open(context);
+      },
+    },
+    activity,
+    clock: createTestClock(),
+  });
+
+  reachRef.current = reach;
+  reach.start().release();
+
+  expect(reach.status.get()).toMatchObject({ state: "running" });
+  expect(subscribers()).toBe(1);
+});
+
+test("a cleanup whose new opening fails leaves no fact of the stopped session current", async () => {
+  const mock = createMockNetwork({ initial: CONNECTED_WIFI, open: "held" });
+
+  const reachRef: { current: Reach<{ session: number }> | null } = {
+    current: null,
+  };
+
+  let opens = 0;
+
+  const reach = new Reach({
+    adapter: {
+      ...mock.adapter,
+      open: (context) => {
+        opens += 1;
+
+        if (opens === 1) {
+          context.onDispose(() => {
+            reachRef.current?.start().ready.catch(() => {});
+          });
+        }
+
+        return mock.adapter.open(context);
+      },
+    },
+    clock: createTestClock(),
+  });
+
+  reachRef.current = reach;
+
+  const lease = reach.start();
+
+  mock.resolveOpen();
+  await lease.ready;
+  lease.release();
+  mock.rejectOpen(new Error("no source"));
+  await settle();
+
+  expect(reach.status.get()).toMatchObject({ state: "error" });
+  expect(reach.state.get().evidence["connection.status"].status).not.toBe(
+    "current",
+  );
+});
+
+test("a cleanup that starts and releases again publishes each stop once", () => {
+  const mock = createMockNetwork({ initial: CONNECTED_WIFI });
+
+  const reachRef: { current: Reach<{ session: number }> | null } = {
+    current: null,
+  };
+
+  let opens = 0;
+
+  const reach = new Reach({
+    adapter: {
+      ...mock.adapter,
+      open: (context) => {
+        opens += 1;
+
+        if (opens === 1) {
+          context.onDispose(() => {
+            reachRef.current?.start().release();
+          });
+        }
+
+        return mock.adapter.open(context);
+      },
+    },
+    clock: createTestClock(),
+  });
+
+  const sessions: string[] = [];
+
+  reachRef.current = reach;
+  reach.diagnostics.events.subscribe(({ type }) => {
+    if (type === "session-opened" || type === "session-stopped") {
+      sessions.push(type);
+    }
+  });
+  reach.start().release();
+
+  expect(sessions).toEqual([
+    "session-opened",
+    "session-stopped",
+    "session-opened",
+    "session-stopped",
+  ]);
+});
