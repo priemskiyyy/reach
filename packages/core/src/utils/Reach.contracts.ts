@@ -43,7 +43,7 @@ reach.native.get()?.unavailableMethod();
 
 export const bulk = reach.condition({ internet: "online", metered: false });
 
-// @ts-expect-error An empty requirement would always be met.
+// @ts-expect-error T058 An empty requirement would always be met.
 reach.condition({});
 
 // @ts-expect-error Unknown is what a condition answers, never what it requires.
@@ -55,10 +55,10 @@ reach.condition({ metered: false, imaginary: true });
 // @ts-expect-error Cost is a boolean fact.
 reach.condition({ metered: "no" });
 
-// @ts-expect-error all needs at least one condition.
+// @ts-expect-error T057 all needs at least one condition.
 all();
 
-// @ts-expect-error any needs at least one condition.
+// @ts-expect-error T057 any needs at least one condition.
 any();
 
 export const composed = not(any(bulk, all(bulk, bulk)));
@@ -130,7 +130,7 @@ export const available = all(
   withEndpoints.condition({ metered: false }),
 );
 
-// @ts-expect-error An endpoint that was never defined fails to compile.
+// @ts-expect-error T157 An endpoint that was never defined fails to compile.
 withEndpoints.endpoint("missing");
 
 // @ts-expect-error A Reach without endpoints has none to name.
