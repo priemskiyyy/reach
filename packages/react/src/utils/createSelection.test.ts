@@ -2,7 +2,7 @@ import { expect, test, vi } from "vitest";
 
 import { createSelection } from "src/utils/createSelection";
 
-test("the same value selects once", () => {
+test("T055 the same value selects once", () => {
   const value = { count: 1 };
   const selector = vi.fn((current: { count: number }) => [current.count]);
   const read = createSelection(() => value, selector, Object.is);

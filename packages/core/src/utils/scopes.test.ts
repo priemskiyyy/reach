@@ -79,7 +79,7 @@ test("T126 monitoring skips while there is no scope key", () => {
   expect(reach.diagnostics.get().counters.skippedChecks).toBe(1);
 });
 
-test("T127 switching accounts ends the old account's check and clears its history", async () => {
+test("T127 T131 switching accounts ends the old account's check and clears its history", async () => {
   const { reach, probe, scope, api } = createScopedReach("account-a");
 
   reach.start();

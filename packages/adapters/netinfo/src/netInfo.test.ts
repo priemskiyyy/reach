@@ -138,7 +138,7 @@ test("a missing reachability is unknown", async () => {
   expect(reach.state.get().internet.status).toBe("unknown");
 });
 
-test("T022 Android's metering answer is metering, and expense stays unsupported", async () => {
+test("T022 T030 Android's metering answer is metering with partial coverage, and expense stays unsupported", async () => {
   const { reach } = await startNetInfo(CELLULAR_STATE);
 
   expect(reach.state.get().cost).toEqual({ metered: true, expensive: null });
