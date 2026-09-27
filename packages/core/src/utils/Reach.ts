@@ -1,5 +1,4 @@
 import type { Condition } from "src/types/Condition";
-import type { EndpointDefinition } from "src/types/EndpointDefinition";
 import type { EndpointHandle } from "src/types/EndpointHandle";
 import type { NetworkAdapter } from "src/types/NetworkAdapter";
 import type { NetworkCapabilities } from "src/types/NetworkCapabilities";
@@ -49,13 +48,7 @@ import { DeadlineScheduler } from "src/utils/internal/scheduling/DeadlineSchedul
  * lease.release();
  * ```
  */
-export class Reach<
-  TNative,
-  TEndpoints extends Record<string, EndpointDefinition> = Record<
-    never,
-    EndpointDefinition
-  >,
-> {
+export class Reach<TNative, TName extends string = never> {
   #adapter: NetworkAdapter<TNative>;
   #runtime: NetworkRuntime<TNative>;
   #endpoints: EndpointRegistry;
@@ -122,7 +115,7 @@ export class Reach<
     timeouts = {},
     maxOutstandingChecks,
     clock = createSystemClock(),
-  }: ReachOptions<TNative, TEndpoints>) {
+  }: ReachOptions<TNative, TName>) {
     const resolvedTimeouts = {
       open: resolveDuration(
         "timeouts.open",
@@ -276,9 +269,7 @@ export class Reach<
    * const api = reach.endpoint("api");
    * ```
    */
-  endpoint = <TName extends Extract<keyof TEndpoints, string>>(
-    name: TName,
-  ): EndpointHandle => this.#endpoints.get(name);
+  endpoint = (name: TName): EndpointHandle => this.#endpoints.get(name);
 
   /**
    * Ends the Reach for good: the source closes, every pending operation

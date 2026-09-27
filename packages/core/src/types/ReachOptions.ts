@@ -11,18 +11,17 @@ import type { ReachClock } from "src/types/ReachClock";
  *
  * @example
  * ```ts
- * const options: ReachOptions<null, Record<never, EndpointDefinition>> = {
+ * const options: ReachOptions<null, "api"> = {
  *   adapter,
+ *   endpoints: { api: http({ request: ({ signal }) => api.health({ signal }), staleAfter: 30_000 }) },
  *   timeouts: { open: 5_000 },
  * };
  * ```
  */
-export type ReachOptions<
-  TNative,
-  TEndpoints extends Record<string, EndpointDefinition>,
-> = {
+export type ReachOptions<TNative, TName extends string> = {
   adapter: NetworkAdapter<TNative>;
-  endpoints?: TEndpoints;
+  /** Named checks; each name becomes a valid argument of `reach.endpoint()`. */
+  endpoints?: Record<TName, EndpointDefinition>;
   /** Admits automatic checks only in the foreground; without it, they run whenever the runtime does. */
   activity?: ObservableValue<Activity>;
   timeouts?: {

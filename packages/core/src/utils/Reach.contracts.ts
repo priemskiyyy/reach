@@ -4,6 +4,7 @@ import { expectTypeOf } from "vitest";
 
 import { MOCK_CAPABILITIES } from "src/mock/utils/constants/capabilities";
 import type { ConditionStatus } from "src/types/ConditionStatus";
+import type { EndpointState } from "src/types/EndpointState";
 import type { FieldObservation } from "src/types/FieldObservation";
 import type { NetworkAdapter } from "src/types/NetworkAdapter";
 import type { NetworkState } from "src/types/NetworkState";
@@ -101,3 +102,59 @@ export const asynchronousOpen: NetworkAdapter<null> = {
   name: "async",
   open: async () => ({ native: null, capabilities: MOCK_CAPABILITIES }),
 };
+
+const withEndpoints = new Reach({
+  adapter,
+  endpoints: {
+    api: {
+      staleAfter: 30_000,
+      check: () => ({ verdict: "pass", response: "received" }),
+    },
+    internal: {
+      staleAfter: 20_000,
+      check: async ({ network }) => ({
+        verdict:
+          network.connection.status === "connected" ? "pass" : "inconclusive",
+        response: "unknown",
+      }),
+    },
+  },
+});
+
+expectTypeOf(
+  withEndpoints.endpoint("api").state.get(),
+).toEqualTypeOf<EndpointState>();
+
+export const available = all(
+  withEndpoints.endpoint("internal").available,
+  withEndpoints.condition({ metered: false }),
+);
+
+// @ts-expect-error An endpoint that was never defined fails to compile.
+withEndpoints.endpoint("missing");
+
+// @ts-expect-error A Reach without endpoints has none to name.
+reach.endpoint("api");
+
+export const badVerdict = new Reach({
+  adapter,
+  endpoints: {
+    api: {
+      staleAfter: 1,
+      // @ts-expect-error A verdict is pass, fail or inconclusive.
+      check: () => ({ verdict: "ok", response: "received" }),
+    },
+  },
+});
+
+export const badPolicy = new Reach({
+  adapter,
+  endpoints: {
+    api: {
+      staleAfter: 1,
+      check: () => ({ verdict: "pass", response: "received" }),
+      // @ts-expect-error Triggers are start, network-change, foreground and scope-change.
+      monitoring: { on: ["stale"] },
+    },
+  },
+});
