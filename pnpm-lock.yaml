@@ -51,6 +51,16 @@ importers:
         specifier: workspace:*
         version: link:../../core
 
+  packages/adapters/expo-network:
+    dependencies:
+      expo-network:
+        specifier: '>=58.0.0'
+        version: 58.0.1(expo@57.0.25)(react@19.3.0)
+    devDependencies:
+      '@priemskiyyy/reach':
+        specifier: workspace:*
+        version: link:../../core
+
   packages/adapters/netinfo:
     dependencies:
       '@react-native-community/netinfo':

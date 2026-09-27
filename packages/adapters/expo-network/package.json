@@ -1,0 +1,62 @@
+{
+  "name": "@priemskiyyy/reach-expo-network",
+  "version": "0.1.0",
+  "description": "Expo Network source for Reach: native path and Android validation reports from expo-network on iOS and Android, mapped per platform, over the module you pass in.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/priemskiyyy/reach.git",
+    "directory": "packages/adapters/expo-network"
+  },
+  "bugs": {
+    "url": "https://github.com/priemskiyyy/reach/issues"
+  },
+  "homepage": "https://priemskiyyy.github.io/reach/",
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "lint:typescript": "tsc --noEmit -p .",
+    "lint:eslint": "eslint src",
+    "test:unit": "vitest run --root ../../.. --project expo-network"
+  },
+  "peerDependencies": {
+    "@priemskiyyy/reach": ">=0.1.0 <0.2",
+    "expo-network": ">=58.0.0"
+  },
+  "devDependencies": {
+    "@priemskiyyy/reach": "workspace:*"
+  },
+  "keywords": [
+    "expo",
+    "expo-network",
+    "react-native",
+    "connectivity",
+    "reachability",
+    "typescript",
+    "reach",
+    "adapter"
+  ],
+  "peerDependenciesMeta": {
+    "expo-network": {
+      "optional": true
+    }
+  }
+}
