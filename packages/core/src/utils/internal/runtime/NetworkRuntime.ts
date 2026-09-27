@@ -949,8 +949,11 @@ export class NetworkRuntime<TNative> {
     const emit = (observation: NetworkObservation) => {
       const { revision } = this.state.get();
 
+      // The refresh's one place in the order keeps its first report; a second is discarded.
       if (!this.#intakeObservation(session, sequence, observation)) {
-        outcome = "superseded";
+        if (outcome === "none") {
+          outcome = "superseded";
+        }
 
         return;
       }

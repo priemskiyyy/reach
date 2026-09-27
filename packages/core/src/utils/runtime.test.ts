@@ -840,3 +840,31 @@ test("a slot that reports twice keeps its first report while the source opens, a
 
   expect(reach.state.get().evidence["connection.type"].status).toBe("current");
 });
+
+test("a refresh that reports twice keeps its first report and its outcome", async () => {
+  const adapter: NetworkAdapter<null> = {
+    name: "twice",
+    available: () => true,
+    open: (context) => {
+      context.emit(createObservation(CONNECTED_CELLULAR));
+
+      return {
+        native: null,
+        capabilities: MOCK_CAPABILITIES,
+        refresh: ({ emit }) => {
+          emit(createObservation(CONNECTED_WIFI));
+          emit(createObservation(CONNECTED_CELLULAR));
+        },
+      };
+    },
+  };
+
+  const reach = new Reach({ adapter, clock: createTestClock() });
+
+  await reach.start().ready;
+
+  await expect(reach.refresh()).resolves.toMatchObject({
+    status: "updated",
+    state: { connection: { type: "wifi" } },
+  });
+});
