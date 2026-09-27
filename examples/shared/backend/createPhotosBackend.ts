@@ -51,6 +51,7 @@ export const createPhotosBackend = ({ latency }: { latency: number }) => {
     latency,
     offline: false,
     degraded: false,
+    ignoreAbort: false,
   });
 
   let nextId = 1;
@@ -61,6 +62,11 @@ export const createPhotosBackend = ({ latency }: { latency: number }) => {
   ) => {
     const startedAt = Date.now();
 
+    // A client that ignores abort never hears the caller give up.
+    const wire = state.get().ignoreAbort
+      ? new AbortController().signal
+      : signal;
+
     const record = (outcome: NetworkRequest["outcome"]) => {
       requests.add({
         id: nextId,
@@ -68,6 +74,7 @@ export const createPhotosBackend = ({ latency }: { latency: number }) => {
         path,
         account,
         outcome,
+        late: signal.aborted,
         duration: Date.now() - startedAt,
         at: startedAt,
       });
@@ -81,7 +88,7 @@ export const createPhotosBackend = ({ latency }: { latency: number }) => {
     }
 
     try {
-      await wait(state.get().latency, signal);
+      await wait(state.get().latency, wire);
     } catch (error) {
       record("aborted");
 
@@ -129,6 +136,9 @@ export const createPhotosBackend = ({ latency }: { latency: number }) => {
     },
     setDegraded: (degraded: boolean) => {
       state.set({ ...state.get(), degraded });
+    },
+    setIgnoreAbort: (ignoreAbort: boolean) => {
+      state.set({ ...state.get(), ignoreAbort });
     },
   };
 };

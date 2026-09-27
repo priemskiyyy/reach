@@ -92,3 +92,24 @@ test("an aborted request is logged as aborted and rejects with the signal's reas
     outcome: "aborted",
   });
 });
+
+test("a client that ignores abort keeps the request going and answers late", async () => {
+  const backend = createPhotosBackend({ latency: 20 });
+  const controller = new AbortController();
+
+  backend.setIgnoreAbort(true);
+
+  const request = backend.health({
+    signal: controller.signal,
+    account: "ines",
+    route: "direct",
+  });
+
+  controller.abort(new Error("timed out"));
+
+  await expect(request).resolves.toEqual({ status: "ready" });
+  expect(backend.requests.getSnapshot()[0]).toMatchObject({
+    outcome: "ready",
+    late: true,
+  });
+});
