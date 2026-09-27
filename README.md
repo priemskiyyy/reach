@@ -1,0 +1,79 @@
+# Reach
+
+**Network evidence for TypeScript applications, on the web and in React Native.**
+
+Reach keeps one model of what your application knows about the network: what the source reported, on what basis, and how long ago. It derives three-valued conditions from it, and checks the endpoints you name.
+
+```ts
+import { all, Reach } from "@priemskiyyy/reach";
+import { http } from "@priemskiyyy/reach-http";
+import { netInfo } from "@priemskiyyy/reach-netinfo";
+import NetInfo from "@react-native-community/netinfo";
+import { Platform } from "react-native";
+
+export const network = new Reach({
+  adapter: netInfo({ sdk: NetInfo, platform: Platform.OS }),
+  endpoints: {
+    api: http({
+      request: ({ signal }) => client.health.get({ signal }),
+      test: ({ status }) => status === "ready",
+      staleAfter: 30_000,
+    }),
+  },
+});
+
+export const unmetered = network.condition({ metered: false });
+export const automaticUpload = all(
+  network.endpoint("api").available,
+  unmetered,
+);
+
+network.start();
+
+automaticUpload.subscribe(() => {
+  if (automaticUpload.get().status === "met") {
+    startUploads();
+  }
+});
+```
+
+## Why not read the source directly
+
+`navigator.onLine`, NetInfo and Expo Network each answer a slightly different question, and each has a way to say `false` that does not mean offline. Reach owns what surrounds the call:
+
+- **Unknown is an answer.** A missing fact is `unknown`, never `false`. A condition is `met`, `unmet` or `unknown`, and says why.
+- **Evidence has a basis.** A browser hint, a provider's report, a native path, a validated network and a passed endpoint check are different kinds of evidence. Reach never upgrades one into another.
+- **Order and generations.** A slow read never overwrites a newer event, and a route change supersedes every check that started before it.
+- **Endpoint checks with lifetimes.** Checks are joined, bounded, timed out, scoped to an account, expired on their own and monitored only on demand.
+- **Honest capabilities.** Every adapter declares what its source can observe on this platform. Expo Network cannot tell you about metering, so a metering condition stays `unknown` instead of pretending.
+- **No lock-in, no bundling.** Adapters import no SDK. You pass in the one you already use.
+
+Reach does not make requests on your behalf, retry them or queue them offline. It tells you what the evidence shows; what to do with it stays yours.
+
+## Packages
+
+| Package                                                             | What it is                                               |
+| ------------------------------------------------------------------- | -------------------------------------------------------- |
+| [`@priemskiyyy/reach`](packages/core)                               | The runtime, the mocks and the adapter conformance suite |
+| [`@priemskiyyy/reach-browser`](packages/adapters/browser)           | `navigator.onLine` and the Network Information API       |
+| [`@priemskiyyy/reach-netinfo`](packages/adapters/netinfo)           | React Native NetInfo, iOS and Android                    |
+| [`@priemskiyyy/reach-expo-network`](packages/adapters/expo-network) | Expo Network, iOS and Android                            |
+| [`@priemskiyyy/reach-http`](packages/adapters/http)                 | Endpoint checks through your own HTTP client             |
+| [`@priemskiyyy/reach-react`](packages/react)                        | A provider and hooks, with server rendering              |
+| [`@priemskiyyy/reach-tanstack-query`](packages/tanstack-query)      | A condition as TanStack Query's online manager           |
+
+Every package is ESM only, side-effect free and typed. The core has no dependencies.
+
+## Status
+
+Everything is tested in process, against fakes modeled on each SDK's source and against each SDK's real types. Nothing has run on a device or in a real browser yet. [The decision record](docs/decisions.md) lists what that leaves unverified, and where the implementation departs from its specification.
+
+## Documentation
+
+- The README of each package above.
+- [Decisions](docs/decisions.md) and the [runtime architecture](docs/internals/architecture.md).
+- [Contributing](CONTRIBUTING.md), [support](SUPPORT.md) and [security](SECURITY.md).
+
+## License
+
+MIT
