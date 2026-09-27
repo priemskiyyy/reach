@@ -10,19 +10,23 @@
     "build": "pnpm -r --filter './packages/*' --filter './packages/adapters/*' build",
     "dev": "pnpm --filter example-react dev",
     "dev:server": "pnpm --filter example-server dev",
+    "dev:docs": "vitepress dev docs",
     "format": "prettier --write .",
     "lint:prettier": "prettier --check .",
     "lint:typescript": "tsc --noEmit && pnpm -r lint:typescript",
     "lint:eslint": "eslint .",
+    "lint:docs": "tsc --noEmit -p docs/tsconfig.json",
     "test:lint": "node scripts/verify-lint-rules.mjs",
     "verify:snippets": "node scripts/verify-snippets.mjs",
+    "build:docs": "vitepress build docs",
+    "verify:docs": "node scripts/verify-docs.mjs",
     "verify:packages": "node scripts/verify-packages.mjs",
     "verify:release": "node scripts/verify-release.mjs",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "test:examples": "pnpm build && playwright test -c examples/playwright.config.ts",
     "check": "pnpm build && pnpm lint:typescript && pnpm lint:eslint && pnpm test:lint && pnpm verify:snippets && pnpm lint:prettier && pnpm test:unit",
-    "check:release": "pnpm check && pnpm verify:release && pnpm verify:packages && pnpm -r --if-present --filter './examples/*' build"
+    "check:release": "pnpm check && pnpm lint:docs && pnpm build:docs && pnpm verify:docs && pnpm verify:release && pnpm verify:packages && pnpm -r --if-present --filter './examples/*' build"
   },
   "devDependencies": {
     "@eslint/js": "9.39.4",
@@ -45,6 +49,7 @@
     "tsdown": "0.22.14",
     "typescript": "5.8.3",
     "typescript-eslint": "8.70.0",
+    "vitepress": "1.6.4",
     "vitest": "4.1.10"
   }
 }
