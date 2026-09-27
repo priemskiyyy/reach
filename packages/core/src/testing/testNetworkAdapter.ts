@@ -5,6 +5,7 @@ import type { NetworkAdapter } from "src/types/NetworkAdapter";
 import type { NetworkCapabilities } from "src/types/NetworkCapabilities";
 import type { NetworkField } from "src/types/NetworkField";
 import type { NetworkObservation } from "src/types/NetworkObservation";
+import type { RuntimeLease } from "src/types/RuntimeLease";
 import { NETWORK_FIELDS } from "src/utils/constants/network";
 import { createSystemClock } from "src/utils/internal/clock/createSystemClock";
 import { Reach } from "src/utils/Reach";
@@ -135,7 +136,17 @@ const inspect = (adapter: NetworkAdapter<unknown>) => {
   return { adapter: inspected, observations, getContradictions };
 };
 
-const startReach = async (harness: NetworkAdapterHarness) => {
+type Started = {
+  reach: Reach<unknown>;
+  lease: RuntimeLease;
+  inspected: ReturnType<typeof inspect>;
+};
+
+// Each check runs on its own started Reach, disposed however the check ends.
+const withReach = async (
+  harness: NetworkAdapterHarness,
+  run: (started: Started) => Promise<void>,
+) => {
   const inspected = inspect(harness.adapter);
 
   // Real timers bound a hanging open or refresh, so a broken adapter fails instead of hanging.
@@ -145,12 +156,15 @@ const startReach = async (harness: NetworkAdapterHarness) => {
     timeouts: { open: 2_000, refresh: 2_000 },
   });
 
-  const lease = reach.start();
+  try {
+    const lease = reach.start();
 
-  await lease.ready;
-  await harness.settle();
-
-  return { reach, lease, inspected };
+    await lease.ready;
+    await harness.settle();
+    await run({ reach, lease, inspected });
+  } finally {
+    reach.dispose();
+  }
 };
 
 const CHECKS: Check[] = [
@@ -169,118 +183,109 @@ const CHECKS: Check[] = [
   },
   {
     name: "opening declares a capability for every fact",
-    run: async (harness) => {
-      const { reach } = await startReach(harness);
-      const capabilities = reach.capabilities.get();
+    run: (harness) =>
+      withReach(harness, async ({ reach }) => {
+        const capabilities = reach.capabilities.get();
 
-      assert(capabilities !== null, "The session declared no capabilities.");
-      assert(
-        NETWORK_FIELDS.every((field) => capabilities?.[field] !== undefined),
-        "A fact has no declared capability.",
-      );
-      assert(
-        harness.subscriptionCount() > 0,
-        "The session subscribed to nothing.",
-      );
-      reach.dispose();
-    },
+        assert(capabilities !== null, "The session declared no capabilities.");
+        assert(
+          NETWORK_FIELDS.every((field) => capabilities?.[field] !== undefined),
+          "A fact has no declared capability.",
+        );
+        assert(
+          harness.subscriptionCount() > 0,
+          "The session subscribed to nothing.",
+        );
+      }),
   },
   {
     name: "every report is complete and within the declared capabilities",
-    run: async (harness) => {
-      const { reach, inspected } = await startReach(harness);
+    run: (harness) =>
+      withReach(harness, async ({ inspected }) => {
+        await harness.change();
+        await harness.settle();
 
-      await harness.change();
-      await harness.settle();
+        const contradictions = inspected.getContradictions();
 
-      const contradictions = inspected.getContradictions();
-
-      assert(
-        inspected.observations.length > 0,
-        "The adapter reported nothing.",
-      );
-      assert(contradictions.length === 0, contradictions.join("; "));
-      reach.dispose();
-    },
+        assert(
+          inspected.observations.length > 0,
+          "The adapter reported nothing.",
+        );
+        assert(contradictions.length === 0, contradictions.join("; "));
+      }),
   },
   {
     name: "a change of the host is reported",
-    run: async (harness) => {
-      const { reach } = await startReach(harness);
-      const { revision } = reach.state.get();
+    run: (harness) =>
+      withReach(harness, async ({ reach }) => {
+        const { revision } = reach.state.get();
 
-      await harness.change();
-      await harness.settle();
+        await harness.change();
+        await harness.settle();
 
-      assert(
-        reach.state.get().revision > revision,
-        "The adapter did not report the host's change.",
-      );
-      reach.dispose();
-    },
+        assert(
+          reach.state.get().revision > revision,
+          "The adapter did not report the host's change.",
+        );
+      }),
   },
   {
     name: "releasing removes every subscription and nothing reports afterwards",
-    run: async (harness) => {
-      const { reach, lease } = await startReach(harness);
+    run: (harness) =>
+      withReach(harness, async ({ reach, lease }) => {
+        lease.release();
 
-      lease.release();
+        assert(
+          harness.subscriptionCount() === 0,
+          "The adapter kept a subscription after its session ended.",
+        );
 
-      assert(
-        harness.subscriptionCount() === 0,
-        "The adapter kept a subscription after its session ended.",
-      );
+        await harness.change();
+        await harness.settle();
 
-      await harness.change();
-      await harness.settle();
-
-      assert(
-        reach.diagnostics.get().counters.lateCallbacks === 0,
-        "The adapter reported after its session ended.",
-      );
-      reach.dispose();
-    },
+        assert(
+          reach.diagnostics.get().counters.lateCallbacks === 0,
+          "The adapter reported after its session ended.",
+        );
+      }),
   },
   {
     name: "a second session after a release observes again",
-    run: async (harness) => {
-      const { reach, lease } = await startReach(harness);
+    run: (harness) =>
+      withReach(harness, async ({ reach, lease }) => {
+        lease.release();
 
-      lease.release();
+        const second = reach.start();
 
-      const second = reach.start();
+        await second.ready;
 
-      await second.ready;
+        const { revision } = reach.state.get();
 
-      const { revision } = reach.state.get();
+        await harness.change();
+        await harness.settle();
 
-      await harness.change();
-      await harness.settle();
+        assert(
+          reach.state.get().revision > revision,
+          "The second session did not report the host's change.",
+        );
+        reach.dispose();
 
-      assert(
-        reach.state.get().revision > revision,
-        "The second session did not report the host's change.",
-      );
-      reach.dispose();
-
-      assert(
-        harness.subscriptionCount() === 0,
-        "Disposing left a subscription behind.",
-      );
-    },
+        assert(
+          harness.subscriptionCount() === 0,
+          "Disposing left a subscription behind.",
+        );
+      }),
   },
   {
     name: "a refresh settles and reports within its capabilities",
-    run: async (harness) => {
-      const { reach, inspected } = await startReach(harness);
+    run: (harness) =>
+      withReach(harness, async ({ reach, inspected }) => {
+        await reach.refresh();
 
-      await reach.refresh();
+        const contradictions = inspected.getContradictions();
 
-      const contradictions = inspected.getContradictions();
-
-      assert(contradictions.length === 0, contradictions.join("; "));
-      reach.dispose();
-    },
+        assert(contradictions.length === 0, contradictions.join("; "));
+      }),
   },
 ];
 

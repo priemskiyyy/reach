@@ -105,3 +105,26 @@ test("an adapter that keeps its listener after release fails", async () => {
     "Network adapter conformance: releasing removes every subscription and nothing reports afterwards.",
   );
 });
+
+test("a failing check leaves no session of its own behind", async () => {
+  const harnesses: NetworkAdapterHarness[] = [];
+
+  const capabilities: NetworkCapabilities = {
+    ...MOCK_CAPABILITIES,
+    "cost.metered": { support: "unsupported" },
+  };
+
+  await expect(
+    testNetworkAdapter(() => {
+      const harness = createHarness({ capabilities });
+
+      harnesses.push(harness);
+
+      return harness;
+    }),
+  ).rejects.toThrow();
+
+  expect(harnesses.map((harness) => harness.subscriptionCount())).toEqual(
+    harnesses.map(() => 0),
+  );
+});
