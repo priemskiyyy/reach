@@ -1,7 +1,6 @@
+import type { Completion } from "src/types/internal/Completion";
 import type { ReachClock } from "src/types/ReachClock";
 import { CLOCK_SKEW_TOLERANCE } from "src/utils/constants/defaults";
-
-export type Completion = { monotonic: number; wall: number };
 
 /**
  * Whether a result completed at `completion` is past `staleAfter` on either
