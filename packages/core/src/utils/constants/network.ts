@@ -4,7 +4,7 @@ import type { NetworkState } from "src/types/NetworkState";
 import { freezeList } from "src/utils/internal/common/freezeList";
 
 /** Evidence for a fact no source has reported yet. */
-export const UNOBSERVED_EVIDENCE: Evidence = Object.freeze({
+const UNOBSERVED_EVIDENCE: Evidence = Object.freeze({
   status: "unknown",
   basis: "none",
   receivedAt: null,
