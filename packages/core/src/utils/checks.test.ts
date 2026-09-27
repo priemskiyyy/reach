@@ -7,6 +7,7 @@ import { createMockNetwork } from "src/mock/createMockNetwork";
 import { createTestClock } from "src/mock/createTestClock";
 import { observed } from "src/mock/observed";
 import type { ProbeResult } from "src/types/ProbeResult";
+import { createDeferred } from "src/utils/internal/common/createDeferred";
 import {
   CONNECTED_CELLULAR,
   CONNECTED_WIFI,
@@ -610,4 +611,47 @@ test("a listener that ends a check before it runs frees its slot", async () => {
 
   probe.pass();
   await expect(next).resolves.toMatchObject({ state: { status: "available" } });
+});
+
+test("a check whose abort listener calls back at its timeout commits only the timeout", async () => {
+  const answer = createDeferred<ProbeResult>();
+  const holder: { invalidate: () => void } = { invalidate: () => {} };
+  const clock = createTestClock({ now: 1_000 });
+
+  const reach = new Reach({
+    adapter: createMockNetwork({ initial: CONNECTED_WIFI }).adapter,
+    clock,
+    endpoints: {
+      api: {
+        staleAfter: 30_000,
+        timeout: 1_000,
+        check: ({ signal }) => {
+          signal.addEventListener("abort", () => holder.invalidate());
+
+          return answer.promise;
+        },
+      },
+    },
+  });
+
+  const api = reach.endpoint("api");
+
+  holder.invalidate = api.invalidate;
+  reach.start();
+
+  const checking = api.check();
+
+  clock.advance(1_000);
+
+  await expect(checking).resolves.toMatchObject({
+    observation: { reason: "timeout" },
+  });
+
+  answer.resolve({ verdict: "pass", response: "received" });
+  await settle();
+
+  expect(reach.diagnostics.get().checks).toEqual({
+    outstanding: 0,
+    detached: 0,
+  });
 });

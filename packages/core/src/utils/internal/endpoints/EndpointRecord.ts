@@ -455,13 +455,14 @@ export class EndpointRecord {
     this.#observe(flight, { verdict, response, reason: reason ?? null });
   }
 
+  // The timeout is committed before the abort, whose listeners may call back into Reach.
   #timeOut(flight: ProbeFlight) {
     if (flight.settled) {
       return;
     }
 
-    flight.controller.abort();
     this.#observe(flight, TIMEOUT_OUTCOME);
+    flight.controller.abort();
   }
 
   #observe(flight: ProbeFlight, { verdict, response, reason }: Outcome) {
