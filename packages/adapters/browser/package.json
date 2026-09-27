@@ -1,0 +1,57 @@
+{
+  "name": "@priemskiyyy/reach-browser",
+  "version": "0.1.0",
+  "description": "Browser source for Reach: navigator.onLine as a connection hint, Network Information type and data-saver preference where the browser has them, and page restoration as an observation gap.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/priemskiyyy/reach.git",
+    "directory": "packages/adapters/browser"
+  },
+  "bugs": {
+    "url": "https://github.com/priemskiyyy/reach/issues"
+  },
+  "homepage": "https://priemskiyyy.github.io/reach/",
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "lint:typescript": "tsc --noEmit -p .",
+    "lint:eslint": "eslint src",
+    "test:unit": "vitest run --root ../../.. --project browser"
+  },
+  "peerDependencies": {
+    "@priemskiyyy/reach": ">=0.1.0 <0.2"
+  },
+  "devDependencies": {
+    "@priemskiyyy/reach": "workspace:*"
+  },
+  "keywords": [
+    "browser",
+    "navigator-online",
+    "network-information",
+    "save-data",
+    "bfcache",
+    "connectivity",
+    "typescript",
+    "reach",
+    "adapter"
+  ]
+}
