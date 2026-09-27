@@ -58,6 +58,7 @@ export const NetworkPanel: React.FunctionComponent<NetworkPanelProps> = ({
                 </span>
                 <span className="truncate font-mono text-xs text-slate-500">
                   account {request.account ?? "none"}
+                  {request.late ? " · after the caller gave up" : ""}
                 </span>
               </span>
               <Badge tone={REQUEST_TONES[request.outcome]}>

@@ -3,6 +3,7 @@ import {
   Flask,
   Leaf,
   Plugs,
+  Timer,
   WarningCircle,
 } from "@phosphor-icons/react";
 import clsx from "clsx";
@@ -98,6 +99,13 @@ export const LabPanel: React.FunctionComponent<LabPanelProps> = ({
           description="Health answers degraded and uploads are refused. The check fails its test, with an answer received."
           pressed={api.degraded}
           onPress={() => backend.setDegraded(!api.degraded)}
+        />
+        <LabControl
+          icon={Timer}
+          label="Client ignores cancel"
+          description="Your client keeps a request going after Reach gives up, as some native clients do. At 6 s each timed-out check stays detached, holding one of Reach's four slots until its answer arrives."
+          pressed={api.ignoreAbort}
+          onPress={() => backend.setIgnoreAbort(!api.ignoreAbort)}
         />
       </ul>
     </section>
