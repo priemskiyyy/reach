@@ -721,3 +721,36 @@ test("T096 a caller who aborts after the source opens but before its check start
   await expect(checking).rejects.toMatchObject({ code: "ABORTED" });
   expect(probe.calls).toHaveLength(0);
 });
+
+test("a check started when another endpoint's check is superseded belongs to the new network", async () => {
+  const mock = createMockNetwork({ initial: CONNECTED_WIFI });
+  const first = createMockEndpoint({ staleAfter: 30_000 });
+  const second = createMockEndpoint({ staleAfter: 30_000 });
+
+  const reach = new Reach({
+    adapter: mock.adapter,
+    clock: createTestClock({ now: 1_000 }),
+    endpoints: { first: first.definition, second: second.definition },
+  });
+
+  const started: Array<Promise<unknown>> = [];
+
+  reach.start();
+  reach
+    .endpoint("first")
+    .check()
+    .catch(() => {});
+  reach.diagnostics.events.subscribe(({ type, endpoint }) => {
+    if (type !== "check-superseded" || endpoint !== "first") {
+      return;
+    }
+
+    started.push(reach.endpoint("second").check());
+  });
+  mock.emit(CONNECTED_CELLULAR);
+  second.pass();
+
+  await expect(started[0]).resolves.toMatchObject({
+    state: { status: "available" },
+  });
+});

@@ -658,14 +658,14 @@ export class EndpointRecord {
     }
 
     flight.waiters.clear();
-    this.#environment.record("check-superseded", {
-      endpoint: this.#definition.name,
-      check: flight.id,
-      reason,
-    });
 
-    // The abort's listeners may start the next check, so they run once this change is committed.
+    // The event's and the abort's listeners may start the next check, so they run once this change is committed.
     transaction.after(() => {
+      this.#environment.record("check-superseded", {
+        endpoint: this.#definition.name,
+        check: flight.id,
+        reason,
+      });
       this.#settlements.notify();
       flight.controller.abort();
     });
