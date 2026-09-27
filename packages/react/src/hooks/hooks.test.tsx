@@ -110,7 +110,7 @@ test("useNetwork reads the provider's Reach, or the one passed in without a prov
   );
 });
 
-test("T147 the hooks observe only: nothing starts or checks", () => {
+test("T149 the hooks observe only: nothing starts or checks", () => {
   const { mock, probe, network, api } = create();
 
   renderHook(() => {
@@ -141,7 +141,7 @@ test("useNetwork renders again when the state changes", async () => {
   expect(result.current.connection.type).toBe("cellular");
 });
 
-test("a selection renders again only when it changes", async () => {
+test("T150 a selection renders again only when it changes", async () => {
   const { mock, network } = create();
   const renders = vi.fn();
 
@@ -300,7 +300,7 @@ test("unmounting removes every subscription the hooks added", () => {
   ]);
 });
 
-test("the provider starts nothing unless asked", () => {
+test("T149 the provider starts nothing unless asked", () => {
   const { mock, network } = create();
 
   render(

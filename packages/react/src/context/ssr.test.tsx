@@ -51,7 +51,7 @@ const create = () => {
   return { mock, probe, network, view };
 };
 
-test("T149 a server render is unknown and inert, and hydration reads the same snapshot", async () => {
+test("T146 a server render is unknown and inert, and hydration reads the same snapshot", async () => {
   const server = create();
   const html = renderToString(server.view);
 
