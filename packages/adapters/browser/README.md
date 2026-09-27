@@ -54,4 +54,4 @@ Hiding the page (`pagehide`) and freezing it (`freeze`) are observation gaps: ev
 
 ## Tests
 
-The tests run in jsdom, against a fake window that dispatches real DOM events, and through the shared adapter conformance suite. No real browser has run them yet.
+The tests run in jsdom, against a fake window that dispatches real DOM events, and through the shared adapter conformance suite. In a real browser, only the example tour has run the adapter: `pnpm test:examples` takes Chromium offline and back, and the adapter reports each change.
