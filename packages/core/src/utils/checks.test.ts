@@ -84,7 +84,7 @@ test("T067 a passed check is fresh and available, with its timing and generation
   const { observation, state } = await checking;
 
   expect(observation).toEqual({
-    check: { id: 1 },
+    check: 1,
     verdict: "pass",
     response: "received",
     reason: null,
@@ -133,7 +133,7 @@ test("T079 an inconclusive check is fresh but unknown", async () => {
     freshness: "fresh",
   });
   expect(api.available.get().reasons).toEqual([
-    { code: "opaque", field: null, endpoint: { name: "api" } },
+    { code: "opaque", field: null, endpoint: "api" },
   ]);
 });
 

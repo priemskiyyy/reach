@@ -12,12 +12,7 @@ export const createConditionState = (
   const unique: ConditionReason[] = [];
 
   for (const { code, field, endpoint } of reasons) {
-    const reason: ConditionReason = Object.freeze({
-      code,
-      field,
-      endpoint:
-        endpoint === null ? null : Object.freeze({ name: endpoint.name }),
-    });
+    const reason: ConditionReason = Object.freeze({ code, field, endpoint });
 
     if (unique.some((kept) => isSameReason(kept, reason))) {
       continue;

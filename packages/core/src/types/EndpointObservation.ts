@@ -12,7 +12,8 @@ import type { ProbeVerdict } from "src/types/ProbeVerdict";
  * ```
  */
 export type EndpointObservation = {
-  check: { id: number };
+  /** The number of the check that made it, counting from 1 in each Reach. */
+  check: number;
   verdict: ProbeVerdict;
   response: ProbeResponse;
   reason: string | null;

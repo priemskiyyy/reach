@@ -159,11 +159,10 @@ export class Diagnostics {
     return Object.freeze({
       type,
       timestamp: this.#clock.now(),
-      session: session === null ? null : Object.freeze({ id: session }),
+      session,
       networkGeneration,
-      endpoint:
-        endpoint === undefined ? null : Object.freeze({ name: endpoint }),
-      check: check === undefined ? null : Object.freeze({ id: check }),
+      endpoint: endpoint ?? null,
+      check: check ?? null,
       reason: reason ?? null,
     });
   }

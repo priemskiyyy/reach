@@ -30,7 +30,7 @@ test("T081 a pass expires on its own and observers hear about it", async () => {
     freshness: "stale",
   });
   expect(api.available.get().reasons).toEqual([
-    { code: "stale", field: null, endpoint: { name: "api" } },
+    { code: "stale", field: null, endpoint: "api" },
   ]);
 });
 

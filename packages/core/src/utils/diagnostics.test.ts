@@ -27,7 +27,7 @@ test("T066 observing diagnostics starts, opens and checks nothing", () => {
   expect(probe.calls).toHaveLength(0);
   expect(reach.diagnostics.get()).toEqual({
     runtime: "idle",
-    adapter: { name: "mock" },
+    adapter: "mock",
     session: null,
     networkGeneration: 0,
     capabilities: null,
@@ -79,7 +79,7 @@ test("events are built only while someone listens, and never replay", () => {
   expect(events[2]).toEqual({
     type: "session-opened",
     timestamp: 1_000,
-    session: { id: 2 },
+    session: 2,
     networkGeneration: 3,
     endpoint: null,
     check: null,

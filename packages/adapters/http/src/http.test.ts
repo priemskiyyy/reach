@@ -82,7 +82,7 @@ test("a parsed answer that passes the test is available, and the answer is not k
   const { observation, state } = await checking;
 
   expect(observation).toEqual({
-    check: { id: 1 },
+    check: 1,
     verdict: "pass",
     response: "received",
     reason: null,

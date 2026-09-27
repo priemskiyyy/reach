@@ -25,7 +25,7 @@ Options, requirements, endpoint names, hook selections and adapter answers are c
 - `Reach<TNative, TName extends string = never>` takes `endpoints?: Record<TName, EndpointDefinition>`, so inline endpoint literals keep their names. There is no `createNetworkAdapter()` or `endpoint()` helper: adapters and endpoint definitions are plain typed objects.
 - `reach.status` is a union discriminated on `state`: `idle`, `starting`, `running` with `refreshing`, `error` with the error, and `disposed`.
 - An endpoint handle's `available` is a stable condition property, not a method.
-- A condition reason is `{ code, field, endpoint: { name } | null }`.
+- Identifiers are plain values: a condition reason is `{ code, field, endpoint }` with the endpoint's name, and observations, attempts and diagnostics carry `check` and `session` numbers.
 - Evidence carries no `source`. The adapter's name is in the diagnostic snapshot.
 
 ## Adapter contract

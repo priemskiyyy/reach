@@ -65,7 +65,7 @@ test("T126 without a scope key a check is refused and the endpoint is unknown", 
   expect(probe.calls).toHaveLength(0);
   expect(api.state.get().scope).toBe("unavailable");
   expect(api.available.get().reasons).toEqual([
-    { code: "scope-unavailable", field: null, endpoint: { name: "api" } },
+    { code: "scope-unavailable", field: null, endpoint: "api" },
   ]);
 });
 

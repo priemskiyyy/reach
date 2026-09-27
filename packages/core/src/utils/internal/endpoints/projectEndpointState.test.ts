@@ -18,7 +18,7 @@ const recordWith = (
   current: true,
   observation: {
     published: {
-      check: { id: 1 },
+      check: 1,
       verdict,
       response: "received",
       reason: null,
@@ -48,7 +48,7 @@ test("T079 a fresh inconclusive check is unknown and keeps its explanation", () 
 
   expect(state).toMatchObject({ status: "unknown", freshness: "fresh" });
   expect(evaluateAvailability("api", state).reasons).toEqual([
-    { code: "inconclusive", field: null, endpoint: { name: "api" } },
+    { code: "inconclusive", field: null, endpoint: "api" },
   ]);
 });
 
@@ -96,9 +96,7 @@ test("T126 a scope without a key is unavailable, and its condition says why", ()
   expect(state.scope).toBe("unavailable");
   expect(evaluateAvailability("api", state)).toEqual({
     status: "unknown",
-    reasons: [
-      { code: "scope-unavailable", field: null, endpoint: { name: "api" } },
-    ],
+    reasons: [{ code: "scope-unavailable", field: null, endpoint: "api" }],
   });
 });
 
@@ -118,8 +116,6 @@ test("an unavailable endpoint is unmet with a reason naming it", () => {
 
   expect(evaluateAvailability("api", state)).toEqual({
     status: "unmet",
-    reasons: [
-      { code: "endpoint-unavailable", field: null, endpoint: { name: "api" } },
-    ],
+    reasons: [{ code: "endpoint-unavailable", field: null, endpoint: "api" }],
   });
 });

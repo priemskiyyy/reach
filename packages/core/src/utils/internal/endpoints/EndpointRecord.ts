@@ -467,7 +467,7 @@ export class EndpointRecord {
     const completedAt = clock.now();
 
     const observation = Object.freeze({
-      check: Object.freeze({ id: flight.id }),
+      check: flight.id,
       verdict,
       response,
       reason,
@@ -620,7 +620,7 @@ export class EndpointRecord {
     reason: string | null,
   ): EndpointAttempt {
     return Object.freeze({
-      check: Object.freeze({ id: flight.id }),
+      check: flight.id,
       status,
       startedAt: flight.startedAt,
       completedAt: status === "running" ? null : this.#environment.clock.now(),

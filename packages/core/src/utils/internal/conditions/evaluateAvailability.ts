@@ -26,11 +26,9 @@ const getUnknownReason = ({
 
 /** Met while a current check passed; a stale or missing result is unknown, never unavailable. */
 export const evaluateAvailability = (
-  name: string,
+  endpoint: string,
   state: EndpointState,
 ): ConditionState => {
-  const endpoint = { name };
-
   if (state.status === "available") {
     return MET_CONDITION_STATE;
   }

@@ -15,8 +15,10 @@ import type { RuntimeStatus } from "src/types/RuntimeStatus";
  */
 export type ReachDiagnosticSnapshot = {
   runtime: RuntimeStatus["state"];
-  adapter: { name: string };
-  session: { id: number } | null;
+  /** The adapter, by name. */
+  adapter: string;
+  /** The number of the adopted session, or `null`. */
+  session: number | null;
   networkGeneration: number;
   capabilities: NetworkCapabilities | null;
   leases: number;

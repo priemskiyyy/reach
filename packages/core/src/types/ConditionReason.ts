@@ -14,5 +14,6 @@ import type { NetworkField } from "src/types/NetworkField";
 export type ConditionReason = {
   code: string;
   field: NetworkField | null;
-  endpoint: { name: string } | null;
+  /** The endpoint it concerns, by name, or `null`. */
+  endpoint: string | null;
 };

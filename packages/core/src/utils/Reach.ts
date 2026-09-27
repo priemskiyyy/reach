@@ -294,12 +294,11 @@ export class Reach<TNative, TName extends string = never> {
     counters: ReachDiagnosticCounters,
   ): ReachDiagnosticSnapshot {
     const state = this.#runtime.state.get();
-    const session = this.#runtime.sessionId();
 
     return Object.freeze({
       runtime: this.#runtime.status.get().state,
-      adapter: Object.freeze({ name: this.#adapter.name }),
-      session: session === null ? null : Object.freeze({ id: session }),
+      adapter: this.#adapter.name,
+      session: this.#runtime.sessionId(),
       networkGeneration: state.generation,
       capabilities: this.#runtime.capabilities.get(),
       leases: this.#runtime.leaseCount(),

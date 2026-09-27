@@ -9,7 +9,8 @@
  * ```
  */
 export type EndpointAttempt = {
-  check: { id: number };
+  /** The number of the check, counting from 1 in each Reach. */
+  check: number;
   status: "running" | "observed" | "aborted" | "superseded" | "error";
   /** Epoch milliseconds when the attempt began. */
   startedAt: number;

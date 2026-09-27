@@ -1,20 +1,5 @@
 import type { ConditionReason } from "src/types/ConditionReason";
 
-const isSameEndpoint = (
-  first: ConditionReason["endpoint"],
-  second: ConditionReason["endpoint"],
-) => {
-  if (first === null) {
-    return second === null;
-  }
-
-  if (second === null) {
-    return false;
-  }
-
-  return first.name === second.name;
-};
-
 export const isSameReason = (
   first: ConditionReason,
   second: ConditionReason,
@@ -27,5 +12,5 @@ export const isSameReason = (
     return false;
   }
 
-  return isSameEndpoint(first.endpoint, second.endpoint);
+  return first.endpoint === second.endpoint;
 };
