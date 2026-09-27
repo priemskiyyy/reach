@@ -44,6 +44,21 @@ test("T090 a freshness that is not a positive whole number is refused", () => {
   ).toThrow(expect.objectContaining({ code: "INVALID_CONFIGURATION" }));
 });
 
+test("a definition without a freshness is refused instead of expiring at once", () => {
+  const definition: EndpointDefinition = { check, staleAfter: 1 };
+
+  // Untyped JavaScript can leave out what the type requires.
+  Reflect.deleteProperty(definition, "staleAfter");
+
+  expect(() => resolveEndpoint("api", definition, false)).toThrow(
+    expect.objectContaining({
+      code: "INVALID_CONFIGURATION",
+      message:
+        "endpoints.api.staleAfter must be a positive whole number of milliseconds.",
+    }),
+  );
+});
+
 test("a foreground trigger needs an activity source", () => {
   const definition: EndpointDefinition = {
     check,

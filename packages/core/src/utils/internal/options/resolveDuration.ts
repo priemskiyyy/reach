@@ -4,12 +4,16 @@ import { ReachError } from "src/utils/ReachError";
 export const resolveDuration = (
   name: string,
   value: number | undefined,
-  fallback: number,
+  fallback?: number,
 ) => {
   const duration = value ?? fallback;
 
   // The type allows NaN, fractions, infinities and negatives; a timer does not.
-  if (!Number.isSafeInteger(duration) || duration <= 0) {
+  if (
+    duration === undefined ||
+    !Number.isSafeInteger(duration) ||
+    duration <= 0
+  ) {
     throw new ReachError({
       code: "INVALID_CONFIGURATION",
       message: `${name} must be a positive whole number of milliseconds.`,

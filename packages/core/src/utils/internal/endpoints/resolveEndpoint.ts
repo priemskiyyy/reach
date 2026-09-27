@@ -25,7 +25,7 @@ const resolveInterval = (
     return null;
   }
 
-  return resolveDuration(name, interval, DEFAULT_MIN_INTERVAL);
+  return resolveDuration(name, interval);
 };
 
 // An interval pauses in the background only when something says it is.
@@ -105,7 +105,7 @@ export const resolveEndpoint = (
   return Object.freeze({
     name,
     check,
-    staleAfter: resolveDuration(`${prefix}.staleAfter`, staleAfter, 1),
+    staleAfter: resolveDuration(`${prefix}.staleAfter`, staleAfter),
     timeout: resolveDuration(
       `${prefix}.timeout`,
       timeout,
