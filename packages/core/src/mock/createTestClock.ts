@@ -90,7 +90,8 @@ export const createTestClock = ({
         next = getNextDue(target);
       }
 
-      move(target - monotonic);
+      // A timer that moved the clock past the target never moves it back.
+      move(Math.max(target - monotonic, 0));
     },
     skip: (milliseconds: number) => {
       assertForward(milliseconds);

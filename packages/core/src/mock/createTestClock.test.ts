@@ -100,3 +100,12 @@ test("time never moves backwards or by a duration that is not a number of millis
 
   expect(clock.monotonic()).toBe(0);
 });
+
+test("a timer that moves the clock past the advance never moves it back", () => {
+  const clock = createTestClock();
+
+  clock.setTimer(() => clock.skip(1_000), 50);
+  clock.advance(100);
+
+  expect(clock.monotonic()).toBe(1_050);
+});
