@@ -29,8 +29,6 @@ export class DeadlineScheduler {
     };
   };
 
-  size = () => this.#deadlines.size;
-
   #getEarliest() {
     let earliest: Deadline | null = null;
 
