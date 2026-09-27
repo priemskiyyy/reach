@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "Darkroom",
+    "slug": "reach-darkroom",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "platforms": ["ios", "android", "web"],
+    "ios": {
+      "bundleIdentifier": "dev.reach.example"
+    },
+    "android": {
+      "package": "dev.reach.example"
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
