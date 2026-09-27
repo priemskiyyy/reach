@@ -10,6 +10,7 @@ export type { ConditionStatus } from "src/types/ConditionStatus";
 export type { ConnectionStatus } from "src/types/ConnectionStatus";
 export type { ConnectionType } from "src/types/ConnectionType";
 export type { EndpointCheck } from "src/types/EndpointCheck";
+export type { EndpointDefinition } from "src/types/EndpointDefinition";
 export type { Evidence } from "src/types/Evidence";
 export type { EvidenceBasis } from "src/types/EvidenceBasis";
 export type { EvidenceStatus } from "src/types/EvidenceStatus";
