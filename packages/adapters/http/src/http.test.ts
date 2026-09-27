@@ -93,7 +93,21 @@ test("a parsed answer that passes the test is available, and the answer is not k
   expect(state).toMatchObject({ status: "available", freshness: "fresh" });
 });
 
-test("a parsed answer that fails the test is unavailable, with a received response", async () => {
+test("T069 an answer the application's test accepts passes, and claims nothing about the user", async () => {
+  const { api } = createHttpReach({
+    // The application's client resolves an unauthorized answer as liveness.
+    request: () => Promise.resolve({ code: 401 }),
+    test: ({ code }) => code === 401,
+    staleAfter: 30_000,
+  });
+
+  await expect(api.check()).resolves.toMatchObject({
+    observation: { verdict: "pass", response: "received", reason: null },
+    state: { status: "available" },
+  });
+});
+
+test("T070 a parsed answer that fails the test is unavailable, with a received response", async () => {
   const client = createFakeClient();
 
   const { api } = createHttpReach({
@@ -128,7 +142,7 @@ test("without a test, any answer is available", async () => {
   });
 });
 
-test("a rejected request is unavailable, with no claim that a response arrived", async () => {
+test("T071 a rejected request is unavailable, with no claim that a response arrived", async () => {
   const client = createFakeClient();
 
   const { api } = createHttpReach({
