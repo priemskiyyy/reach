@@ -112,9 +112,8 @@ const withEndpoints = new Reach({
     },
     internal: {
       staleAfter: 20_000,
-      check: async ({ network }) => ({
-        verdict:
-          network.connection.status === "connected" ? "pass" : "inconclusive",
+      check: async ({ scope }) => ({
+        verdict: scope === null ? "pass" : "inconclusive",
         response: "unknown",
       }),
     },

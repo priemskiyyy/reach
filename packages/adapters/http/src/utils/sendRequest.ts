@@ -1,14 +1,15 @@
+import type { ProbeContext } from "@priemskiyyy/reach";
+
 import type { HttpEndpointOptions } from "src/types/HttpEndpointOptions";
-import type { HttpRequest } from "src/types/HttpRequest";
 import type { HttpAttempt } from "src/types/internal/HttpAttempt";
 
 /** Sends one request, turning a throw or a rejection into a `rejected` attempt. */
 export const sendRequest = async <TData>(
   request: HttpEndpointOptions<TData>["request"],
-  httpRequest: HttpRequest,
+  context: ProbeContext,
 ): Promise<HttpAttempt<TData>> => {
   try {
-    return { status: "resolved", data: await request(httpRequest) };
+    return { status: "resolved", data: await request(context) };
   } catch {
     return { status: "rejected" };
   }

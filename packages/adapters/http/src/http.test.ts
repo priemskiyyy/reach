@@ -230,7 +230,7 @@ test("the deadline covers the test as well as the request", async () => {
   expect(client.requests[0]?.signal.aborted).toBe(true);
 });
 
-test("the request carries the scope key and stops being current on a network change", async () => {
+test("the request carries the scope key, and its signal aborts on a network change", async () => {
   const client = createFakeClient();
 
   const scope: ObservableValue<string | null> = {
@@ -251,12 +251,11 @@ test("the request carries the scope key and stops being current on a network cha
   const [sent] = client.requests;
 
   expect(sent?.scope).toBe("account-1");
-  expect(sent?.isCurrent()).toBe(true);
+  expect(sent?.signal.aborted).toBe(false);
 
   network.emit(CONNECTED_CELLULAR);
 
   await expect(checking).rejects.toMatchObject({ code: "SUPERSEDED" });
-  expect(sent?.isCurrent()).toBe(false);
   expect(sent?.signal.aborted).toBe(true);
   expect(api.state.get().lastObservation).toBeNull();
 });

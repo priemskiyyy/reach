@@ -35,12 +35,8 @@ export const http = <TData>({
   ...definition
 }: HttpEndpointOptions<TData>): EndpointDefinition => ({
   ...definition,
-  check: async ({ signal, scope, isCurrent }) => {
-    const attempt = await sendRequest(request, {
-      signal,
-      scope: scope === null ? null : scope.key,
-      isCurrent,
-    });
+  check: async (context) => {
+    const attempt = await sendRequest(request, context);
 
     if (attempt.status === "rejected") {
       return REQUEST_FAILED;

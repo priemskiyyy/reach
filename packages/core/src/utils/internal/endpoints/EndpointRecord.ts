@@ -370,13 +370,7 @@ export class EndpointRecord {
   #invoke(flight: ProbeFlight) {
     const context: ProbeContext = Object.freeze({
       signal: flight.controller.signal,
-      scope:
-        flight.scopeKey === null
-          ? null
-          : Object.freeze({ key: flight.scopeKey }),
-      network: this.#environment.network.getState(),
-      deadline: flight.deadline,
-      isCurrent: () => !flight.settled,
+      scope: flight.scopeKey,
     });
 
     let answer: ProbeResult | Promise<ProbeResult>;

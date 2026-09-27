@@ -346,7 +346,7 @@ test("T100 T063 a route change supersedes the check before anyone reads the new 
 
   await expect(checking).rejects.toMatchObject({ code: "SUPERSEDED" });
   expect(seen).toEqual(["unknown"]);
-  expect(probe.calls[1]?.context.isCurrent()).toBe(false);
+  expect(probe.calls[1]?.context.signal.aborted).toBe(true);
 
   probe.pass();
   await settle();
@@ -513,24 +513,19 @@ test("T080 a local check can pass while the source reports no path", async () =>
   expect(reach.state.get().internet.status).toBe("offline");
 });
 
-test("the check receives what it was admitted under, and a guard that turns false on a change", () => {
+test("the check receives its scope and a signal that aborts once the network moves on", () => {
   const { reach, probe, api, mock } = createEndpointReach({
     network: { initial: CONNECTED_CELLULAR },
   });
 
   reach.start();
-  api.check();
+  api.check().catch(() => {});
 
   const context = probe.calls[0]?.context;
 
-  expect(context).toMatchObject({
-    scope: null,
-    deadline: 5_000,
-    network: { connection: { type: "cellular" } },
-  });
-  expect(context?.isCurrent()).toBe(true);
+  expect(context?.scope).toBeNull();
+  expect(context?.signal.aborted).toBe(false);
 
   mock.emit(CONNECTED_WIFI);
-  expect(context?.isCurrent()).toBe(false);
   expect(context?.signal.aborted).toBe(true);
 });

@@ -36,11 +36,11 @@ const { observation } = await network.endpoint("api").check();
 With plain `fetch`, the request is where you decide what an answer means:
 
 ```ts
-import type { HttpRequest } from "@priemskiyyy/reach-http";
+import type { ProbeContext } from "@priemskiyyy/reach";
 
 type Health = { status: "ready" | "degraded" };
 
-const readHealth = async ({ signal }: HttpRequest): Promise<Health> => {
+const readHealth = async ({ signal }: ProbeContext): Promise<Health> => {
   const response = await fetch("https://api.example.com/health/ready", {
     signal,
     cache: "no-store",
@@ -73,11 +73,10 @@ A client rejects for a refused connection and for an error status alike, so a re
 
 ## The request
 
-`request({ signal, scope, isCurrent })` receives:
+`request({ signal, scope })` receives the check's context:
 
-- `signal`, which aborts at the deadline, on supersession and on disposal. Pass it on, so an abandoned check stops sending.
+- `signal`, which aborts at the deadline, when a network or scope change supersedes the check, and on disposal. Pass it on, so an abandoned check stops sending, and test `signal.aborted` between the steps of a request in several steps, such as fetching a token first.
 - `scope`, the key of a scoped endpoint, such as the signed-in account, or `null`.
-- `isCurrent()`, which turns `false` once the network, scope or session moved on. Check it between the steps of a request in several steps, such as fetching a token first.
 
 Anything `request` throws is a failed check, because nothing tells a preparation error apart from a network error. Keep what can fail before a request is sent out of it: while there is no signed-in account or no token, give the endpoint a `scope` whose key is `null`. Its checks are then refused and it stays unknown, instead of failing.
 

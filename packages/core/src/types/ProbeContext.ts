@@ -1,32 +1,24 @@
-import type { NetworkState } from "src/types/NetworkState";
-
 /**
- * What one check receives, captured when it began: a signal that aborts at the
- * deadline or when the check stops mattering, the scope it checks for, the
- * network snapshot, and `isCurrent`, to test before each side effect.
+ * What one check receives: a signal that aborts at the check's deadline or
+ * once the network, scope, session or its callers moved on, and the scope key
+ * it checks for. Test `signal.aborted` between the steps of a check in
+ * several steps, such as fetching a token first.
  *
  * @example
  * ```ts
- * const check = async ({ signal, scope, isCurrent }: ProbeContext) => {
- *   const token = await session.tokenFor(scope?.key);
+ * const check = async ({ signal, scope }: ProbeContext): Promise<ProbeResult> => {
+ *   const token = await session.tokenFor(scope);
  *
- *   if (!isCurrent()) {
- *     return { verdict: "inconclusive", response: "not-observed" } satisfies ProbeResult;
- *   }
+ *   signal.throwIfAborted();
  *
- *   return (await api.ready({ token, signal }))
- *     ? ({ verdict: "pass", response: "received" } satisfies ProbeResult)
- *     : ({ verdict: "fail", response: "received" } satisfies ProbeResult);
+ *   const ready = await api.ready({ token, signal });
+ *
+ *   return { verdict: ready ? "pass" : "fail", response: "received" };
  * };
  * ```
  */
 export type ProbeContext = {
   signal: AbortSignal;
   /** The scope key the check runs for, or `null` for an unscoped endpoint. */
-  scope: { key: string } | null;
-  network: NetworkState;
-  /** When the check times out, in milliseconds on the Reach clock's monotonic time. */
-  deadline: number;
-  /** `false` once the network, scope, session or endpoint moved on from this check. */
-  isCurrent: () => boolean;
+  scope: string | null;
 };

@@ -1,4 +1,4 @@
-import type { HttpRequest } from "src/types/HttpRequest";
+import type { ProbeContext } from "@priemskiyyy/reach";
 
 export type Health = { status: "ready" | "degraded" };
 
@@ -7,7 +7,7 @@ export type Health = { status: "ready" | "degraded" };
  * holds it until the test answers or fails it, oldest first.
  */
 export const createFakeClient = () => {
-  const requests: HttpRequest[] = [];
+  const requests: ProbeContext[] = [];
 
   const held: Array<{
     resolve: (health: Health) => void;
@@ -26,7 +26,7 @@ export const createFakeClient = () => {
 
   return {
     requests,
-    request: (sent: HttpRequest) => {
+    request: (sent: ProbeContext) => {
       requests.push(sent);
 
       return new Promise<Health>((resolve, reject) => {

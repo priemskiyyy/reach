@@ -1,6 +1,4 @@
-import type { EndpointDefinition } from "@priemskiyyy/reach";
-
-import type { HttpRequest } from "src/types/HttpRequest";
+import type { EndpointDefinition, ProbeContext } from "@priemskiyyy/reach";
 
 /**
  * Options for `http()`: an endpoint definition whose check is your own
@@ -20,9 +18,10 @@ export type HttpEndpointOptions<TData> = Omit<EndpointDefinition, "check"> & {
   /**
    * Sends one check through your client and resolves with the parsed
    * response. Reject when no usable answer arrived; pass `signal` on, so a
-   * timed-out or superseded check stops sending.
+   * timed-out or superseded check stops sending. `scope` is the key of a
+   * scoped endpoint, or `null`.
    */
-  request: (request: HttpRequest) => TData | PromiseLike<TData>;
+  request: (context: ProbeContext) => TData | PromiseLike<TData>;
   /**
    * Whether the parsed answer means the endpoint is available. Without it,
    * any answer does. A test that throws is the check's own error, never an
