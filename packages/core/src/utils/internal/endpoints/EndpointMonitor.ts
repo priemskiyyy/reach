@@ -149,14 +149,9 @@ export class EndpointMonitor {
     this.pause();
   }
 
+  // Admitted by `offer`: entering the background cancels a pending start, so it never runs there.
   #run() {
     if (!this.#isEligible()) {
-      return;
-    }
-
-    if (!this.#isForeground()) {
-      this.#skip("background");
-
       return;
     }
 
