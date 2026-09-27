@@ -85,7 +85,7 @@ export class EndpointRegistry {
     }
   };
 
-  /** A session was adopted: observe scopes and activity, then admit the start trigger. */
+  /** A session was adopted: observe scopes and activity, then admit the start trigger and arm intervals. */
   adopt = () => {
     for (const { record } of this.#entries.values()) {
       record.reconcileScope();
@@ -93,6 +93,10 @@ export class EndpointRegistry {
 
     this.#subscribeWhileRunning();
     this.offer("start");
+
+    for (const { monitor } of this.#entries.values()) {
+      monitor.armInterval();
+    }
   };
 
   offer = (trigger: MonitorTrigger) => {

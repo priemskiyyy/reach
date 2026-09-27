@@ -624,3 +624,24 @@ test("the first automatic start runs at once, whatever the monotonic clock's ori
 
   expect(probe.calls).toHaveLength(1);
 });
+
+test("an interval is armed when monitoring begins, not only after a check", () => {
+  const { reach, probe, api, clock } = createEndpointReach({
+    endpoint: {
+      monitoring: {
+        on: ["network-change"],
+        interval: 10_000,
+        allowWithoutActivity: true,
+      },
+    },
+  });
+
+  reach.start();
+  api.monitor();
+
+  expect(probe.calls).toHaveLength(0);
+
+  clock.advance(10_000);
+
+  expect(probe.calls).toHaveLength(1);
+});

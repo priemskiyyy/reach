@@ -39,6 +39,7 @@ export class EndpointMonitor {
     // Only the first owner creates demand; later ones share it.
     if (this.#owners === 1) {
       this.offer("start");
+      this.armInterval();
     }
 
     let released = false;
@@ -107,6 +108,15 @@ export class EndpointMonitor {
 
   /** Arms the interval again after a return to the foreground, from its full delay. */
   resume = () => {
+    this.#scheduleInterval();
+  };
+
+  /** Arms the interval as monitoring begins, unless a check already did. */
+  armInterval = () => {
+    if (this.#cancelInterval !== null) {
+      return;
+    }
+
     this.#scheduleInterval();
   };
 
