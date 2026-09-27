@@ -32,25 +32,20 @@ const getConnectionField = (
 export const getBrowserCapabilities = (
   connection: NetworkInformationLike | null,
 ): NetworkCapabilities => ({
-  fields: {
-    "connection.status": ONLINE_HINT_FIELD,
-    "connection.type": getConnectionField(
-      connection,
-      (candidate) => "type" in candidate,
-      "browser-hint",
-    ),
-    "connection.transports": UNSUPPORTED_FIELD,
-    "internet.status": UNSUPPORTED_FIELD,
-    "cost.metered": UNSUPPORTED_FIELD,
-    "cost.expensive": UNSUPPORTED_FIELD,
-    "preferences.constrained": UNSUPPORTED_FIELD,
-    "preferences.saveData": getConnectionField(
-      connection,
-      (candidate) => typeof candidate.saveData === "boolean",
-      "user-data-preference",
-    ),
-  },
-  ownership: "owned",
-  routeIdentity: "coarse",
-  upstreamActivity: "none",
+  "connection.status": ONLINE_HINT_FIELD,
+  "connection.type": getConnectionField(
+    connection,
+    (candidate) => "type" in candidate,
+    "browser-hint",
+  ),
+  "connection.transports": UNSUPPORTED_FIELD,
+  "internet.status": UNSUPPORTED_FIELD,
+  "cost.metered": UNSUPPORTED_FIELD,
+  "cost.expensive": UNSUPPORTED_FIELD,
+  "preferences.constrained": UNSUPPORTED_FIELD,
+  "preferences.saveData": getConnectionField(
+    connection,
+    (candidate) => typeof candidate.saveData === "boolean",
+    "user-data-preference",
+  ),
 });

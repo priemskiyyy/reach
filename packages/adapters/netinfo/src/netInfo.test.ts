@@ -142,7 +142,7 @@ test("T022 T030 Android's metering answer is metering with partial coverage, and
   const { reach } = await startNetInfo(CELLULAR_STATE);
 
   expect(reach.state.get().cost).toEqual({ metered: true, expensive: null });
-  expect(reach.capabilities.get()?.fields["cost.metered"]).toEqual({
+  expect(reach.capabilities.get()?.["cost.metered"]).toEqual({
     support: "supported",
     notifications: "partial",
     bases: ["native-metering"],
@@ -153,7 +153,7 @@ test("T023 iOS's transport-derived expense is neither metering nor expense", asy
   const { reach } = await startNetInfo(CELLULAR_STATE, { platform: "ios" });
 
   expect(reach.state.get().cost).toEqual({ metered: null, expensive: null });
-  expect(reach.capabilities.get()?.fields["cost.metered"].support).toBe(
+  expect(reach.capabilities.get()?.["cost.metered"].support).toBe(
     "unsupported",
   );
   expect(reach.condition({ metered: false }).get().status).toBe("unknown");
@@ -165,9 +165,6 @@ test("T025 ignoring NetInfo's reachability leaves internet unsupported", async (
   expect(reach.state.get().internet.status).toBe("unknown");
   expect(reach.state.get().evidence["internet.status"].status).toBe(
     "unsupported",
-  );
-  expect(reach.capabilities.get()?.upstreamActivity).toBe(
-    "provider-controlled",
   );
 });
 

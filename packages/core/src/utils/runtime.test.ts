@@ -60,7 +60,7 @@ test("starting adopts the source and publishes what it reported while opening", 
     internet: { status: "online" },
   });
   expect(reach.native.get()).toEqual({ session: 1 });
-  expect(reach.capabilities.get()?.ownership).toBe("owned");
+  expect(reach.capabilities.get()).toEqual(MOCK_CAPABILITIES);
   expect(mock.stats().activeSessions).toBe(1);
 });
 

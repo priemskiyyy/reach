@@ -2,11 +2,7 @@ import type { FieldCapability } from "@priemskiyyy/reach";
 
 /** A fact Expo Network does not report: no transport set, cost or data preference. */
 export const UNSUPPORTED_FIELD: FieldCapability =
-  Object.freeze<FieldCapability>({
-    support: "unsupported",
-    notifications: "none",
-    bases: [],
-  });
+  Object.freeze<FieldCapability>({ support: "unsupported" });
 
 /** The native path and its transport, reported on every path change. */
 export const NATIVE_PATH_FIELD: FieldCapability =

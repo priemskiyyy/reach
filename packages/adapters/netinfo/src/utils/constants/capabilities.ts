@@ -2,11 +2,7 @@ import type { FieldCapability } from "@priemskiyyy/reach";
 
 /** A fact NetInfo does not report with Reach's meaning. */
 export const UNSUPPORTED_FIELD: FieldCapability =
-  Object.freeze<FieldCapability>({
-    support: "unsupported",
-    notifications: "none",
-    bases: [],
-  });
+  Object.freeze<FieldCapability>({ support: "unsupported" });
 
 /** The native connection type and state, reported on every change NetInfo sees. */
 export const NATIVE_PATH_FIELD: FieldCapability =

@@ -77,14 +77,7 @@ test("a well-behaved adapter passes every check", async () => {
 test("an adapter that reports a fact it declared unsupported fails", async () => {
   const capabilities: NetworkCapabilities = {
     ...MOCK_CAPABILITIES,
-    fields: {
-      ...MOCK_CAPABILITIES.fields,
-      "cost.metered": {
-        support: "unsupported",
-        notifications: "none",
-        bases: [],
-      },
-    },
+    "cost.metered": { support: "unsupported" },
   };
 
   await expect(

@@ -71,12 +71,10 @@ test("T017 without Network Information only the online hint is supported", () =>
   const reach = startBrowser(createFakeWindow());
   const capabilities = reach.capabilities.get();
 
-  expect(capabilities?.fields["connection.status"].support).toBe("supported");
-  expect(capabilities?.fields["connection.type"].support).toBe("unsupported");
-  expect(capabilities?.fields["preferences.saveData"].support).toBe(
-    "unsupported",
-  );
-  expect(capabilities?.fields["cost.metered"].support).toBe("unsupported");
+  expect(capabilities?.["connection.status"].support).toBe("supported");
+  expect(capabilities?.["connection.type"].support).toBe("unsupported");
+  expect(capabilities?.["preferences.saveData"].support).toBe("unsupported");
+  expect(capabilities?.["cost.metered"].support).toBe("unsupported");
   expect(reach.state.get().preferences.saveData).toBeNull();
   expect(reach.native.get()).toEqual({ connection: null });
 });
@@ -88,8 +86,8 @@ test("T018 each Network Information property is detected on its own", () => {
 
   const capabilities = reach.capabilities.get();
 
-  expect(capabilities?.fields["connection.type"].support).toBe("unsupported");
-  expect(capabilities?.fields["preferences.saveData"]).toEqual({
+  expect(capabilities?.["connection.type"].support).toBe("unsupported");
+  expect(capabilities?.["preferences.saveData"]).toEqual({
     support: "supported",
     notifications: "complete",
     bases: ["user-data-preference"],

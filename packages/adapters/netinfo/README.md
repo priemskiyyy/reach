@@ -49,7 +49,7 @@ A false reachability while connected can be a failed check or one NetInfo skippe
 | `platform` | required   | `Platform.OS`. Only `ios` and `android` are mapped.                                       |
 | `internet` | `reported` | `ignore` leaves NetInfo's reachability out of the internet fact, which stays unsupported. |
 
-`internet: "ignore"` changes what Reach reads, not what NetInfo does: NetInfo keeps sending its own reachability requests. Configure those in NetInfo itself. `capabilities.upstreamActivity` is `provider-controlled` for that reason.
+`internet: "ignore"` changes what Reach reads, not what NetInfo does: NetInfo keeps sending its own reachability requests. Configure those in NetInfo itself.
 
 ## Behavior
 

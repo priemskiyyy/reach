@@ -45,7 +45,7 @@ const findContradictions = (
 
   return NETWORK_FIELDS.flatMap((field) => {
     const reported = fields[field];
-    const declared = capabilities.fields[field];
+    const declared = capabilities[field];
 
     if (reported.status !== "current") {
       return [];
@@ -170,9 +170,7 @@ const CHECKS: Check[] = [
 
       assert(capabilities !== null, "The session declared no capabilities.");
       assert(
-        NETWORK_FIELDS.every(
-          (field) => capabilities?.fields[field] !== undefined,
-        ),
+        NETWORK_FIELDS.every((field) => capabilities?.[field] !== undefined),
         "A fact has no declared capability.",
       );
       assert(

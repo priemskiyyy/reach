@@ -81,7 +81,7 @@ export class Reach<TNative, TName extends string = never> {
    *
    * @example
    * ```ts
-   * const metering = reach.capabilities.get()?.fields["cost.metered"].support;
+   * const metering = reach.capabilities.get()?.["cost.metered"].support;
    * ```
    */
   capabilities: ObservableValue<NetworkCapabilities | null>;

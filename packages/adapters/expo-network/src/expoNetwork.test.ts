@@ -187,10 +187,8 @@ test("T029 no transport set, cost or data preference is reported, so metering st
 
     expect(reach.state.get().connection.transports).toBeNull();
     expect(reach.state.get().cost).toEqual({ metered: null, expensive: null });
-    expect(capabilities?.fields["cost.metered"].support).toBe("unsupported");
-    expect(capabilities?.fields["connection.transports"].support).toBe(
-      "unsupported",
-    );
+    expect(capabilities?.["cost.metered"].support).toBe("unsupported");
+    expect(capabilities?.["connection.transports"].support).toBe("unsupported");
     expect(reach.condition({ metered: false }).get().status).toBe("unknown");
   }
 });
@@ -199,13 +197,16 @@ test("each platform declares the internet evidence it can give", async () => {
   const ios = await startExpoNetwork(WIFI_STATE, "ios");
   const android = await startExpoNetwork(WIFI_STATE, "android");
 
-  expect(ios.reach.capabilities.get()?.fields["internet.status"].bases).toEqual(
-    ["native-path"],
-  );
-  expect(
-    android.reach.capabilities.get()?.fields["internet.status"].bases,
-  ).toEqual(["native-validation", "native-path"]);
-  expect(android.reach.capabilities.get()?.upstreamActivity).toBe("none");
+  expect(ios.reach.capabilities.get()?.["internet.status"]).toEqual({
+    support: "supported",
+    notifications: "partial",
+    bases: ["native-path"],
+  });
+  expect(android.reach.capabilities.get()?.["internet.status"]).toEqual({
+    support: "supported",
+    notifications: "partial",
+    bases: ["native-validation", "native-path"],
+  });
 });
 
 test("T041 an event that arrives before the first read wins over it", async () => {
@@ -255,7 +256,6 @@ test("T031 Expo Network is borrowed: only the adapter's own listener is removed,
   await lease.ready;
 
   expect(reach.native.get()).toBe(fake.sdk);
-  expect(reach.capabilities.get()?.ownership).toBe("borrowed");
   expect(fake.listenerCount()).toBe(2);
 
   lease.release();
