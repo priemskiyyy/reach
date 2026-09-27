@@ -16,11 +16,13 @@ export const readNetInfoMetered = (
     return { status: "unsupported" };
   }
 
-  const expensive = details?.isConnectionExpensive;
-
-  if (typeof expensive !== "boolean") {
+  if (details?.isConnectionExpensive === undefined) {
     return { status: "unknown" };
   }
 
-  return { status: "current", value: expensive, basis: "native-metering" };
+  return {
+    status: "current",
+    value: details.isConnectionExpensive,
+    basis: "native-metering",
+  };
 };
