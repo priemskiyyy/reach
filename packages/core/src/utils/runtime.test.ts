@@ -4,6 +4,8 @@ import { createMockNetwork } from "src/mock/createMockNetwork";
 import { createTestClock } from "src/mock/createTestClock";
 import { observed } from "src/mock/observed";
 import { MOCK_CAPABILITIES } from "src/mock/utils/constants/capabilities";
+import type { NetworkAdapter } from "src/types/NetworkAdapter";
+import type { NetworkCapabilities } from "src/types/NetworkCapabilities";
 import type { ReachDiagnosticEvent } from "src/types/ReachDiagnosticEvent";
 import { UNKNOWN_NETWORK_STATE } from "src/utils/constants/network";
 import {
@@ -703,4 +705,24 @@ test("an available() that throws fails the opening instead of escaping start", a
 
   expect(reach.status.get()).toEqual({ state: "idle" });
   expect(reach.diagnostics.get().leases).toBe(0);
+});
+
+test("a session whose capabilities cannot be read fails its opening instead of hanging", async () => {
+  // An untyped adapter: JSON erases the types, as plain JavaScript would.
+  const capabilities: NetworkCapabilities = JSON.parse(
+    JSON.stringify({ ...MOCK_CAPABILITIES, "cost.expensive": undefined }),
+  );
+
+  const adapter: NetworkAdapter<null> = {
+    name: "malformed",
+    available: () => true,
+    open: () => Promise.resolve({ native: null, capabilities }),
+  };
+
+  const reach = new Reach({ adapter, clock: createTestClock() });
+
+  await expect(reach.start().ready).rejects.toMatchObject({
+    code: "SOURCE_ERROR",
+  });
+  expect(reach.status.get()).toMatchObject({ state: "error" });
 });

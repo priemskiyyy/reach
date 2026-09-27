@@ -518,6 +518,17 @@ export class NetworkRuntime<TNative> {
       return;
     }
 
+    let capabilities: NetworkCapabilities;
+
+    // The types rule out a malformed session; an untyped adapter that sends one still fails instead of hanging.
+    try {
+      capabilities = copyCapabilities(source.capabilities);
+    } catch (error) {
+      this.#fail(session, this.#createSourceError("open", error));
+
+      return;
+    }
+
     session.cancelOpening();
 
     const { pending } = session;
@@ -532,7 +543,7 @@ export class NetworkRuntime<TNative> {
       session,
       {
         facts: this.#getAdoptedFacts(pending),
-        capabilities: copyCapabilities(source.capabilities),
+        capabilities,
         native: source.native,
         refresh: source.refresh ?? null,
       },
