@@ -38,6 +38,7 @@ Options, requirements, endpoint names, hook selections and adapter answers are c
 ## Packages
 
 - The HTTP helper is `@priemskiyyy/reach-http`, an adapter package like `@priemskiyyy/flare-http`, not a `/http` subpath of the core. Its `request` is the application's own client and resolves with parsed data. The address, method, headers, credentials, redirects, caching and parsing belong to that client, so the stock fetch options of the specification are not repeated. A rejected request is a failure whose response is `unknown`, because a client rejects for a refused connection and for an error status alike. The data type only types the test; endpoint state never holds the data.
+- Three cases of the specification's stock fetch helper follow from that choice. An opaque response (T072) and a missing `fetch` (T075) are the client's to handle. A preparation that throws inside `request` (T074) is a rejected request, so a failure, because nothing tells it apart from a network error. What can fail before any request is sent, such as a missing token, belongs in the endpoint's `scope`: a `null` key refuses the check and leaves the endpoint unknown.
 - The native adapters take the SDK and `Platform.OS` as options instead of importing them, so no package imports `react-native`, NetInfo or Expo. On the web they refuse to open with `UNSUPPORTED_ENVIRONMENT`; the browser adapter is the web integration.
 - The Expo Network mapping was read from the iOS and Android sources of `expo-network` 58.0.1, which is the oldest version the peer range admits.
 
