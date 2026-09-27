@@ -1,0 +1,54 @@
+{
+  "name": "@priemskiyyy/reach",
+  "version": "0.1.0",
+  "description": "Reactive network state and conditions with explicit uncertainty, scoped endpoint checks and deterministic ownership, over one connectivity adapter.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/priemskiyyy/reach.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/priemskiyyy/reach/issues"
+  },
+  "homepage": "https://priemskiyyy.github.io/reach/",
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "lint:typescript": "tsc --noEmit -p .",
+    "lint:eslint": "eslint src",
+    "test:unit": "vitest run --root ../.. --project core"
+  },
+  "keywords": [
+    "network",
+    "connectivity",
+    "reachability",
+    "offline",
+    "online",
+    "netinfo",
+    "metered",
+    "health-check",
+    "typescript",
+    "react-native",
+    "expo",
+    "reach"
+  ]
+}
