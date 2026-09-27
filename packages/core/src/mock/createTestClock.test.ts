@@ -1,0 +1,76 @@
+import { expect, test } from "vitest";
+
+import { createTestClock } from "src/mock/createTestClock";
+
+test("advancing runs due timers in order, each at its own time", () => {
+  const clock = createTestClock({ now: 1_000 });
+  const log: Array<[string, number, number]> = [];
+
+  clock.setTimer(() => log.push(["late", clock.now(), clock.monotonic()]), 300);
+  clock.setTimer(
+    () => log.push(["early", clock.now(), clock.monotonic()]),
+    100,
+  );
+  clock.advance(500);
+
+  expect(log).toEqual([
+    ["early", 1_100, 100],
+    ["late", 1_300, 300],
+  ]);
+  expect(clock.now()).toBe(1_500);
+  expect(clock.pendingTimers()).toBe(0);
+});
+
+test("a timer armed by a timer runs in the same advance when it falls due", () => {
+  const clock = createTestClock();
+  const log: number[] = [];
+
+  clock.setTimer(() => {
+    log.push(clock.monotonic());
+    clock.setTimer(() => log.push(clock.monotonic()), 100);
+  }, 100);
+  clock.advance(250);
+
+  expect(log).toEqual([100, 200]);
+});
+
+test("a cancelled timer never runs", () => {
+  const clock = createTestClock();
+  const log: string[] = [];
+
+  clock.setTimer(() => log.push("cancelled"), 10)();
+  clock.advance(10);
+
+  expect(log).toEqual([]);
+});
+
+test("T092 skipping time runs no timer until the runtime runs again", () => {
+  const clock = createTestClock();
+  const log: string[] = [];
+
+  clock.setTimer(() => log.push("due"), 100);
+  clock.skip(10_000);
+
+  expect(log).toEqual([]);
+
+  clock.runDue();
+  expect(log).toEqual(["due"]);
+  expect(clock.monotonic()).toBe(10_000);
+});
+
+test("T085 epoch time moves alone, backwards included", () => {
+  const clock = createTestClock({ now: 5_000, monotonic: 7 });
+
+  clock.setNow(1_000);
+
+  expect(clock.now()).toBe(1_000);
+  expect(clock.monotonic()).toBe(7);
+});
+
+test("random answers the value a test set", () => {
+  const clock = createTestClock();
+
+  clock.setRandom(0.5);
+
+  expect(clock.random()).toBe(0.5);
+});
