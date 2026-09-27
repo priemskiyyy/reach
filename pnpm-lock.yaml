@@ -59,6 +59,9 @@ importers:
       react-dom:
         specifier: 19.2.8
         version: 19.2.8(react@19.2.8)
+      rolldown:
+        specifier: 1.2.11
+        version: 1.2.11
       tsdown:
         specifier: 0.22.14
         version: 0.22.14(typescript@5.8.3)

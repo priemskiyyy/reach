@@ -38,6 +38,10 @@ jobs:
       - name: Packed consumer
         run: pnpm verify:packages
 
+      # Each entry bundled as a consumer gets it, minified and gzipped, against its budget.
+      - name: Bundle size budget
+        run: pnpm test:size
+
       - name: Upload verified packages
         uses: actions/upload-artifact@v4
         with:
