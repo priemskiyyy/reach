@@ -1,0 +1,18 @@
+{
+  "name": "example-server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build && node dist/main.js",
+    "lint:typescript": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "example-shared": "workspace:*",
+    "zod": "4.1.12"
+  },
+  "devDependencies": {
+    "typescript": "5.8.3",
+    "vite": "8.3.0"
+  }
+}
