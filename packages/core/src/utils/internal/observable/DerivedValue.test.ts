@@ -202,3 +202,36 @@ test("a source whose subscribe throws leaves no other subscription behind", () =
   expect(good.counter.active).toBe(1);
   expect(listener).toHaveBeenCalledTimes(1);
 });
+
+test("an unsubscribe that throws is reported, and every other source is still left", () => {
+  const reported: unknown[] = [];
+
+  vi.spyOn(globalThis, "queueMicrotask").mockImplementation((task) => {
+    try {
+      task();
+    } catch (error) {
+      reported.push(error);
+    }
+  });
+
+  const store = new ValueStore(1);
+  const good = countSubscriptions(store.observable);
+  const failure = new Error("unsubscribe");
+
+  const bad: ObservableValue<number> = {
+    get: () => 2,
+    subscribe: () => () => {
+      throw failure;
+    },
+  };
+
+  const derived = new DerivedValue({
+    sources: [bad, good.observable],
+    compute: () => store.get() + bad.get(),
+  });
+
+  derived.subscribe(() => {})();
+
+  expect(good.counter.active).toBe(0);
+  expect(reported).toEqual([failure]);
+});

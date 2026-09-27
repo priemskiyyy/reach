@@ -1,5 +1,7 @@
 import type { ObservableValue } from "src/types/ObservableValue";
 import { Listeners } from "src/utils/internal/observable/Listeners";
+import { isolate } from "src/utils/internal/reporting/isolate";
+import { reportUnhandledError } from "src/utils/internal/reporting/reportUnhandledError";
 import { ReachError } from "src/utils/ReachError";
 
 type DerivedValueOptions<TValue> = {
@@ -129,7 +131,7 @@ export class DerivedValue<TValue> {
       this.#announced = { value: this.get() };
     } catch (error) {
       for (const unsubscribe of unsubscribes) {
-        unsubscribe();
+        isolate(unsubscribe, reportUnhandledError);
       }
 
       throw error;
@@ -144,8 +146,9 @@ export class DerivedValue<TValue> {
     this.#unsubscribes = [];
     this.#announced = null;
 
+    // A source whose unsubscribe throws never keeps the others subscribed.
     for (const unsubscribe of unsubscribes) {
-      unsubscribe();
+      isolate(unsubscribe, reportUnhandledError);
     }
   }
 
