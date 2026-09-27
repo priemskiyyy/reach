@@ -21,7 +21,7 @@ Every piece of state has one owner. Only `Reach`, `ReachError`, the combinators 
 | `DeadlineScheduler` | Every deadline on one host timer, woken by the earliest.                                           |
 | `Diagnostics`       | The snapshot, read as things are and kept while equal, and events only while someone subscribes.   |
 
-State that others read lives in `ValueStore`. Values computed from it, such as conditions and endpoint projections, are `DerivedValue`s. Every change goes through a `Transaction`: all new values are installed first, then listeners are notified, so no listener sees one owner updated and another not.
+State that others read lives in `ValueStore`. Values computed from it, such as conditions and endpoint projections, are `DerivedValue`s. Every change goes through a `Transaction`: all new values are installed first, then listeners are notified, so no listener sees one owner updated and another not. A step whose own listeners may call back, such as aborting a superseded check, runs after every listener, and a value a nested transaction already announced is not announced again.
 
 ## The path of a report
 
