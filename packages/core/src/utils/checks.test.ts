@@ -697,3 +697,27 @@ test("a check started from an abort listener keeps its running state", async () 
     lastAttempt: { check: 2, status: "running" },
   });
 });
+
+test("T096 a caller who aborts after the source opens but before its check starts sends nothing", async () => {
+  const { reach, mock, probe, api } = createEndpointReach({
+    network: { open: "held" },
+  });
+
+  reach.start();
+
+  const controller = new AbortController();
+  const checking = api.check({ signal: controller.signal });
+
+  mock.resolveOpen();
+
+  // The source is adopted and the wait is over, but the check has not begun.
+  await Promise.resolve();
+  await Promise.resolve();
+
+  expect(probe.calls).toHaveLength(0);
+
+  controller.abort();
+
+  await expect(checking).rejects.toMatchObject({ code: "ABORTED" });
+  expect(probe.calls).toHaveLength(0);
+});

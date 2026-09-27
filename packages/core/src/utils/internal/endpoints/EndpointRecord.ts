@@ -19,6 +19,7 @@ import { isExpired } from "src/utils/internal/endpoints/isExpired";
 import { isSameEndpointState } from "src/utils/internal/endpoints/isSameEndpointState";
 import { projectEndpointState } from "src/utils/internal/endpoints/projectEndpointState";
 import { readScope } from "src/utils/internal/endpoints/readScope";
+import { createAbortedError } from "src/utils/internal/errors/createAbortedError";
 import { createNotStartedError } from "src/utils/internal/errors/createNotStartedError";
 import { DerivedValue } from "src/utils/internal/observable/DerivedValue";
 import { Listeners } from "src/utils/internal/observable/Listeners";
@@ -239,6 +240,11 @@ export class EndpointRecord {
   }
 
   #checkNow(signal: AbortSignal | undefined): Promise<CheckResult> {
+    // A caller who gave up while the source opened sends nothing.
+    if (signal?.aborted === true) {
+      return Promise.reject(createAbortedError());
+    }
+
     if (!this.#environment.network.isRunning()) {
       return Promise.reject(createNotStartedError());
     }
