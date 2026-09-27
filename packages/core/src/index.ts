@@ -16,6 +16,8 @@ export type { EvidenceStatus } from "src/types/EvidenceStatus";
 export type { FieldCapability } from "src/types/FieldCapability";
 export type { FieldObservation } from "src/types/FieldObservation";
 export type { InternetStatus } from "src/types/InternetStatus";
+export type { MonitoringPolicy } from "src/types/MonitoringPolicy";
+export type { MonitorTrigger } from "src/types/MonitorTrigger";
 export type { NetworkAdapter } from "src/types/NetworkAdapter";
 export type { NetworkAdapterContext } from "src/types/NetworkAdapterContext";
 export type { NetworkCapabilities } from "src/types/NetworkCapabilities";
