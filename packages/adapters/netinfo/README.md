@@ -27,16 +27,17 @@ The adapter borrows the NetInfo module you pass. It never calls `configure`: Net
 
 ## Mapping
 
-| NetInfo reports                              | Reach reads                                                          |
-| -------------------------------------------- | -------------------------------------------------------------------- |
-| a known type and `isConnected: true`         | `connected`, with that type, on `native-path`                        |
-| `type: "none"` and `isConnected: false`      | `disconnected`, type `none`, and internet `offline` on `native-path` |
-| `isInternetReachable: true`                  | internet `online` on `provider-report`, never verified by Reach      |
-| `isInternetReachable: false` while connected | internet `unknown`, `source-ambiguous`                               |
-| `isInternetReachable: null`                  | internet `unknown`                                                   |
-| an unknown type, or `false` without `none`   | connection `unknown`, `source-ambiguous`                             |
-| Android `details.isConnectionExpensive`      | `metered` on `native-metering`; `expensive` stays unsupported        |
-| iOS `details.isConnectionExpensive`          | nothing: iOS derives it from the cellular transport                  |
+| NetInfo reports                                                | Reach reads                                                          |
+| -------------------------------------------------------------- | -------------------------------------------------------------------- |
+| a known type and `isConnected: true`                           | `connected`, with that type, on `native-path`                        |
+| `type: "none"` and `isConnected: false`                        | `disconnected`, type `none`, and internet `offline` on `native-path` |
+| `isInternetReachable: true`                                    | internet `online` on `provider-report`, never verified by Reach      |
+| `isInternetReachable: false` while connected                   | internet `unknown`, `source-ambiguous`                               |
+| `isInternetReachable: null`                                    | internet `unknown`                                                   |
+| an unknown type                                                | connection `unknown`                                                 |
+| `isConnected: false` without `none`, or `none` without `false` | connection `unknown`, `source-ambiguous`                             |
+| Android `details.isConnectionExpensive`                        | `metered` on `native-metering`; `expensive` stays unsupported        |
+| iOS `details.isConnectionExpensive`                            | nothing: iOS derives it from the cellular transport                  |
 
 A false reachability while connected can be a failed check or one NetInfo skipped, so it is never offline. The transport set, expense and data preferences are unsupported.
 
