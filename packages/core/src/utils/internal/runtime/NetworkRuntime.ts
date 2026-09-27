@@ -440,8 +440,20 @@ export class NetworkRuntime<TNative> {
       refresh: null,
     };
 
+    let available: boolean;
+
+    try {
+      available = this.#adapter.available();
+    } catch (error) {
+      // A probe that throws fails this opening, as a throwing open would.
+      this.#ownership = { state: "STARTING", session };
+      this.#fail(session, this.#createSourceError("open", error));
+
+      return;
+    }
+
     // A host without the source, such as a server render, runs with every fact unsupported instead of failing.
-    if (!this.#adapter.available()) {
+    if (!available) {
       this.#run(
         session,
         {

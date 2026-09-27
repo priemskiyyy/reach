@@ -673,3 +673,34 @@ test("T158 a throwing cleanup is reported, and the rest of disposal still runs",
   expect(after).toHaveBeenCalledTimes(1);
   expect(reach.status.get().state).toBe("disposed");
 });
+
+test("an available() that throws fails the opening instead of escaping start", async () => {
+  const mock = createMockNetwork();
+  let probes = 0;
+
+  const reach = new Reach({
+    adapter: {
+      ...mock.adapter,
+      available: () => {
+        probes += 1;
+
+        if (probes === 1) {
+          throw new Error("probe failed");
+        }
+
+        return true;
+      },
+    },
+    clock: createTestClock(),
+  });
+
+  const lease = reach.start();
+
+  await expect(lease.ready).rejects.toMatchObject({ code: "SOURCE_ERROR" });
+  expect(reach.status.get()).toMatchObject({ state: "error" });
+
+  lease.release();
+
+  expect(reach.status.get()).toEqual({ state: "idle" });
+  expect(reach.diagnostics.get().leases).toBe(0);
+});
