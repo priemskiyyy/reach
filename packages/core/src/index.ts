@@ -7,6 +7,7 @@ export type { EvidenceBasis } from "src/types/EvidenceBasis";
 export type { EvidenceStatus } from "src/types/EvidenceStatus";
 export type { InternetStatus } from "src/types/InternetStatus";
 export type { NetworkField } from "src/types/NetworkField";
+export type { NetworkState } from "src/types/NetworkState";
 export type { ObservableValue } from "src/types/ObservableValue";
 export type { ReachErrorCode } from "src/types/ReachErrorCode";
 export type { ReachErrorInfo } from "src/types/ReachErrorInfo";
