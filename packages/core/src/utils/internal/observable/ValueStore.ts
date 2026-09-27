@@ -3,11 +3,13 @@ import { Listeners } from "src/utils/internal/observable/Listeners";
 
 export class ValueStore<TValue> {
   #value: TValue;
+  #notified: TValue;
   #listeners: Listeners;
   #closed = false;
 
   constructor(initialValue: TValue, listeners = new Listeners()) {
     this.#value = initialValue;
+    this.#notified = initialValue;
     this.#listeners = listeners;
   }
 
@@ -32,7 +34,13 @@ export class ValueStore<TValue> {
     return true;
   };
 
+  // A nested transaction may have announced this value already.
   notify = () => {
+    if (Object.is(this.#value, this.#notified)) {
+      return;
+    }
+
+    this.#notified = this.#value;
     this.#listeners.notify();
   };
 

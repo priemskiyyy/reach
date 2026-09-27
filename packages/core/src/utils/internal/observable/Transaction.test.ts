@@ -34,3 +34,25 @@ test("a store set to its current value is not notified", () => {
 
   expect(seen).toEqual([]);
 });
+
+test("a store a nested transaction already announced is not announced again", () => {
+  const first = new ValueStore(0);
+  const second = new ValueStore(0);
+  const heard: number[] = [];
+
+  first.subscribe(() => {
+    const nested = new Transaction();
+
+    nested.set(second, 2);
+    nested.commit();
+  });
+  second.subscribe(() => heard.push(second.get()));
+
+  const outer = new Transaction();
+
+  outer.set(first, 1);
+  outer.set(second, 1);
+  outer.commit();
+
+  expect(heard).toEqual([2]);
+});
