@@ -43,7 +43,7 @@ automaticUpload.subscribe(() => {
 
 - **Unknown is an answer.** A missing fact is `unknown`, never `false`. A condition is `met`, `unmet` or `unknown`, and says why.
 - **Evidence has a basis.** A browser hint, a provider's report, a native path, a validated network and a passed endpoint check are different kinds of evidence. Reach never upgrades one into another.
-- **Order and generations.** A slow read never overwrites a newer event, and a route change supersedes every check that started before it.
+- **Order and generations.** A slow read never overwrites a newer event, and a connection change supersedes every check that started before it.
 - **Endpoint checks with lifetimes.** Checks are joined, bounded, timed out, scoped to an account, expired on their own and monitored only on demand.
 - **Honest capabilities.** Every adapter declares what its source can observe on this platform. Expo Network cannot tell you about metering, so a metering condition stays `unknown` instead of pretending.
 - **No lock-in, no bundling.** Adapters import no SDK. You pass in the one you already use.

@@ -67,7 +67,7 @@ const readHealth = async ({ signal }: ProbeContext): Promise<Health> => {
 | `request` throws or rejects                     | `fail`, response `unknown`, reason `request-failed`                                |
 | outlive `timeout`, the test included            | `fail`, reason `timeout`, and `signal` aborts                                      |
 | `test` throws                                   | a probe error: `check()` rejects with `PROBE_ERROR`, and the previous result stays |
-| a route or scope change arrives first           | superseded: nothing is committed, and `signal` aborts                              |
+| a connection or scope change arrives first      | superseded: nothing is committed, and `signal` aborts                              |
 
 A client rejects for a refused connection and for an error status alike, so a rejected request never claims a response arrived. Endpoint state keeps the verdict, never the data.
 

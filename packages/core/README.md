@@ -130,7 +130,7 @@ console.info(observation.verdict, state.status, state.freshness);
 
 - `check()` joins a check already running, and each caller can cancel only its own wait with a `signal`.
 - A check that outlives its `timeout`, 5,000 by default, fails with a `timeout` reason, even when its answer arrives later.
-- A network route change, a scope change, a stop or a disposal supersedes a running check. Its result is never committed.
+- A connection change, a scope change, a stop or a disposal supersedes a running check. Its result is never committed.
 - A result expires after `staleAfter`, on its own, and a sleep that paused one clock still expires it.
 - `maxOutstandingChecks`, 4 by default, bounds checks that run physically at once, including those that ignore abort.
 
@@ -213,7 +213,7 @@ clock.advance(30_000);
 
 ## Writing an adapter
 
-An adapter is a plain object with a `name` and `open(context)`. `open` subscribes to the source, reports complete observations with `context.emit`, reserves a place for a slower read with `context.reserve()`, registers cleanups with `context.onDispose`, and returns the session's `native` object, its `capabilities` and an optional `refresh`. Run `testNetworkAdapter` from `@priemskiyyy/reach/testing` against it in your tests.
+An adapter is a plain object with a `name`, `available()` and `open(context)`. `available()` says whether this host has the source at all; where it answers `false`, such as in a server render, the runtime still starts, with every fact `unsupported` for the reason `source-unavailable`. `open` subscribes to the source, reports complete observations with `context.emit`, reserves a place for a slower read with `context.reserve()`, marks a gap in what it observed with `context.invalidate()`, registers cleanups with `context.onDispose`, and returns the session's `native` object, its `capabilities` and an optional `refresh`. Run `testNetworkAdapter` from `@priemskiyyy/reach/testing` against it in your tests.
 
 ## Errors
 
