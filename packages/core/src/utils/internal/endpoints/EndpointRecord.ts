@@ -348,6 +348,18 @@ export class EndpointRecord {
       this.#timeOut(flight),
     );
 
+    this.#environment.record("check-started", {
+      endpoint: this.#definition.name,
+      check: flight.id,
+    });
+
+    // A listener may already have ended this check, which then never runs.
+    if (flight.settled) {
+      this.#release(flight);
+
+      return;
+    }
+
     this.#record.update(
       Object.freeze({
         ...this.#record.get(),
@@ -355,13 +367,10 @@ export class EndpointRecord {
         lastAttempt: this.#createAttempt(flight, "running", null),
       }),
     );
-    this.#environment.record("check-started", {
-      endpoint: this.#definition.name,
-      check: flight.id,
-    });
 
-    // A listener of the running state may already have ended this check.
     if (flight.settled) {
+      this.#release(flight);
+
       return;
     }
 

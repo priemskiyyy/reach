@@ -580,3 +580,34 @@ test("a check whose promise comes from another realm is awaited", async () => {
     state: { status: "available" },
   });
 });
+
+test("a listener that ends a check before it runs frees its slot", async () => {
+  const { reach, probe, api } = createEndpointReach({
+    maxOutstandingChecks: 1,
+  });
+
+  reach.start();
+
+  let ended = false;
+
+  api.state.subscribe(() => {
+    if (ended || !api.state.get().checking) {
+      return;
+    }
+
+    ended = true;
+    api.invalidate();
+  });
+
+  await expect(api.check()).rejects.toMatchObject({ code: "SUPERSEDED" });
+  expect(probe.calls).toHaveLength(0);
+  expect(reach.diagnostics.get().checks).toEqual({
+    outstanding: 0,
+    detached: 0,
+  });
+
+  const next = api.check();
+
+  probe.pass();
+  await expect(next).resolves.toMatchObject({ state: { status: "available" } });
+});
