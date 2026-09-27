@@ -1,5 +1,6 @@
 import type { Condition } from "src/types/Condition";
 import type { EndpointDefinition } from "src/types/EndpointDefinition";
+import type { EndpointHandle } from "src/types/EndpointHandle";
 import type { NetworkAdapter } from "src/types/NetworkAdapter";
 import type { NetworkCapabilities } from "src/types/NetworkCapabilities";
 import type { NetworkRequirements } from "src/types/NetworkRequirements";
@@ -14,18 +15,22 @@ import type { RefreshResult } from "src/types/RefreshResult";
 import type { RuntimeLease } from "src/types/RuntimeLease";
 import type { RuntimeStatus } from "src/types/RuntimeStatus";
 import {
+  DEFAULT_MAX_OUTSTANDING_CHECKS,
   DEFAULT_OPEN_TIMEOUT,
   DEFAULT_REFRESH_TIMEOUT,
 } from "src/utils/constants/defaults";
 import { createSystemClock } from "src/utils/internal/clock/createSystemClock";
-import { freezeList } from "src/utils/internal/common/freezeList";
 import { deriveCondition } from "src/utils/internal/conditions/deriveCondition";
 import { evaluateRequirements } from "src/utils/internal/conditions/evaluateRequirements";
 import { Diagnostics } from "src/utils/internal/diagnostics/Diagnostics";
+import { EndpointRegistry } from "src/utils/internal/endpoints/EndpointRegistry";
 import { Listeners } from "src/utils/internal/observable/Listeners";
+import { resolveCount } from "src/utils/internal/options/resolveCount";
 import { resolveDuration } from "src/utils/internal/options/resolveDuration";
 import { reportUnhandledError } from "src/utils/internal/reporting/reportUnhandledError";
 import { NetworkRuntime } from "src/utils/internal/runtime/NetworkRuntime";
+import { ReachError } from "src/utils/ReachError";
+import { DeadlineScheduler } from "src/utils/internal/scheduling/DeadlineScheduler";
 
 /**
  * One application-owned model of network evidence over one connectivity
@@ -53,7 +58,9 @@ export class Reach<
 > {
   #adapter: NetworkAdapter<TNative>;
   #runtime: NetworkRuntime<TNative>;
+  #endpoints: EndpointRegistry;
   #diagnostics: Diagnostics;
+  #capacity: { outstanding: number; detached: number; max: number };
 
   /**
    * The normalized facts and their evidence, as one frozen snapshot that
@@ -110,7 +117,10 @@ export class Reach<
 
   constructor({
     adapter,
+    endpoints,
+    activity,
     timeouts = {},
+    maxOutstandingChecks,
     clock = createSystemClock(),
   }: ReachOptions<TNative, TEndpoints>) {
     const resolvedTimeouts = {
@@ -126,7 +136,19 @@ export class Reach<
       ),
     };
 
+    let checks = 0;
+
     this.#adapter = adapter;
+    this.#capacity = {
+      outstanding: 0,
+      detached: 0,
+      max: resolveCount(
+        "maxOutstandingChecks",
+        maxOutstandingChecks,
+        DEFAULT_MAX_OUTSTANDING_CHECKS,
+      ),
+    };
+
     this.#diagnostics = new Diagnostics({
       clock,
       getContext: () => ({
@@ -141,16 +163,51 @@ export class Reach<
       reportUnhandledError(error);
     };
 
+    const createListeners = () => new Listeners(reportListenerError);
+
+    this.#endpoints = new EndpointRegistry(
+      endpoints ?? {},
+      {
+        clock,
+        scheduler: new DeadlineScheduler(clock),
+        network: {
+          getState: () => this.#runtime.state.get(),
+          isRunning: () => this.#runtime.isRunning(),
+          isDisposed: () => this.#runtime.isDisposed(),
+          whenRunning: (signal) => this.#runtime.whenRunning(signal),
+          advanceGeneration: () => this.#runtime.advanceGeneration(),
+          refresh: () => this.#runtime.refresh(),
+        },
+        capacity: this.#capacity,
+        nextCheckId: () => {
+          checks += 1;
+
+          return checks;
+        },
+        record: this.#diagnostics.record,
+        createListeners,
+      },
+      activity ?? null,
+    );
+
     this.#runtime = new NetworkRuntime({
       adapter,
       clock,
       timeouts: resolvedTimeouts,
-      createListeners: () => new Listeners(reportListenerError),
+      createListeners,
       hooks: {
-        onGeneration: () => {},
-        onStop: () => {},
-        onAdopt: () => {},
-        onNetworkChange: () => {},
+        onGeneration: (transaction) =>
+          this.#endpoints.revoke(
+            transaction,
+            "network-change",
+            new ReachError({
+              code: "SUPERSEDED",
+              message: "The network changed during the check.",
+            }),
+          ),
+        onStop: this.#endpoints.stop,
+        onAdopt: this.#endpoints.adopt,
+        onNetworkChange: () => this.#endpoints.offer("network-change"),
         record: this.#diagnostics.record,
         reportCleanupError: (error) => {
           this.#diagnostics.record("cleanup-error");
@@ -209,6 +266,20 @@ export class Reach<
   };
 
   /**
+   * The stable handle of one endpoint defined in the options. A name that
+   * was never defined fails to compile, and throws `INVALID_CONFIGURATION`
+   * when it arrives from untyped code.
+   *
+   * @example
+   * ```ts
+   * const api = reach.endpoint("api");
+   * ```
+   */
+  endpoint = <TName extends Extract<keyof TEndpoints, string>>(
+    name: TName,
+  ): EndpointHandle => this.#endpoints.get(name);
+
+  /**
    * Ends the Reach for good: the source closes, every pending operation
    * settles, and the last snapshots stay readable.
    *
@@ -223,6 +294,7 @@ export class Reach<
     }
 
     this.#runtime.dispose();
+    this.#endpoints.close();
     this.#diagnostics.close();
   };
 
@@ -239,8 +311,11 @@ export class Reach<
       networkGeneration: state.generation,
       capabilities: this.#runtime.capabilities.get(),
       leases: this.#runtime.leaseCount(),
-      checks: Object.freeze({ outstanding: 0, detached: 0 }),
-      endpoints: freezeList([]),
+      checks: Object.freeze({
+        outstanding: this.#capacity.outstanding,
+        detached: this.#capacity.detached,
+      }),
+      endpoints: this.#endpoints.collect(),
       counters,
     });
   }

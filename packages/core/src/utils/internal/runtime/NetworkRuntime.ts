@@ -267,7 +267,7 @@ export class NetworkRuntime<TNative> {
     transaction.set(this.status, DISPOSED_STATUS);
     transaction.set(this.capabilities, null);
     transaction.set(this.native, null);
-    this.#hooks.onStop(transaction);
+    this.#hooks.onStop(transaction, error);
     transaction.commit();
     this.#hooks.record("disposed");
     this.state.close();
@@ -367,13 +367,12 @@ export class NetworkRuntime<TNative> {
       return;
     }
 
-    this.#endSession(
-      ownership.session,
-      new ReachError({
-        code: "SUPERSEDED",
-        message: "The runtime stopped before the refresh settled.",
-      }),
-    );
+    const stopped = new ReachError({
+      code: "SUPERSEDED",
+      message: "The runtime stopped before this settled.",
+    });
+
+    this.#endSession(ownership.session, stopped);
 
     const transaction = new Transaction();
 
@@ -390,7 +389,7 @@ export class NetworkRuntime<TNative> {
     transaction.set(this.status, IDLE_STATUS);
     transaction.set(this.capabilities, null);
     transaction.set(this.native, null);
-    this.#hooks.onStop(transaction);
+    this.#hooks.onStop(transaction, stopped);
     transaction.commit();
     this.#hooks.record("session-stopped");
   }
