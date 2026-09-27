@@ -31,13 +31,15 @@ export class EndpointMonitor {
   owners = () => this.#owners;
 
   acquire = () => {
+    // Only the first owner creates demand; later ones share it.
+    const first = this.#owners === 0;
+
     this.#owners += 1;
     this.#environment.record("monitor-acquired", {
       endpoint: this.#definition.name,
     });
 
-    // Only the first owner creates demand; later ones share it.
-    if (this.#owners === 1) {
+    if (first) {
       this.offer("start");
       this.armInterval();
     }

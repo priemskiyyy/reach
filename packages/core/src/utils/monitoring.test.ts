@@ -645,3 +645,30 @@ test("an interval is armed when monitoring begins, not only after a check", () =
 
   expect(probe.calls).toHaveLength(1);
 });
+
+test("an owner that leaves while another arrives never starts monitoring again", async () => {
+  const { reach, probe, api, clock } = createEndpointReach();
+
+  reach.start();
+
+  const release: { first: (() => void) | null } = { first: api.monitor() };
+
+  probe.pass();
+  await settle();
+  clock.advance(5_000);
+
+  reach.diagnostics.events.subscribe(({ type }) => {
+    const { first } = release;
+
+    if (type !== "monitor-acquired" || first === null) {
+      return;
+    }
+
+    release.first = null;
+    first();
+  });
+
+  api.monitor();
+
+  expect(probe.calls).toHaveLength(1);
+});
