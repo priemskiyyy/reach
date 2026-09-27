@@ -133,19 +133,35 @@ export const createMockNetwork = ({
     emit: (input?: ObservationInput) => {
       active?.emit(report(input));
     },
+    // A read reaches the session it began in, and only while that session is open.
     reserve: () => {
-      const slot = getLatest().reserve();
+      const context = active;
+      const slot = context?.reserve() ?? null;
 
       return {
-        emit: (input?: ObservationInput) => slot.emit(report(input)),
-        reportError: slot.reportError,
+        emit: (input?: ObservationInput) => {
+          const observation = report(input);
+
+          if (slot === null || active !== context) {
+            return;
+          }
+
+          slot.emit(observation);
+        },
+        reportError: (error: unknown) => {
+          if (slot === null || active !== context) {
+            return;
+          }
+
+          slot.reportError(error);
+        },
       };
     },
     invalidate: () => {
-      getLatest().invalidate();
+      active?.invalidate();
     },
     reportError: (error: unknown) => {
-      getLatest().reportError(error);
+      active?.reportError(error);
     },
     resolveOpen: () => {
       const held = heldOpens.shift();

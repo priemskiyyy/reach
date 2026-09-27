@@ -88,3 +88,17 @@ test("the mock network keeps the adapter contract", async () => {
 
   expect(passed).toHaveLength(7);
 });
+
+test("a gap or an error while no session is open reaches no closed session", async () => {
+  const mock = createMockNetwork({ initial: CONNECTED_WIFI });
+  const reach = new Reach({ adapter: mock.adapter, clock: createTestClock() });
+  const lease = reach.start();
+
+  await lease.ready;
+  lease.release();
+  mock.invalidate();
+  mock.reportError(new Error("closed"));
+  mock.reserve().emit(CONNECTED_CELLULAR);
+
+  expect(reach.diagnostics.get().counters.lateCallbacks).toBe(0);
+});
