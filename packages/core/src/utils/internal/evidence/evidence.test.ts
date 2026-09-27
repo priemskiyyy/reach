@@ -174,7 +174,7 @@ test("failed facts turn every observable fact into an error, never offline", () 
     1_000,
   );
 
-  const failed = getFailedFacts(facts);
+  const failed = getFailedFacts(facts, "source-error");
 
   expect(failed.internet.status).toBe("unknown");
   expect(failed.evidence["internet.status"]).toMatchObject({
