@@ -1,11 +1,20 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { createHash } from "node:crypto";
+import {
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { join, relative, resolve } from "node:path";
 
 const OUTPUT = resolve(".artifacts/packages");
-const TARBALLS = join(OUTPUT, "tarballs");
 const CONSUMER = join(OUTPUT, "consumer");
+
+// The publish workflow uploads this directory and publishes these exact tarballs.
+const RELEASE = resolve(".artifacts/release");
 
 const PACKAGES = [
   "packages/core",
@@ -47,16 +56,31 @@ const run = (command, args, cwd) =>
   execFileSync(command, args, { cwd, encoding: "utf8", stdio: "pipe" });
 
 rmSync(OUTPUT, { recursive: true, force: true });
-mkdirSync(TARBALLS, { recursive: true });
+rmSync(RELEASE, { recursive: true, force: true });
 mkdirSync(CONSUMER, { recursive: true });
 
-for (const directory of PACKAGES) {
-  run("pnpm", ["pack", "--pack-destination", TARBALLS], directory);
-}
+const tarballs = PACKAGES.map((directory) => {
+  const { name } = JSON.parse(
+    readFileSync(join(directory, "package.json"), "utf8"),
+  );
 
-const tarballs = readdirSync(TARBALLS);
+  const destination = join(RELEASE, name);
 
-assert.equal(tarballs.length, PACKAGES.length, "Every package packs once.");
+  mkdirSync(destination, { recursive: true });
+  run("pnpm", ["pack", "--pack-destination", destination], directory);
+
+  const [file, ...others] = readdirSync(destination);
+
+  assert.equal(others.length, 0, `${name} packs once.`);
+
+  const digest = createHash("sha256")
+    .update(readFileSync(join(destination, file)))
+    .digest("hex");
+
+  writeFileSync(join(destination, "SHA256SUMS"), `${digest}  ${file}\n`);
+
+  return { name, path: join(destination, file) };
+});
 
 // No native SDK, React or Query is installed: each package must stand on its own.
 writeFileSync(
@@ -67,9 +91,9 @@ writeFileSync(
       private: true,
       type: "module",
       dependencies: Object.fromEntries(
-        tarballs.map((file) => [
-          file.replace(/^priemskiyyy-/, "@priemskiyyy/").replace(/-0\..*$/, ""),
-          `file:../tarballs/${file}`,
+        tarballs.map(({ name, path }) => [
+          name,
+          `file:${relative(CONSUMER, path)}`,
         ]),
       ),
     },
@@ -177,5 +201,5 @@ writeFileSync(
 run(resolve("node_modules/.bin/tsc"), ["-p", "tsconfig.json"], CONSUMER);
 
 console.log(
-  `Packed ${tarballs.length} packages, imported ${Object.keys(RUNTIME_EXPORTS).length} entries without native peers, and typechecked a consumer.`,
+  `Packed ${tarballs.length} packages, imported ${Object.keys(RUNTIME_EXPORTS).length} entries without native peers, and typechecked a consumer. Release artifacts are in .artifacts/release.`,
 );
