@@ -174,7 +174,7 @@ A scoped endpoint checks only while its scope has a key. Changing the key ends t
 
 ## Diagnostics
 
-`network.diagnostics` is a versioned snapshot of who holds what: the runtime, the session, leases, checks and endpoints, with counters. Events flow only while someone subscribes, and never carry a scope key.
+`network.diagnostics` is a snapshot of who holds what, which keeps its identity while nothing changed: the runtime, the session, leases, checks and endpoints, with counters. Events flow only while someone subscribes, and never carry a scope key.
 
 ## Testing
 

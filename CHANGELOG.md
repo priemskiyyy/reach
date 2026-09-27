@@ -9,7 +9,7 @@
 - An adapter is `{ name, available, open }`. A host without the source, such as a server render, runs with every fact `unsupported` for the reason `source-unavailable` instead of failing.
 - Reports keep their order: a reserved read never overwrites an event that came after it, and a change of connection status or type, or a gap, starts a new generation.
 - Named endpoints with checks that are joined, bounded, timed out on the monotonic clock, superseded by network and scope changes, and expired on their own. A check receives `{ signal, scope }`. `monitor()` adds demand with triggers, a minimum interval, an optional interval with jitter, and foreground gating from an activity source.
-- Passive diagnostics: a versioned snapshot and events that cost nothing while nobody subscribes, and never carry a scope key.
+- Passive diagnostics: a snapshot that keeps its identity while nothing changed, and events that cost nothing while nobody subscribes. Neither carries a scope key.
 - `createMockNetwork`, `createMockEndpoint`, `createTestClock` and `observed` under `./mock`, and the `testNetworkAdapter` conformance suite under `./testing`.
 - Errors are `ReachError`s with a `code`. Only misconfiguration and use after disposal throw.
 

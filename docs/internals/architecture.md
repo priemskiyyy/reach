@@ -19,7 +19,7 @@ Every piece of state has one owner. Only `Reach`, `ReachError`, the combinators 
 | `EndpointRecord`    | One endpoint: its checks, waiters, deadline, result, expiry and scope key.                         |
 | `EndpointMonitor`   | Monitoring demand, triggers, the minimum interval between starts and the polling interval.         |
 | `DeadlineScheduler` | Every deadline on one host timer, woken by the earliest.                                           |
-| `Diagnostics`       | The versioned snapshot, and events only while someone subscribes.                                  |
+| `Diagnostics`       | The snapshot, read as things are and kept while equal, and events only while someone subscribes.   |
 
 State that others read lives in `ValueStore`. Values computed from it, such as conditions and endpoint projections, are `DerivedValue`s. Every change goes through a `Transaction`: all new values are installed first, then listeners are notified, so no listener sees one owner updated and another not.
 
