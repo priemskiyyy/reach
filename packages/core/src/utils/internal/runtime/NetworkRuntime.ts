@@ -406,6 +406,8 @@ export class NetworkRuntime<TNative> {
 
   // One transaction for a source that stopped: checks learn why they end
   // before the stale state starts a new generation, and nothing reads as open.
+  // The status is installed first, so a callback of the stop that starts or
+  // disposes the runtime installs its own over it.
   #publishStopped(
     ownership: RuntimeOwnership,
     error: ReachError,
@@ -414,9 +416,13 @@ export class NetworkRuntime<TNative> {
   ) {
     const transaction = new Transaction();
 
+    transaction.set(this.status, status);
+    transaction.set(this.capabilities, null);
+    transaction.set(this.native, null);
     this.#hooks.onStop(transaction, error);
 
-    if (ownership.state === "RUNNING") {
+    // A callback that already runs a new session has installed that session's facts.
+    if (ownership.state === "RUNNING" && !this.isRunning()) {
       const state = this.state.get();
 
       this.#install(
@@ -426,9 +432,6 @@ export class NetworkRuntime<TNative> {
       );
     }
 
-    transaction.set(this.status, status);
-    transaction.set(this.capabilities, null);
-    transaction.set(this.native, null);
     transaction.commit();
   }
 

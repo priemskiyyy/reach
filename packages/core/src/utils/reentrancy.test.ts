@@ -8,7 +8,12 @@ import type { Activity } from "src/types/Activity";
 import type { NetworkAdapter } from "src/types/NetworkAdapter";
 import type { ObservableValue } from "src/types/ObservableValue";
 import type { RuntimeLease } from "src/types/RuntimeLease";
-import { CONNECTED_WIFI, createReach, settle } from "src/utils/Reach.fixture";
+import {
+  CONNECTED_WIFI,
+  createEndpointReach,
+  createReach,
+  settle,
+} from "src/utils/Reach.fixture";
 import { Reach } from "src/utils/Reach";
 
 // User code runs inside the runtime's own steps: diagnostics and state
@@ -314,4 +319,27 @@ test("a cleanup that starts and releases again publishes each stop once", () => 
     "session-opened",
     "session-stopped",
   ]);
+});
+
+test("a diagnostics listener that starts again while the runtime stops keeps its new session", () => {
+  const { reach, api } = createEndpointReach();
+  const lease = reach.start();
+
+  let restarted = false;
+
+  api.check().catch(() => {});
+  reach.diagnostics.events.subscribe(({ type }) => {
+    if (type !== "check-superseded" || restarted) {
+      return;
+    }
+
+    restarted = true;
+    reach.start();
+  });
+
+  lease.release();
+
+  expect(reach.status.get()).toMatchObject({ state: "running" });
+  expect(reach.capabilities.get()).not.toBeNull();
+  expect(reach.native.get()).not.toBeNull();
 });
