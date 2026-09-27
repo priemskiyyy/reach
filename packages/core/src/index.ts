@@ -1,5 +1,9 @@
 export { ReachError } from "src/utils/ReachError";
 
+export type { Condition } from "src/types/Condition";
+export type { ConditionReason } from "src/types/ConditionReason";
+export type { ConditionState } from "src/types/ConditionState";
+export type { ConditionStatus } from "src/types/ConditionStatus";
 export type { ConnectionStatus } from "src/types/ConnectionStatus";
 export type { ConnectionType } from "src/types/ConnectionType";
 export type { Evidence } from "src/types/Evidence";
