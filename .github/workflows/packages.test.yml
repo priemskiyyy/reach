@@ -4,15 +4,9 @@ on:
   workflow_call:
   workflow_dispatch:
   pull_request:
-    paths-ignore:
-      - "**.md"
-      - "docs/**"
   push:
     branches:
       - "main"
-    paths-ignore:
-      - "**.md"
-      - "docs/**"
 
 permissions:
   contents: read
@@ -63,6 +57,10 @@ jobs:
       # Each probe proves one lint rule still rejects what it was written for.
       - name: Lint rule probes
         run: pnpm test:lint
+
+      # Every TypeScript example in the READMEs and docs, against the built packages.
+      - name: Documentation snippets
+        run: pnpm verify:snippets
 
       # Every provider SDK and the clock are faked in process, so the whole
       # suite runs here with no device, no network and no credentials.
