@@ -29,6 +29,20 @@ Each adapter and binding requires `@priemskiyyy/reach` 0.1 as a peer.
 - Any browser with `EventTarget` and `AbortController`. The Network Information API is optional and detected per property.
 - React Native on iOS and Android. On React Native for the web, the native adapters are unavailable; use the browser adapter there.
 
+## Size
+
+Measured by `pnpm test:size` from the built packages, bundled as a consumer gets them, minified and gzipped, with peers external:
+
+| Entry                     | Gzipped        | Budget   |
+| ------------------------- | -------------- | -------- |
+| the core                  | 10.3 KiB       | 12 KiB   |
+| the core with an adapter  | 10.9 to 11 KiB | 13 KiB   |
+| the core with `http()`    | 10.5 KiB       | 12.5 KiB |
+| the React binding         | 0.8 KiB        | 1 KiB    |
+| the TanStack Query bridge | 0.2 KiB        | 0.5 KiB  |
+
+A change that goes over a budget fails CI.
+
 ## Subpaths
 
 `@priemskiyyy/reach/mock` holds the mock network, mock endpoint and test clock, and `@priemskiyyy/reach/testing` holds the adapter conformance suite. Neither is imported by the main entry. See [application testing](testing.md) and [writing an adapter](writing-an-adapter.md).
