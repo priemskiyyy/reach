@@ -457,10 +457,15 @@ export class EndpointRecord {
       return;
     }
 
-    answer.then(
-      (result) => this.#complete(flight, result),
-      (error: unknown) => this.#fail(flight, error),
-    );
+    // A thenable whose `then` throws is the check's own error too.
+    try {
+      answer.then(
+        (result) => this.#complete(flight, result),
+        (error: unknown) => this.#fail(flight, error),
+      );
+    } catch (error) {
+      this.#fail(flight, error);
+    }
   }
 
   // The check's own promise settled: its slot is free, whether or not Reach still waited for it.

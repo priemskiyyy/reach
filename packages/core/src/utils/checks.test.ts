@@ -754,3 +754,30 @@ test("a check started when another endpoint's check is superseded belongs to the
     state: { status: "available" },
   });
 });
+
+test("a check whose answer cannot be awaited fails as its own error and frees its slot", async () => {
+  const answer = Promise.resolve<ProbeResult>({
+    verdict: "pass",
+    response: "received",
+  });
+
+  answer.then = () => {
+    throw new Error("then");
+  };
+
+  const reach = new Reach({
+    adapter: createMockNetwork({ initial: CONNECTED_WIFI }).adapter,
+    clock: createTestClock({ now: 1_000 }),
+    endpoints: { api: { staleAfter: 30_000, check: () => answer } },
+  });
+
+  reach.start();
+
+  await expect(reach.endpoint("api").check()).rejects.toMatchObject({
+    code: "PROBE_ERROR",
+  });
+  expect(reach.diagnostics.get().checks).toEqual({
+    outstanding: 0,
+    detached: 0,
+  });
+});
