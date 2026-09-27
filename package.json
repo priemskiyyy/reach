@@ -14,9 +14,11 @@
     "lint:eslint": "eslint .",
     "test:lint": "node scripts/verify-lint-rules.mjs",
     "verify:snippets": "node scripts/verify-snippets.mjs",
+    "verify:packages": "node scripts/verify-packages.mjs",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
-    "check": "pnpm build && pnpm lint:typescript && pnpm lint:eslint && pnpm test:lint && pnpm verify:snippets && pnpm lint:prettier && pnpm test:unit"
+    "check": "pnpm build && pnpm lint:typescript && pnpm lint:eslint && pnpm test:lint && pnpm verify:snippets && pnpm lint:prettier && pnpm test:unit",
+    "check:release": "pnpm check && pnpm verify:packages"
   },
   "devDependencies": {
     "@eslint/js": "9.39.4",
