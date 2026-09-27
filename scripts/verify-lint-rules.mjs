@@ -8,6 +8,8 @@ const CLOCK = "packages/core/src/utils/internal/clock/createSystemClock.ts";
 const MOCK = "packages/core/src/mock/lint-probe.ts";
 const ADAPTER = "packages/adapters/browser/src/lint-probe.ts";
 const NATIVE_ADAPTER = "packages/adapters/netinfo/src/lint-probe.ts";
+const REACT = "packages/react/src/lint-probe.ts";
+const QUERY = "packages/tanstack-query/src/lint-probe.ts";
 const TEST = "packages/core/src/utils/lint-probe.test.ts";
 
 const syntax = [
@@ -107,6 +109,23 @@ const boundaries = [
     CORE,
   ],
   ['import { useState } from "react";', "no-restricted-imports", ADAPTER],
+  ['import { useState } from "react";', "no-restricted-imports", QUERY],
+  [
+    'import { onlineManager } from "@tanstack/query-core";',
+    "no-restricted-imports",
+    QUERY,
+  ],
+  [
+    'import NetInfo from "@react-native-community/netinfo";',
+    "no-restricted-imports",
+    REACT,
+  ],
+  ["setTimeout(() => {}, 0);", "no-restricted-globals", REACT],
+  [
+    'import { useState } from "react";\n\nexport const useValue = (flag: boolean) => {\n  if (flag) {\n    useState(0);\n  }\n};',
+    "react-hooks/rules-of-hooks",
+    REACT,
+  ],
   ["setTimeout(() => {}, 0);", "no-restricted-globals", CORE],
   ["setInterval(() => {}, 1_000);", "no-restricted-globals", MOCK],
   ["setTimeout(() => {}, 0);", "no-restricted-globals", ADAPTER],
@@ -133,7 +152,11 @@ const entryPoints = [
   "packages/core/src/mock.ts",
   "packages/core/src/testing.ts",
   "packages/adapters/browser/src/index.ts",
+  "packages/adapters/netinfo/src/index.ts",
+  "packages/adapters/expo-network/src/index.ts",
+  "packages/adapters/http/src/index.ts",
   "packages/react/src/index.ts",
+  "packages/tanstack-query/src/index.ts",
 ];
 
 const allowed = [
@@ -144,6 +167,18 @@ const allowed = [
   [
     'import NetInfo from "@react-native-community/netinfo";\n\nexport const sdk = NetInfo;',
     "packages/adapters/netinfo/src/netInfo.contracts.ts",
+  ],
+  [
+    'import * as Network from "expo-network";\n\nexport const sdk = Network;',
+    "packages/adapters/expo-network/src/expoNetwork.contracts.ts",
+  ],
+  [
+    'import { onlineManager } from "@tanstack/query-core";\n\nexport const manager = onlineManager;',
+    "packages/tanstack-query/src/toOnlineEventListener.contracts.ts",
+  ],
+  [
+    'import { useState } from "react";\n\nexport const useValue = () => useState(0);',
+    REACT,
   ],
   [
     'import { vi } from "vitest";\n\nexport const spy = vi.fn();',
