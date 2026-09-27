@@ -398,3 +398,40 @@ test("a diagnostics listener that refreshes on a source error reads after it", (
     "current",
   );
 });
+
+test("a state listener that disposes while a new key is reconciled at adoption leaves no activity subscribed", async () => {
+  const key = { current: "account-a" };
+  const { activity, subscribers } = createCountingActivity();
+
+  const probe = createMockEndpoint({
+    staleAfter: 30_000,
+    scope: { get: () => key.current, subscribe: () => () => {} },
+  });
+
+  const reach = new Reach({
+    adapter: createMockNetwork({ initial: CONNECTED_WIFI }).adapter,
+    activity,
+    clock: createTestClock(),
+    endpoints: { api: probe.definition },
+  });
+
+  const api = reach.endpoint("api");
+  const lease = reach.start();
+  const first = api.check();
+
+  probe.pass();
+  await first;
+  lease.release();
+
+  api.state.subscribe(() => {
+    if (api.state.get().freshness === "never") {
+      reach.dispose();
+    }
+  });
+
+  key.current = "account-b";
+  reach.start();
+
+  expect(reach.status.get()).toEqual({ state: "disposed" });
+  expect(subscribers()).toBe(0);
+});

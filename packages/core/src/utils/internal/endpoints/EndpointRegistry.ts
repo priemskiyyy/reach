@@ -91,6 +91,11 @@ export class EndpointRegistry {
       record.reconcileScope();
     }
 
+    // A listener of a new key may have stopped or disposed the runtime.
+    if (!this.#environment.network.isRunning()) {
+      return;
+    }
+
     this.#subscribeWhileRunning();
     this.offer("start");
 
