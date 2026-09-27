@@ -79,6 +79,8 @@ A client rejects for a refused connection and for an error status alike, so a re
 - `scope`, the key of a scoped endpoint, such as the signed-in account, or `null`.
 - `isCurrent()`, which turns `false` once the network, scope or session moved on. Check it between the steps of a request in several steps, such as fetching a token first.
 
+Anything `request` throws is a failed check, because nothing tells a preparation error apart from a network error. Keep what can fail before a request is sent out of it: while there is no signed-in account or no token, give the endpoint a `scope` whose key is `null`. Its checks are then refused and it stays unknown, instead of failing.
+
 ## Options
 
 `http()` takes every option of an endpoint definition except `check`, and adds two:
