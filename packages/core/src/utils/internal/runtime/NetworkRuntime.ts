@@ -618,23 +618,10 @@ export class NetworkRuntime<TNative> {
     sequence: number,
     observation: NetworkObservation,
   ) {
-    let facts: NetworkFacts;
-
-    // A report that breaks its type is a source failure, never an offline device.
-    try {
-      facts = readObservation(observation, this.#clock.now());
-    } catch {
-      return this.#intake(session, {
-        kind: "error",
-        sequence,
-        reason: "malformed-observation",
-      });
-    }
-
     return this.#intake(session, {
       kind: "observation",
       sequence,
-      facts,
+      facts: readObservation(observation, this.#clock.now()),
       route: observation.route,
     });
   }

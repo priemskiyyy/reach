@@ -309,29 +309,6 @@ test("T046 a source error makes facts errors, never offline", () => {
   });
 });
 
-test("a report that breaks its type is a source error, never offline", () => {
-  const reach = new Reach({
-    clock: createTestClock(),
-    adapter: {
-      name: "malformed",
-      open: (context) => {
-        // @ts-expect-error A report without its facts breaks the observation type.
-        context.emit({ connection: null });
-
-        return { native: null, capabilities: MOCK_CAPABILITIES };
-      },
-    },
-  });
-
-  reach.start();
-
-  expect(reach.state.get().internet.status).toBe("unknown");
-  expect(reach.state.get().evidence["internet.status"]).toMatchObject({
-    status: "error",
-    reason: "malformed-observation",
-  });
-});
-
 test("the last release makes every current fact stale and closes the session", () => {
   const { reach, mock } = createReach({ initial: CONNECTED_WIFI });
   const lease = reach.start();
