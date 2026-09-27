@@ -1,0 +1,62 @@
+{
+  "name": "@priemskiyyy/reach-netinfo",
+  "version": "0.1.0",
+  "description": "NetInfo source for Reach: React Native's connection, reachability and Android metering reports, mapped conservatively, over the NetInfo module you pass in and never configure.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/priemskiyyy/reach.git",
+    "directory": "packages/adapters/netinfo"
+  },
+  "bugs": {
+    "url": "https://github.com/priemskiyyy/reach/issues"
+  },
+  "homepage": "https://priemskiyyy.github.io/reach/",
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "lint:typescript": "tsc --noEmit -p .",
+    "lint:eslint": "eslint src",
+    "test:unit": "vitest run --root ../../.. --project netinfo"
+  },
+  "peerDependencies": {
+    "@priemskiyyy/reach": ">=0.1.0 <0.2",
+    "@react-native-community/netinfo": ">=11.4.0"
+  },
+  "devDependencies": {
+    "@priemskiyyy/reach": "workspace:*"
+  },
+  "keywords": [
+    "netinfo",
+    "react-native",
+    "connectivity",
+    "reachability",
+    "metered",
+    "typescript",
+    "reach",
+    "adapter"
+  ],
+  "peerDependenciesMeta": {
+    "@react-native-community/netinfo": {
+      "optional": true
+    }
+  }
+}
