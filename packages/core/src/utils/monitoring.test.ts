@@ -447,3 +447,19 @@ test("a monitor's start trigger arrives once per runtime start", async () => {
 
   expect(probe.calls).toHaveLength(2);
 });
+
+test("an interval goes on after a check it started is superseded", () => {
+  const { reach, probe, api, clock } = createEndpointReach({
+    endpoint: { monitoring: { interval: 10_000, allowWithoutActivity: true } },
+  });
+
+  reach.start();
+  api.monitor();
+
+  expect(probe.calls).toHaveLength(1);
+
+  api.invalidate();
+  clock.advance(10_000);
+
+  expect(probe.calls).toHaveLength(2);
+});

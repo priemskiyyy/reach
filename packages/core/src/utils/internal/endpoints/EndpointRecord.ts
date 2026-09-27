@@ -603,7 +603,10 @@ export class EndpointRecord {
     });
 
     // The abort's listeners may start the next check, so they run once this change is committed.
-    transaction.after(() => flight.controller.abort());
+    transaction.after(() => {
+      this.#settlements.notify();
+      flight.controller.abort();
+    });
   }
 
   // Cancellation is no evidence: it ends the check without an observation.
@@ -620,6 +623,7 @@ export class EndpointRecord {
       endpoint: this.#definition.name,
       check: flight.id,
     });
+    this.#settlements.notify();
     flight.controller.abort();
   }
 
