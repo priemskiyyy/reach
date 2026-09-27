@@ -17,7 +17,6 @@ test("every entry exports exactly its public runtime names", () => {
   expect(Object.keys(mock).sort()).toEqual([
     "createMockEndpoint",
     "createMockNetwork",
-    "createObservation",
     "createTestClock",
     "observed",
   ]);

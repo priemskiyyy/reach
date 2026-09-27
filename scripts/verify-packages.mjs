@@ -40,7 +40,6 @@ const RUNTIME_EXPORTS = {
   "@priemskiyyy/reach/mock": [
     "createMockEndpoint",
     "createMockNetwork",
-    "createObservation",
     "createTestClock",
     "observed",
   ],

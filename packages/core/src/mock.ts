@@ -1,6 +1,5 @@
 export { createMockEndpoint } from "src/mock/createMockEndpoint";
 export { createMockNetwork } from "src/mock/createMockNetwork";
-export { createObservation } from "src/mock/createObservation";
 export { createTestClock } from "src/mock/createTestClock";
 export { observed } from "src/mock/observed";
 
