@@ -17,14 +17,12 @@ import type { ObservationSlot } from "src/types/ObservationSlot";
  * ```
  */
 export type NetworkAdapterContext = {
-  /** Aborts when the session ends, including when opening is abandoned. */
-  signal: AbortSignal;
   /** Reports a complete observation now. */
   emit: (observation: NetworkObservation) => void;
   /** Reserves a place in the order for a read that finishes later. */
   reserve: () => ObservationSlot;
-  /** Drops every current fact, because the source knows it missed changes. */
-  invalidate: (reason: "observation-gap" | "source-reset") => void;
+  /** Makes every current fact stale and starts a new generation, because the source knows it missed changes. */
+  invalidate: () => void;
   /** Reports that the source failed; its facts become errors, never offline. */
   reportError: (error: unknown) => void;
   onDispose: (cleanup: () => void) => void;

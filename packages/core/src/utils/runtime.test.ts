@@ -273,7 +273,7 @@ test("an observation gap turns current facts stale and starts a new generation",
   const { reach, mock } = createReach({ initial: CONNECTED_WIFI });
 
   reach.start();
-  mock.invalidate("observation-gap");
+  mock.invalidate();
 
   expect(reach.state.get()).toMatchObject({
     generation: 2,

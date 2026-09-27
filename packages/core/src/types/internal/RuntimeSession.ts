@@ -10,7 +10,6 @@ export type RefreshFlight = {
 export type RuntimeSession = {
   id: number;
   scope: ResourceScope;
-  controller: AbortController;
   /** The last place handed out in the source's order. */
   reserved: number;
   /** The last place whose report was accepted; older ones are obsolete. */

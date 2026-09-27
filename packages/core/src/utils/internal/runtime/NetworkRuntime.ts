@@ -405,7 +405,6 @@ export class NetworkRuntime<TNative> {
     const session: RuntimeSession = {
       id: this.#sessions,
       scope: new ResourceScope(this.#hooks.reportCleanupError),
-      controller: new AbortController(),
       reserved: 0,
       committed: 0,
       pending: null,
@@ -526,7 +525,6 @@ export class NetworkRuntime<TNative> {
 
   #endSession(session: RuntimeSession, error: ReachError) {
     session.cancelOpening();
-    session.controller.abort();
     session.scope.dispose();
 
     const { refresh } = session;
@@ -568,7 +566,6 @@ export class NetworkRuntime<TNative> {
 
   #createContext(session: RuntimeSession): NetworkAdapterContext {
     return Object.freeze({
-      signal: session.controller.signal,
       emit: (observation: NetworkObservation) => {
         this.#intakeObservation(session, this.#reserve(session), observation);
       },
@@ -588,11 +585,10 @@ export class NetworkRuntime<TNative> {
           },
         });
       },
-      invalidate: (reason: "observation-gap" | "source-reset") => {
+      invalidate: () => {
         this.#intake(session, {
           kind: "gap",
           sequence: this.#reserve(session),
-          reason,
         });
       },
       reportError: () => {
@@ -667,8 +663,11 @@ export class NetworkRuntime<TNative> {
     const state = this.state.get();
 
     if (intake.kind === "gap") {
-      this.#publish(getStaleFacts(state, intake.reason), state.generation + 1);
-      this.#hooks.record("source-invalidated", { reason: intake.reason });
+      this.#publish(
+        getStaleFacts(state, "observation-gap"),
+        state.generation + 1,
+      );
+      this.#hooks.record("source-invalidated");
 
       return;
     }

@@ -53,7 +53,7 @@ export const browser = ({
 
     // A page on its way into the back/forward cache or a freeze stops being observed.
     const handleGap = () => {
-      context.invalidate("observation-gap");
+      context.invalidate();
     };
 
     // Subscribed before the first read, so a change during that read is not lost.

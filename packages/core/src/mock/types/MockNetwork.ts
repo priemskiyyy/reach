@@ -22,7 +22,7 @@ export type MockNetwork = {
     emit: (input?: ObservationInput) => void;
     reportError: (error: unknown) => void;
   };
-  invalidate: (reason?: "observation-gap" | "source-reset") => void;
+  invalidate: () => void;
   reportError: (error: unknown) => void;
   /** Answers the oldest held `open` with its session. */
   resolveOpen: () => void;

@@ -129,10 +129,8 @@ export const createMockNetwork = ({
         reportError: slot.reportError,
       };
     },
-    invalidate: (
-      reason: "observation-gap" | "source-reset" = "observation-gap",
-    ) => {
-      getLatest().invalidate(reason);
+    invalidate: () => {
+      getLatest().invalidate();
     },
     reportError: (error: unknown) => {
       getLatest().reportError(error);
