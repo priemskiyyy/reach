@@ -1,0 +1,26 @@
+import type { FieldObservation } from "@priemskiyyy/reach";
+
+import type { NetInfoStateLike } from "src/types/NetInfoStateLike";
+import type { NetInfoProfile } from "src/types/internal/NetInfoProfile";
+
+/**
+ * Android reads the system's metering answer. iOS derives its flag from the
+ * cellular transport, which is neither metering nor the system's expense, so
+ * it is unsupported there.
+ */
+export const readNetInfoMetered = (
+  { details }: NetInfoStateLike,
+  { platform }: NetInfoProfile,
+): FieldObservation<boolean> => {
+  if (platform === "ios") {
+    return { status: "unsupported" };
+  }
+
+  const expensive = details?.isConnectionExpensive;
+
+  if (typeof expensive !== "boolean") {
+    return { status: "unknown" };
+  }
+
+  return { status: "current", value: expensive, basis: "native-metering" };
+};
