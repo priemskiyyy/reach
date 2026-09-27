@@ -449,6 +449,11 @@ export class EndpointRecord {
     }
   }
 
+  // A result that arrives after its deadline loses to the timeout, however the tasks were ordered.
+  #isPastDeadline(flight: ProbeFlight) {
+    return this.#environment.clock.monotonic() >= flight.deadline;
+  }
+
   #complete(flight: ProbeFlight, { verdict, response, reason }: ProbeResult) {
     this.#release(flight);
 
@@ -456,8 +461,7 @@ export class EndpointRecord {
       return;
     }
 
-    // A result that arrives after its deadline loses to the timeout, however the tasks were ordered.
-    if (this.#environment.clock.monotonic() >= flight.deadline) {
+    if (this.#isPastDeadline(flight)) {
       this.#timeOut(flight);
 
       return;
@@ -548,7 +552,7 @@ export class EndpointRecord {
       return;
     }
 
-    if (this.#environment.clock.monotonic() >= flight.deadline) {
+    if (this.#isPastDeadline(flight)) {
       this.#timeOut(flight);
 
       return;
