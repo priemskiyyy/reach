@@ -291,3 +291,29 @@ test("the definition keeps every endpoint option and takes the request as its ch
     monitoring: { on: ["start"], interval: 60_000 },
   });
 });
+
+test("an answer that arrives after its check was aborted is never tested", async () => {
+  const client = createFakeClient();
+  const tested: Health[] = [];
+
+  const { network, api } = createHttpReach({
+    request: client.request,
+    test: (health) => {
+      tested.push(health);
+
+      return isReady(health);
+    },
+    staleAfter: 30_000,
+  });
+
+  const checking = api.check();
+
+  await settle();
+  network.emit(CONNECTED_CELLULAR);
+  await expect(checking).rejects.toMatchObject({ code: "SUPERSEDED" });
+
+  client.answer({ status: "ready" });
+  await settle();
+
+  expect(tested).toEqual([]);
+});

@@ -42,6 +42,11 @@ export const http = <TData>({
       return REQUEST_FAILED;
     }
 
+    // Reach no longer reads the answer of an aborted check, so it is never tested.
+    if (context.signal.aborted) {
+      return REQUEST_FAILED;
+    }
+
     if (test === undefined) {
       return PASSED;
     }
