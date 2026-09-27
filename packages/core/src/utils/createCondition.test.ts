@@ -2,6 +2,11 @@ import { expect, test, vi } from "vitest";
 
 import { createCondition } from "src/utils/createCondition";
 import { ValueStore } from "src/utils/internal/observable/ValueStore";
+import {
+  CONNECTED_CELLULAR,
+  CONNECTED_WIFI,
+  createReach,
+} from "src/utils/Reach.fixture";
 import { ReachError } from "src/utils/ReachError";
 
 test("T060 a custom condition follows every declared source", () => {
@@ -60,6 +65,32 @@ test("T060 a value the evaluator closes over is not observed", () => {
 
   expect(listener).not.toHaveBeenCalled();
   expect(condition.get().status).toBe("unmet");
+});
+
+test("T064 the network and an unrelated store update independently, each with its own notification", () => {
+  const { reach, mock } = createReach({ initial: CONNECTED_WIFI });
+  const settings = new ValueStore({ allowCellular: false });
+  const seen: string[] = [];
+
+  const uploads = createCondition({
+    sources: { network: reach.state, settings: settings.observable },
+    evaluate: ({ network, settings: { allowCellular } }) => {
+      if (network.connection.type === "wifi") {
+        return "met";
+      }
+
+      return allowCellular ? "met" : "unmet";
+    },
+  });
+
+  uploads.subscribe(() => seen.push(uploads.get().status));
+
+  reach.start();
+  mock.emit(CONNECTED_CELLULAR);
+  settings.update({ allowCellular: true });
+
+  // Nothing makes the two stores change together: the reader sees the step between them.
+  expect(seen).toEqual(["met", "unmet", "met"]);
 });
 
 test("T061 a throwing evaluator answers unknown and reports an evaluation error", () => {
