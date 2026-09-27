@@ -1,4 +1,4 @@
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 
 import { createTestClock } from "src/mock/createTestClock";
 import { DeadlineScheduler } from "src/utils/internal/scheduling/DeadlineScheduler";
@@ -64,4 +64,32 @@ test("T090 a wait longer than the host timer holds is armed again in segments", 
 
   clock.advance(1);
   expect(log).toEqual(["due"]);
+});
+
+test("a deadline that throws is reported, and the ones after it still run", () => {
+  const reported: unknown[] = [];
+
+  vi.spyOn(globalThis, "queueMicrotask").mockImplementation((task) => {
+    try {
+      task();
+    } catch (error) {
+      reported.push(error);
+    }
+  });
+
+  const clock = createTestClock();
+  const scheduler = new DeadlineScheduler(clock);
+  const failure = new Error("deadline");
+  const log: string[] = [];
+
+  scheduler.schedule(100, () => {
+    throw failure;
+  });
+  scheduler.schedule(100, () => log.push("same wake"));
+  scheduler.schedule(200, () => log.push("next wake"));
+
+  clock.advance(200);
+
+  expect(log).toEqual(["same wake", "next wake"]);
+  expect(reported).toEqual([failure]);
 });

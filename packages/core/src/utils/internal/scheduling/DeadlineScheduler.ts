@@ -1,4 +1,6 @@
 import type { ReachClock } from "src/types/ReachClock";
+import { isolate } from "src/utils/internal/reporting/isolate";
+import { reportUnhandledError } from "src/utils/internal/reporting/reportUnhandledError";
 
 type Deadline = { at: number; run: () => void };
 
@@ -77,7 +79,8 @@ export class DeadlineScheduler {
     // A deadline one of these runs schedules in the past runs in this wake too.
     while (due !== null) {
       this.#deadlines.delete(due);
-      due.run();
+      // One failing deadline never leaves the rest without a timer.
+      isolate(due.run, reportUnhandledError);
       due = this.#getDue();
     }
 
