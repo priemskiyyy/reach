@@ -247,6 +247,45 @@ test("reading this browser, metering cannot be told, so automatic backup waits",
   );
 });
 
+test("watchers read the API without sending a request or adding a monitor", async () => {
+  await renderApplication();
+
+  fireEvent.click(
+    within(region("Network")).getByRole("button", { name: "Clear" }),
+  );
+  press("Add a watcher");
+  press("Add a watcher");
+  press("Add a watcher");
+
+  expect(
+    within(screen.getByRole("list", { name: "Watchers" })).getByText(
+      "Watcher 3: Available",
+    ),
+  ).toBeTruthy();
+  expect(readRequests()).toEqual([]);
+  expect(
+    screen.getByRole("contentinfo", { name: "Reach session" }).textContent,
+  ).toContain("monitors 1");
+});
+
+test("a client that ignores cancel leaves a timed-out check detached until its answer arrives", async () => {
+  await renderApplication();
+
+  press("6 s");
+  press("Client ignores cancel");
+  press("Check now");
+
+  await waitFor(
+    () => {
+      expect(
+        screen.getByRole("status", { name: "Check result" }).textContent,
+      ).toBe("Check #2 failed: no answer within 3 s.");
+    },
+    { timeout: 5_000 },
+  );
+  expect(region("The API endpoint").textContent).toContain("Detached1");
+});
+
 test("reading the network again answers unchanged, and the timeline tells the session", async () => {
   await renderApplication();
 

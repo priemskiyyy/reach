@@ -1,4 +1,4 @@
-import { Eraser, Heartbeat, UsersThree } from "@phosphor-icons/react";
+import { Eraser, Eye, Heartbeat, UsersThree } from "@phosphor-icons/react";
 import { useEndpoint } from "@priemskiyyy/reach-react";
 import type React from "react";
 
@@ -13,6 +13,7 @@ import { formatCheckRequest } from "example-shared/formatting/formatCheckRequest
 import { formatSeconds } from "example-shared/formatting/formatSeconds";
 import { buttonStyles } from "example-shared/ui/styles/buttonStyles";
 import { FreshnessMeter } from "src/components/Endpoint/FreshnessMeter";
+import { Watchers } from "src/components/Endpoint/Watchers";
 import { Panel } from "src/components/Panel/Panel";
 import { useNow } from "src/hooks/useNow";
 import { useObservable } from "src/hooks/useObservable";
@@ -20,24 +21,32 @@ import { useObservable } from "src/hooks/useObservable";
 type EndpointPanelProps = {
   runtime: DarkroomRuntime;
   request: CheckRequest | null;
+  watchers: number;
   onCheckPress: (callers: number) => void;
   onInvalidatePress: () => void;
+  onWatchPress: () => void;
+  onUnwatchPress: () => void;
 };
 
 export const EndpointPanel: React.FunctionComponent<EndpointPanelProps> = ({
   runtime,
   request,
+  watchers,
   onCheckPress,
   onInvalidatePress,
+  onWatchPress,
+  onUnwatchPress,
 }) => {
   const state = useEndpoint(runtime.api);
-  const { endpoints } = useObservable(runtime.reach.diagnostics);
+  const { endpoints, checks } = useObservable(runtime.reach.diagnostics);
   const now = useNow(1_000);
   const [api] = endpoints;
 
   const rows = [
     { label: "Monitors", value: `${api?.monitors ?? 0}` },
     { label: "Callers waiting", value: `${api?.waiters ?? 0}` },
+    { label: "Checks running", value: `${checks.outstanding}` },
+    { label: "Detached", value: `${checks.detached}` },
     { label: "Counts for", value: formatSeconds(API_STALE_AFTER) },
     { label: "Times out after", value: formatSeconds(API_TIMEOUT) },
     {
@@ -92,6 +101,27 @@ export const EndpointPanel: React.FunctionComponent<EndpointPanelProps> = ({
           ? "Ask for a check, or for two at once and watch the network log."
           : formatCheckRequest(request)}
       </p>
+      <div className="flex flex-col gap-3 rounded-xl border border-dashed border-slate-300 p-4 dark:border-slate-700">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={onWatchPress}
+            className={buttonStyles({ size: "small" })}
+          >
+            <Eye aria-hidden="true" size={14} weight="bold" />
+            Add a watcher
+          </button>
+          <button
+            type="button"
+            disabled={watchers === 0}
+            onClick={onUnwatchPress}
+            className={buttonStyles({ variant: "ghost", size: "small" })}
+          >
+            Remove watchers
+          </button>
+        </div>
+        <Watchers runtime={runtime} count={watchers} />
+      </div>
       <dl className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-xl bg-slate-100/70 p-4 text-sm sm:grid-cols-3 dark:bg-slate-800/40">
         {rows.map(({ label, value }) => (
           <div key={label} className="flex min-w-0 flex-col">

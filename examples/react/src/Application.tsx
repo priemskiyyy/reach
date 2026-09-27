@@ -37,6 +37,7 @@ export const Application: React.FunctionComponent<ApplicationProps> = ({
   const [runtime, setRuntime] = useState(initialRuntime);
   const [refresh, setRefresh] = useState<RefreshOutcome | null>(null);
   const [request, setRequest] = useState<CheckRequest | null>(null);
+  const [watchers, setWatchers] = useState(0);
 
   const handleAccountSelect = (account: AccountId | null) => {
     services.account.set(account);
@@ -78,6 +79,14 @@ export const Application: React.FunctionComponent<ApplicationProps> = ({
 
   const handleInvalidatePress = () => {
     runtime.api.invalidate();
+  };
+
+  const handleWatchPress = () => {
+    setWatchers(watchers + 1);
+  };
+
+  const handleUnwatchPress = () => {
+    setWatchers(0);
   };
 
   return (
@@ -128,13 +137,16 @@ export const Application: React.FunctionComponent<ApplicationProps> = ({
           <EndpointPanel
             runtime={runtime}
             request={request}
+            watchers={watchers}
             onCheckPress={handleCheckPress}
             onInvalidatePress={handleInvalidatePress}
+            onWatchPress={handleWatchPress}
+            onUnwatchPress={handleUnwatchPress}
           />
         </Section>
         <Section
           id="lab"
-          hint="Take your API offline and take a photo. The upload fails, Darkroom drops the API's answer and checks again, and automatic backup pauses instead of retrying in a loop."
+          hint="Take your API offline and take a photo. The upload fails, Darkroom drops the API's answer and checks again, and automatic backup pauses instead of retrying in a loop. Then set 6 s, turn on Client ignores cancel and check: Reach gives up at 3 s, but the request runs on, detached, and its late answer changes nothing."
         >
           <div className="grid gap-3 xl:grid-cols-2">
             <LabPanel services={services} source={runtime.source} />
