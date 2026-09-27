@@ -76,7 +76,7 @@ export const link = (source: LinkSource): NetworkAdapter<LinkSource> => ({
 - **Cold until opened.** Creating the adapter reads nothing and subscribes to nothing. `available()` probes the host cheaply: a host without the source answers `false`, and the runtime runs with every fact unsupported instead of failing.
 - **Subscribe, then read.** Add the listener before the first read, so a change during that read is not lost.
 - **Complete reports.** Every `emit` reports every fact. A fact left `unknown` is unknown; nothing keeps an earlier value.
-- **Never stronger than the source.** An ambiguous answer is `unknown` with `source-ambiguous`, never offline. A fact the source cannot observe is `unsupported`. A report's basis must be one its capability declares.
+- **Never stronger than the source.** An ambiguous answer is `unknown` with `source-ambiguous`, never offline. A fact the source cannot observe is declared and reported `unsupported`, and only such a fact is. A report's basis must be one its capability declares.
 - **Ordered reads.** A read that finishes later calls `context.reserve()` when it starts, and reports through the slot it got, so an event that arrived meanwhile wins.
 - **Gaps.** When the source knows it may have missed changes, such as a switch to another network of the same type that the facts cannot show, call `context.invalidate()`. Every fact goes stale and a new generation starts.
 - **Errors.** `context.reportError(error)` turns every fact into an error, never offline. A throwing `open` fails the opening.
@@ -139,6 +139,6 @@ const { passed } = await testNetworkAdapter(() => {
 console.info(passed);
 ```
 
-The suite runs seven checks: creating and probing the adapter subscribes to nothing, opening declares a capability for every fact, every report is complete and within the declared capabilities, a change is reported, releasing removes every subscription, a second session observes again, and a refresh settles.
+The suite runs seven checks, each on its own Reach that is disposed however the check ends: creating and probing the adapter subscribes to nothing, opening declares a capability for every fact, every report is complete and within the declared capabilities, a change is reported, releasing removes every subscription without a cleanup throwing, a second session observes again, and a refresh reports what it read.
 
 Write a `*.contracts.ts` file too, proving the real SDK's types fit the structural ones your adapter declares, as every adapter in this repository does.
