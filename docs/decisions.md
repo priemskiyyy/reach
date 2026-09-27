@@ -60,4 +60,5 @@ The adapters are tested against fakes modeled on the SDK sources and against the
 - Real NetInfo and Expo Network reports on iOS and Android.
 - Real browser `online`, `offline`, `pagehide`, `freeze` and Network Information events.
 - React Native fetch clients honoring abort through the HTTP endpoint.
-- Installing the packed packages into an independent consumer.
+
+The packed packages are verified: `pnpm verify:packages` installs every tarball into a consumer without any native SDK, React or Query, imports each entry in Node without browser globals, and typechecks it.
