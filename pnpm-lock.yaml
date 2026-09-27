@@ -100,6 +100,16 @@ importers:
 
   packages/core: {}
 
+  packages/react:
+    dependencies:
+      react:
+        specifier: '>=19.2.0 <20'
+        version: 19.2.8
+    devDependencies:
+      '@priemskiyyy/reach':
+        specifier: workspace:*
+        version: link:../core
+
 packages:
 
   '@acemir/cssom@0.9.31':
