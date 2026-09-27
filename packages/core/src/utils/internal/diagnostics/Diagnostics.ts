@@ -37,8 +37,7 @@ export class Diagnostics {
     cleanupErrors: 0,
   };
 
-  #version = 0;
-  #snapshot: { version: number; value: ReachDiagnosticSnapshot } | null = null;
+  #snapshot: ReachDiagnosticSnapshot | null = null;
   #announcing = false;
   #closed = false;
 
@@ -71,10 +70,8 @@ export class Diagnostics {
     this.#emit(this.#createEvent(type, details));
   };
 
-  /** Marks the snapshot outdated, and tells its observers once the current work is done. */
+  /** Tells the snapshot's observers once the current work is done. */
   changed = () => {
-    this.#version += 1;
-
     if (this.#announcing) {
       return;
     }
@@ -93,7 +90,6 @@ export class Diagnostics {
       return;
     }
 
-    this.#version += 1;
     this.#snapshotListeners.notify();
     this.#closed = true;
     this.#snapshotListeners.clear();
@@ -126,18 +122,23 @@ export class Diagnostics {
     }),
   });
 
+  // Collected on every read, since time and changes without an event move it
+  // too; an equal snapshot keeps its identity. It is plain data built in one
+  // key order, so its JSON tells equal ones apart.
   #getSnapshot() {
-    const snapshot = this.#snapshot;
+    const previous = this.#snapshot;
+    const next = this.#collect(Object.freeze({ ...this.#counters }));
 
-    if (snapshot !== null && snapshot.version === this.#version) {
-      return snapshot.value;
+    if (
+      previous !== null &&
+      JSON.stringify(previous) === JSON.stringify(next)
+    ) {
+      return previous;
     }
 
-    const value = this.#collect(Object.freeze({ ...this.#counters }));
+    this.#snapshot = next;
 
-    this.#snapshot = { version: this.#version, value };
-
-    return value;
+    return next;
   }
 
   #announce = () => {

@@ -192,3 +192,61 @@ test("T160 churn leaves no session, timer, check or listener behind", async () =
     endpoints: [{ monitors: 0, waiters: 0, checking: false }],
   });
 });
+
+test("the snapshot reads each endpoint as it is now, after an invalidation or with time", async () => {
+  const { reach, probe, api, clock } = createEndpointReach();
+
+  reach.start();
+
+  const first = api.check();
+
+  probe.pass();
+  await first;
+
+  expect(reach.diagnostics.get().endpoints[0]?.status).toBe("available");
+
+  api.invalidate();
+
+  expect(reach.diagnostics.get().endpoints[0]?.status).toBe(
+    api.state.get().status,
+  );
+
+  const second = api.check();
+
+  probe.pass();
+  await second;
+
+  expect(reach.diagnostics.get().endpoints[0]?.status).toBe("available");
+
+  // A suspended host wakes past the deadline before its timer runs.
+  clock.skip(30_000);
+
+  expect(api.state.get().status).toBe("unknown");
+  expect(reach.diagnostics.get().endpoints[0]?.status).toBe("unknown");
+});
+
+test("a state listener reads the snapshot of the generation it hears", () => {
+  const { reach, setActivity } = createEndpointReach({
+    activity: "foreground",
+  });
+
+  const generations: Array<[number, number]> = [];
+
+  reach.start();
+  reach.state.subscribe(() => {
+    generations.push([
+      reach.state.get().generation,
+      reach.diagnostics.get().networkGeneration,
+    ]);
+  });
+
+  setActivity("background");
+  reach.diagnostics.get();
+  setActivity("foreground");
+
+  expect(generations.length).toBeGreaterThan(0);
+
+  for (const [state, snapshot] of generations) {
+    expect(snapshot).toBe(state);
+  }
+});
