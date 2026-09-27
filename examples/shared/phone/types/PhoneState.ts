@@ -5,6 +5,6 @@ export type PhoneState = {
   lowDataMode: boolean;
   /** The phone's connectivity service stopped answering. */
   failing: boolean;
-  /** Between two Wi-Fi networks of the same name, reporting nothing. */
-  rejoining: boolean;
+  /** Joining another network of the same type, which the facts alone cannot show, and reporting nothing meanwhile. */
+  joining: boolean;
 };

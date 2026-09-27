@@ -2,7 +2,7 @@ import { Reach } from "@priemskiyyy/reach";
 import { testNetworkAdapter } from "@priemskiyyy/reach/testing";
 import { afterEach, expect, test, vi } from "vitest";
 
-import { REJOIN_DELAY } from "example-shared/phone/constants/phone";
+import { JOIN_DELAY } from "example-shared/phone/constants/phone";
 import { createSimulatedPhone } from "example-shared/phone/createSimulatedPhone";
 
 const reaches: Reach<unknown>[] = [];
@@ -61,7 +61,9 @@ test("on home Wi-Fi every fact is current, and the internet rests on the phone's
 test("behind a sign-in page the internet is unknown for an ambiguous source, never offline", async () => {
   const { phone, reach } = await startPhone();
 
+  vi.useFakeTimers();
   phone.setLink("portal");
+  vi.advanceTimersByTime(JOIN_DELAY);
 
   expect(reach.state.get()).toMatchObject({
     connection: { status: "connected", type: "wifi" },
@@ -73,20 +75,21 @@ test("behind a sign-in page the internet is unknown for an ambiguous source, nev
   });
 });
 
-test("a hotspot is Wi-Fi that is metered, and cellular is metered too", async () => {
+test("cellular is metered, and so is a hotspot joined from it at once", async () => {
   const { phone, reach } = await startPhone();
-
-  phone.setLink("hotspot");
-
-  expect(reach.state.get()).toMatchObject({
-    connection: { type: "wifi" },
-    cost: { metered: true, expensive: true },
-  });
 
   phone.setLink("cellular");
 
   expect(reach.state.get()).toMatchObject({
     connection: { type: "cellular", transports: ["cellular"] },
+    cost: { metered: true, expensive: true },
+  });
+
+  phone.setLink("hotspot");
+
+  expect(phone.state.get().joining).toBe(false);
+  expect(reach.state.get()).toMatchObject({
+    connection: { type: "wifi" },
     cost: { metered: true, expensive: true },
   });
 });
@@ -137,23 +140,23 @@ test("a failing service turns every fact into an error, and its next report reco
   });
 });
 
-test("rejoining makes every fact stale in a new generation until the phone reports again", async () => {
+test("joining another Wi-Fi makes every fact stale in a new generation until the phone reports the new one", async () => {
   const { phone, reach } = await startPhone();
   const { generation } = reach.state.get();
 
   vi.useFakeTimers();
-  phone.rejoin();
   phone.setLink("hotspot");
 
+  expect(phone.state.get().joining).toBe(true);
   expect(reach.state.get().generation).toBe(generation + 1);
   expect(reach.state.get().evidence["connection.type"]).toMatchObject({
     status: "stale",
     reason: "observation-gap",
   });
 
-  vi.advanceTimersByTime(REJOIN_DELAY);
+  vi.advanceTimersByTime(JOIN_DELAY);
 
-  expect(phone.state.get().rejoining).toBe(false);
+  expect(phone.state.get().joining).toBe(false);
   expect(reach.state.get()).toMatchObject({
     connection: { type: "wifi" },
     cost: { metered: true },

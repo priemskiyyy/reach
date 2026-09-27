@@ -5,15 +5,20 @@ import type {
 } from "@priemskiyyy/reach";
 
 import { PHONE_CAPABILITIES } from "example-shared/phone/constants/capabilities";
-import {
-  PHONE_NATIVE,
-  REJOIN_DELAY,
-} from "example-shared/phone/constants/phone";
+import { LINK_REPORTS } from "example-shared/phone/constants/links";
+import { JOIN_DELAY, PHONE_NATIVE } from "example-shared/phone/constants/phone";
 import { readPhoneObservation } from "example-shared/phone/readPhoneObservation";
 import type { PhoneLink } from "example-shared/phone/types/PhoneLink";
 import type { PhoneState } from "example-shared/phone/types/PhoneState";
 import type { SimulatedPhoneNative } from "example-shared/phone/types/SimulatedPhoneNative";
 import { createValueStore } from "example-shared/utils/createValueStore";
+
+const readType = (link: PhoneLink) =>
+  link === "none" ? "none" : LINK_REPORTS[link].type;
+
+// Another network of the same type looks the same in its connection facts.
+const isSameTypeSwitch = (previous: PhoneLink, next: PhoneLink) =>
+  previous !== next && readType(previous) === readType(next);
 
 /**
  * A phone's network stack inside the page, and a real Reach adapter over it.
@@ -25,16 +30,16 @@ export const createSimulatedPhone = () => {
     link: "wifi",
     lowDataMode: false,
     failing: false,
-    rejoining: false,
+    joining: false,
   });
 
   const sessions = new Set<NetworkAdapterContext>();
 
-  // Between networks the phone says nothing, and a failing service says only that it failed.
+  // While joining the phone says nothing, and a failing service says only that it failed.
   const report = (target: ObservationSlot) => {
     const current = state.get();
 
-    if (current.rejoining) {
+    if (current.joining) {
       return;
     }
 
@@ -78,33 +83,35 @@ export const createSimulatedPhone = () => {
   return {
     adapter,
     state: { get: state.get, subscribe: state.subscribe },
-    setLink: (link: PhoneLink) => {
-      update({ link });
-    },
-    setLowDataMode: (lowDataMode: boolean) => {
-      update({ lowDataMode });
-    },
-    setFailing: (failing: boolean) => {
-      update({ failing });
-    },
     /**
-     * Moves to another Wi-Fi of the same name. The type never changes, so the
-     * phone says it may have missed changes, and reports again once joined.
+     * Joins another link. A switch to another network of the same type looks
+     * the same in every fact, so the phone says it may have missed changes
+     * and reports again once joined.
      */
-    rejoin: () => {
-      if (state.get().rejoining) {
+    setLink: (link: PhoneLink) => {
+      const { link: previous, joining } = state.get();
+
+      if (joining || !isSameTypeSwitch(previous, link)) {
+        update({ link });
+
         return;
       }
 
-      update({ rejoining: true });
+      update({ link, joining: true });
 
       for (const context of sessions) {
         context.invalidate();
       }
 
       setTimeout(() => {
-        update({ rejoining: false });
-      }, REJOIN_DELAY);
+        update({ joining: false });
+      }, JOIN_DELAY);
+    },
+    setLowDataMode: (lowDataMode: boolean) => {
+      update({ lowDataMode });
+    },
+    setFailing: (failing: boolean) => {
+      update({ failing });
     },
     sessionCount: () => sessions.size,
   };

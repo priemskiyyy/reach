@@ -4,5 +4,5 @@ export const PHONE_NATIVE: SimulatedPhoneNative = {
   model: "Darkroom test phone",
 };
 
-/** How long the phone stays between two networks of the same name. */
-export const REJOIN_DELAY = 1_500;
+/** How long the phone takes to join another network of the same type. */
+export const JOIN_DELAY = 1_500;
