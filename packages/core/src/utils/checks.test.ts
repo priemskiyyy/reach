@@ -380,6 +380,29 @@ test("T101 invalidating drops the result and the check without checking again", 
   expect(probe.calls).toHaveLength(2);
 });
 
+test("T105 a completion, a cancellation and disposal racing settle the waiter once and clean up once", async () => {
+  const { reach, probe, api, mock } = createEndpointReach();
+  const lease = reach.start();
+  const controller = new AbortController();
+  const settled = vi.fn();
+
+  api.check({ signal: controller.signal }).then(settled, settled);
+
+  probe.pass();
+  controller.abort();
+  reach.dispose();
+  lease.release();
+  reach.dispose();
+  await settle();
+
+  expect(settled).toHaveBeenCalledTimes(1);
+  expect(mock.stats().cleanups).toBe(1);
+  expect(reach.diagnostics.get().checks).toEqual({
+    outstanding: 0,
+    detached: 0,
+  });
+});
+
 test("T102 T104 a check that ignores abort keeps its slot until its own promise settles", async () => {
   const { reach, probe, api, clock } = createEndpointReach({
     endpoint: { timeout: 1_000 },
