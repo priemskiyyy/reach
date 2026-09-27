@@ -782,13 +782,19 @@ export class NetworkRuntime<TNative> {
         getStaleFacts(state, "observation-gap"),
         state.generation + 1,
       );
+
+      // A state listener may have ended this session.
+      if (!this.#isLive(session)) {
+        return;
+      }
+
       this.#hooks.record("source-invalidated");
 
       return;
     }
 
     if (intake.kind === "error") {
-      this.#applyError(state, intake.reason);
+      this.#applyError(session, state, intake.reason);
 
       return;
     }
@@ -802,16 +808,20 @@ export class NetworkRuntime<TNative> {
     assertUnreachable(intake);
   }
 
-  #applyError(state: NetworkState, reason: string) {
+  // Recorded once published, so a listener of the event reads after the error.
+  #applyError(session: RuntimeSession, state: NetworkState, reason: string) {
     const facts = getFailedFacts(state, reason);
 
-    this.#hooks.record("source-error", { reason });
+    if (!isSameFacts(state, facts)) {
+      this.#publish(facts, state.generation + 1);
+    }
 
-    if (isSameFacts(state, facts)) {
+    // A state listener may have ended this session.
+    if (!this.#isLive(session)) {
       return;
     }
 
-    this.#publish(facts, state.generation + 1);
+    this.#hooks.record("source-error", { reason });
   }
 
   #applyObservation(

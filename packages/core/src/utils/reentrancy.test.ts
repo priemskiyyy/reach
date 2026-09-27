@@ -378,3 +378,23 @@ test("a probe that starts again joins the opening instead of opening another", (
 
   expect(mock.stats().activeSessions).toBe(0);
 });
+
+test("a diagnostics listener that refreshes on a source error reads after it", () => {
+  const { reach, mock } = createReach({ initial: CONNECTED_WIFI });
+  let refreshed = false;
+
+  reach.start();
+  reach.diagnostics.events.subscribe(({ type }) => {
+    if (type !== "source-error" || refreshed) {
+      return;
+    }
+
+    refreshed = true;
+    reach.refresh().catch(() => {});
+  });
+  mock.reportError(new Error("listener failed"));
+
+  expect(reach.state.get().evidence["connection.status"].status).toBe(
+    "current",
+  );
+});
