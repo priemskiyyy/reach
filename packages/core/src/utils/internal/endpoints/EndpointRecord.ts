@@ -63,6 +63,9 @@ export class EndpointRecord {
     this.#expiry = environment.createListeners();
     this.#settlements = environment.createListeners();
 
+    // The record moves the diagnostic snapshot, with or without an event.
+    this.#record.subscribe(environment.changed);
+
     const { scope } = definition;
 
     // Expiry is time, not a commit: a read past the deadline already answers stale.

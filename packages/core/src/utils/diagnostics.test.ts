@@ -250,3 +250,23 @@ test("a state listener reads the snapshot of the generation it hears", () => {
     expect(snapshot).toBe(state);
   }
 });
+
+test("observers hear an invalidation, which records no event", async () => {
+  const { reach, probe, api } = createEndpointReach();
+  const listener = vi.fn();
+
+  reach.diagnostics.subscribe(listener);
+  reach.start();
+
+  const checking = api.check();
+
+  probe.pass();
+  await checking;
+  await settle();
+  listener.mockClear();
+
+  api.invalidate();
+  await settle();
+
+  expect(listener).toHaveBeenCalledTimes(1);
+});
