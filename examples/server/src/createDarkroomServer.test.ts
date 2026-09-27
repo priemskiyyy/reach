@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 
-import { ACCOUNT_HEADER, createDarkroomServer } from "src/createDarkroomServer";
+import { ACCOUNT_HEADER } from "example-shared/backend/constants/headers";
+import { createDarkroomServer } from "src/createDarkroomServer";
 
 const listen = async () => {
   const host = createDarkroomServer();

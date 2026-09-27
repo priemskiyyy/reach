@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import type { IncomingMessage, ServerResponse } from "node:http";
 
+import { ACCOUNT_HEADER } from "example-shared/backend/constants/headers";
 import { createPhotosBackend } from "example-shared/backend/createPhotosBackend";
 import { applyBackendChange } from "src/applyBackendChange";
 import {
@@ -9,8 +10,6 @@ import {
   photoPath,
   readRequestBody,
 } from "src/requests";
-
-export const ACCOUNT_HEADER = "x-darkroom-account";
 
 const CORS_HEADERS = {
   "access-control-allow-origin": "*",
