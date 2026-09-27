@@ -252,6 +252,9 @@ export class NetworkRuntime<TNative> {
       this.#endSession(ownership.session, error);
     }
 
+    // Pending checks learn why they end before the stale state starts a new generation.
+    this.#hooks.onStop(transaction, error);
+
     if (ownership.state === "RUNNING") {
       this.#endSession(ownership.session, error);
 
@@ -267,7 +270,6 @@ export class NetworkRuntime<TNative> {
     transaction.set(this.status, DISPOSED_STATUS);
     transaction.set(this.capabilities, null);
     transaction.set(this.native, null);
-    this.#hooks.onStop(transaction, error);
     transaction.commit();
     this.#hooks.record("disposed");
     this.state.close();
@@ -376,6 +378,9 @@ export class NetworkRuntime<TNative> {
 
     const transaction = new Transaction();
 
+    // Pending checks learn why they end before the stale state starts a new generation.
+    this.#hooks.onStop(transaction, stopped);
+
     if (ownership.state === "RUNNING") {
       const state = this.state.get();
 
@@ -389,7 +394,6 @@ export class NetworkRuntime<TNative> {
     transaction.set(this.status, IDLE_STATUS);
     transaction.set(this.capabilities, null);
     transaction.set(this.native, null);
-    this.#hooks.onStop(transaction, stopped);
     transaction.commit();
     this.#hooks.record("session-stopped");
   }
