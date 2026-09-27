@@ -25,7 +25,7 @@ Reach never throws into its host from a callback. An adapter, a check, an evalua
 
 A network adapter maps one source's reports onto field observations and nothing more. The rules that are easiest to break:
 
-- It is a plain `NetworkAdapter`, a `name` and an `open(context)`. The factory is cold: nothing is read or subscribed until `open`.
+- It is a plain `NetworkAdapter`: a `name`, an `available()` that probes the host cheaply, and an `open(context)`. The factory is cold: nothing is read or subscribed until `open`. A host without the source is unavailable, never an error.
 - It takes the SDK the application set up, never configures it, and removes only the listeners it added.
 - It never claims stronger evidence than its source gives. An ambiguous negative is `unknown` with `source-ambiguous`, never offline. A field the source cannot observe is `unsupported`.
 - A read that finishes after subscribing reserves its place first with `context.reserve()`, so an event that arrives meanwhile wins.

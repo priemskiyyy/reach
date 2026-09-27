@@ -29,7 +29,7 @@ State that others read lives in `ValueStore`. Values computed from it, such as c
 2. The runtime gives each report a place in the order. A reserved slot holds the place it had when it was reserved, so a slow read never overwrites an event that arrived after it.
 3. While the session opens, reports wait. They become evidence only if the runtime adopts that session.
 4. `readObservation` turns each field observation into evidence. A field left out of a report is unknown, never its previous value.
-5. A report identical in every fact publishes nothing. A report whose route differs, or a gap, advances the generation.
+5. A report identical in every fact publishes nothing. A report whose connection status or type differs, or a gap, advances the generation.
 6. A new generation supersedes endpoint checks that started under the old one before anyone can read the new state.
 
 Tests: T039 to T043 in `runtime.test.ts` for order and adoption, T013 and T016 for identical and partial reports, T046 for errors, T100 in `checks.test.ts` for supersession.
@@ -55,6 +55,7 @@ Tests: T109 to T124 in `monitoring.test.ts`.
 ## Lifetime
 
 - Constructing a Reach opens nothing, arms no timer and reads no clock (T001).
+- An unavailable host never opens the adapter: the runtime runs with every fact `unsupported` and the lease resolves.
 - Concurrent owners share one opening, and one owner's release leaves the session to the others (T033, T034).
 - A session that opens after its last owner left is never adopted, and its cleanups run at once (T036, T038).
 - Stopping and disposing supersede running checks before installing stale facts, so a check never reads as superseded by a network change it never saw.
@@ -63,6 +64,6 @@ Tests: T109 to T124 in `monitoring.test.ts`.
 
 ## Adapters
 
-An adapter is a plain object with a `name` and `open(context)`. It declares its capabilities once per session; the core copies and freezes them. `testNetworkAdapter` in `@priemskiyyy/reach/testing` runs seven contract checks against any adapter, and every adapter in this repository passes them in its `conformance.test.ts`.
+An adapter is a plain object with a `name`, `available()` and `open(context)`. A host without the source, such as a server render, never opens it: the runtime runs with every fact `unsupported` and records `source-unavailable`. An opened source declares its capabilities once per session, and the core copies and freezes them. `testNetworkAdapter` in `@priemskiyyy/reach/testing` runs seven contract checks against any adapter, and every adapter in this repository passes them in its `conformance.test.ts`.
 
 Adapters never import their SDK. Each takes it as an option, and a `*.contracts.ts` file proves the real SDK's types fit the structural ones.
