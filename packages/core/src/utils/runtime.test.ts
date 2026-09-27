@@ -6,6 +6,7 @@ import { observed } from "src/mock/observed";
 import { MOCK_CAPABILITIES } from "src/mock/utils/constants/capabilities";
 import type { NetworkAdapter } from "src/types/NetworkAdapter";
 import type { NetworkCapabilities } from "src/types/NetworkCapabilities";
+import type { RefreshRequest } from "src/types/RefreshRequest";
 import type { ReachDiagnosticEvent } from "src/types/ReachDiagnosticEvent";
 import { UNKNOWN_NETWORK_STATE } from "src/utils/constants/network";
 import {
@@ -725,4 +726,76 @@ test("a session whose capabilities cannot be read fails its opening instead of h
     code: "SOURCE_ERROR",
   });
   expect(reach.status.get()).toMatchObject({ state: "error" });
+});
+
+test("ending a session aborts a refresh in flight and leaves no timer armed", async () => {
+  const requests: RefreshRequest[] = [];
+
+  const adapter: NetworkAdapter<null> = {
+    name: "held-refresh",
+    available: () => true,
+    open: () => ({
+      native: null,
+      capabilities: MOCK_CAPABILITIES,
+      refresh: (request) => {
+        requests.push(request);
+
+        return new Promise<void>(() => {});
+      },
+    }),
+  };
+
+  const clock = createTestClock();
+  const reach = new Reach({ adapter, clock });
+  const lease = reach.start();
+  const refreshing = reach.refresh();
+
+  lease.release();
+
+  await expect(refreshing).rejects.toMatchObject({ code: "SUPERSEDED" });
+  expect(requests[0]?.signal.aborted).toBe(true);
+  expect(clock.pendingTimers()).toBe(0);
+});
+
+test("a refresh that reports nothing while a newer event arrives is superseded, never credited with it", async () => {
+  const { reach, mock } = createReach({
+    refresh: "held",
+    initial: CONNECTED_WIFI,
+  });
+
+  reach.start();
+
+  const refreshing = reach.refresh();
+
+  mock.emit(CONNECTED_CELLULAR);
+  mock.resolveRefresh();
+
+  await expect(refreshing).resolves.toMatchObject({ status: "superseded" });
+});
+
+test("a failed refresh installs its errors before it reads as ended", async () => {
+  const { reach, mock } = createReach({
+    refresh: "held",
+    initial: CONNECTED_WIFI,
+  });
+
+  reach.start();
+
+  const refreshing = reach.refresh();
+  const seen: string[] = [];
+
+  reach.status.subscribe(() => {
+    const status = reach.status.get();
+
+    if (status.state !== "running" || status.refreshing) {
+      return;
+    }
+
+    seen.push(reach.state.get().evidence["connection.status"].status);
+  });
+
+  mock.rejectRefresh(new Error("native read failed"));
+
+  await expect(refreshing).rejects.toMatchObject({ code: "SOURCE_ERROR" });
+  expect(seen).toEqual(["error"]);
 });

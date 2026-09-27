@@ -178,19 +178,23 @@ export class NetworkRuntime<TNative> {
       return Promise.reject(createNotStartedError());
     }
 
-    const opened = createDeferred();
-    const waiter: Waiter = { resolve: opened.resolve, reject: opened.reject };
+    if (ownership.state === "STARTING") {
+      const opened = createDeferred();
+      const waiter: Waiter = { resolve: opened.resolve, reject: opened.reject };
 
-    this.#waiters.add(waiter);
+      this.#waiters.add(waiter);
 
-    return waitWithSignal(opened.promise, signal, () => {
-      this.#waiters.delete(waiter);
-    });
+      return waitWithSignal(opened.promise, signal, () => {
+        this.#waiters.delete(waiter);
+      });
+    }
+
+    return assertUnreachable(ownership);
   };
 
   refresh = ({ signal }: OperationOptions = {}): Promise<RefreshResult> => {
-    // An explicit refresh with remaining owners is the one way to retry a failed opening.
-    if (this.#ownership.state === "FAILED") {
+    // Like start, an explicit refresh retries a failed opening for the owners it still has.
+    if (this.#ownership.state === "FAILED" && signal?.aborted !== true) {
       this.#open();
     }
 
@@ -203,6 +207,11 @@ export class NetworkRuntime<TNative> {
 
     return this.whenRunning(signal).then(() => {
       const current = this.#ownership;
+
+      // A caller who gave up while the source opened starts no read.
+      if (signal?.aborted === true) {
+        throw createAbortedError();
+      }
 
       if (current.state !== "RUNNING") {
         throw createNotStartedError();
@@ -633,7 +642,7 @@ export class NetworkRuntime<TNative> {
     session.refresh = null;
 
     if (refresh !== null) {
-      refresh.reject(error);
+      refresh.cancel(error);
     }
   }
 
@@ -862,17 +871,20 @@ export class NetworkRuntime<TNative> {
     refresh: (request: RefreshRequest) => void | Promise<void>,
   ): RefreshFlight {
     const result = createDeferred<RefreshResult>();
+    const controller = new AbortController();
+    const sequence = this.#reserve(session);
 
     const flight: RefreshFlight = {
       promise: result.promise,
-      reject: result.reject,
+      cancel: (error) => {
+        controller.abort();
+        cancelDeadline();
+        result.reject(error);
+      },
     };
 
-    const controller = new AbortController();
-    const sequence = this.#reserve(session);
-    const { revision } = this.state.get();
-
-    let superseded = false;
+    // What became of the refresh's own report: nothing yet, accepted with or without a change, or discarded as older.
+    let outcome: "none" | "unchanged" | "updated" | "superseded" = "none";
 
     const settle = () => {
       if (session.refresh !== flight) {
@@ -890,12 +902,23 @@ export class NetworkRuntime<TNative> {
     const fail = (error: ReachError, reason: string) => {
       controller.abort();
 
-      if (!settle()) {
+      if (session.refresh !== flight) {
         return;
       }
 
+      // The failure is installed before the refresh ends, so no listener reads it as over without its result.
       this.#intake(session, { kind: "error", sequence, reason });
+      settle();
       result.reject(error);
+    };
+
+    // A refresh that reported nothing was overtaken if a newer report was accepted meanwhile.
+    const readStatus = (): RefreshResult["status"] => {
+      if (outcome !== "none") {
+        return outcome;
+      }
+
+      return session.committed > sequence ? "superseded" : "unchanged";
     };
 
     const complete = () => {
@@ -903,28 +926,22 @@ export class NetworkRuntime<TNative> {
         return;
       }
 
-      const state = this.state.get();
-
-      if (superseded) {
-        result.resolve(Object.freeze({ status: "superseded", state }));
-
-        return;
-      }
-
       result.resolve(
-        Object.freeze({
-          status: state.revision === revision ? "unchanged" : "updated",
-          state,
-        }),
+        Object.freeze({ status: readStatus(), state: this.state.get() }),
       );
     };
 
     const emit = (observation: NetworkObservation) => {
-      if (this.#intakeObservation(session, sequence, observation)) {
+      const { revision } = this.state.get();
+
+      if (!this.#intakeObservation(session, sequence, observation)) {
+        outcome = "superseded";
+
         return;
       }
 
-      superseded = true;
+      outcome =
+        this.state.get().revision === revision ? "unchanged" : "updated";
     };
 
     const cancelDeadline = this.#clock.setTimer(() => {

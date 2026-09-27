@@ -4,7 +4,8 @@ import type { ResourceScope } from "src/utils/internal/runtime/ResourceScope";
 
 export type RefreshFlight = {
   promise: Promise<RefreshResult>;
-  reject: (error: unknown) => void;
+  /** Ends the refresh with the session: its signal aborts, its deadline goes, and its callers learn why. */
+  cancel: (error: unknown) => void;
 };
 
 export type RuntimeSession = {
