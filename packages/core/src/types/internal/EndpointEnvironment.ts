@@ -27,4 +27,6 @@ export type EndpointEnvironment = {
   createListeners: () => Listeners;
   /** Counts and rethrows an application listener's or subscription's error outside the caller. */
   reportListenerError: (error: unknown) => void;
+  /** Counts and rethrows a cleanup's error outside the caller. */
+  reportCleanupError: (error: unknown) => void;
 };

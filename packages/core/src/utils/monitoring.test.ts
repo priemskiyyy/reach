@@ -513,3 +513,41 @@ test("a scope whose subscribe throws is reported, and the runtime still starts a
   expect(reported).toEqual([failure]);
   expect(reach.diagnostics.get().counters.listenerErrors).toBe(1);
 });
+
+test("an unsubscribe that throws is reported, and the stop still completes", async () => {
+  const reported: unknown[] = [];
+
+  vi.spyOn(globalThis, "queueMicrotask").mockImplementation((task) => {
+    try {
+      task();
+    } catch (error) {
+      reported.push(error);
+    }
+  });
+
+  const failure = new Error("session store broke");
+
+  const failing = {
+    get: (): string | null => "account",
+    subscribe: () => () => {
+      throw failure;
+    },
+  };
+
+  const probe = createMockEndpoint({ staleAfter: 30_000, scope: failing });
+
+  const reach = new Reach({
+    adapter: createMockNetwork({ initial: CONNECTED_WIFI }).adapter,
+    clock: createTestClock(),
+    endpoints: { api: probe.definition },
+  });
+
+  const lease = reach.start();
+  const checking = reach.endpoint("api").check();
+
+  expect(() => lease.release()).not.toThrow();
+  await expect(checking).rejects.toMatchObject({ code: "SUPERSEDED" });
+  expect(reach.status.get()).toEqual({ state: "idle" });
+  expect(reported).toEqual([failure]);
+  expect(reach.diagnostics.get().counters.cleanupErrors).toBe(1);
+});

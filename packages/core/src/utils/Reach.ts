@@ -158,6 +158,11 @@ export class Reach<TNative, TName extends string = never> {
 
     const createListeners = () => new Listeners(reportListenerError);
 
+    const reportCleanupError = (error: unknown) => {
+      this.#diagnostics.record("cleanup-error");
+      reportUnhandledError(error);
+    };
+
     this.#endpoints = new EndpointRegistry(
       endpoints ?? {},
       {
@@ -181,6 +186,7 @@ export class Reach<TNative, TName extends string = never> {
         changed: this.#diagnostics.changed,
         createListeners,
         reportListenerError,
+        reportCleanupError,
       },
       activity ?? null,
     );
@@ -204,10 +210,7 @@ export class Reach<TNative, TName extends string = never> {
         onAdopt: this.#endpoints.adopt,
         onNetworkChange: () => this.#endpoints.offer("network-change"),
         record: this.#diagnostics.record,
-        reportCleanupError: (error) => {
-          this.#diagnostics.record("cleanup-error");
-          reportUnhandledError(error);
-        },
+        reportCleanupError,
       },
     });
 

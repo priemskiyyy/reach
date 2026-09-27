@@ -12,6 +12,7 @@ import { EndpointRecord } from "src/utils/internal/endpoints/EndpointRecord";
 import { resolveEndpoint } from "src/utils/internal/endpoints/resolveEndpoint";
 import { createDisposedError } from "src/utils/internal/errors/createDisposedError";
 import type { Transaction } from "src/utils/internal/observable/Transaction";
+import { isolate } from "src/utils/internal/reporting/isolate";
 import { ReachError } from "src/utils/ReachError";
 
 type Entry = {
@@ -208,7 +209,7 @@ export class EndpointRegistry {
     this.#subscriptions = [];
 
     for (const unsubscribe of subscriptions) {
-      unsubscribe();
+      isolate(unsubscribe, this.#environment.reportCleanupError);
     }
   }
 
