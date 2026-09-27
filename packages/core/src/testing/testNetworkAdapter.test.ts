@@ -5,6 +5,7 @@ import { observed } from "src/mock/observed";
 import { MOCK_CAPABILITIES } from "src/mock/utils/constants/capabilities";
 import { testNetworkAdapter } from "src/testing/testNetworkAdapter";
 import type { NetworkAdapterHarness } from "src/testing/types/NetworkAdapterHarness";
+import type { FieldObservation } from "src/types/FieldObservation";
 import type { NetworkCapabilities } from "src/types/NetworkCapabilities";
 
 // A host that toggles between Wi-Fi and cellular and counts its listeners.
@@ -14,12 +15,14 @@ const createHarness = ({
   keepListener = false,
   refreshReports = true,
   cleanupThrows = false,
+  saveData = { status: "unknown" },
 }: {
   available?: boolean;
   capabilities?: NetworkCapabilities;
   keepListener?: boolean;
   refreshReports?: boolean;
   cleanupThrows?: boolean;
+  saveData?: FieldObservation<boolean>;
 } = {}): NetworkAdapterHarness => {
   const listeners = new Set<() => void>();
   const host: { type: "wifi" | "cellular" } = { type: "wifi" };
@@ -31,6 +34,7 @@ const createHarness = ({
         type: observed(host.type),
       },
       cost: { metered: observed(host.type === "cellular") },
+      preferences: { saveData },
     });
 
   return {
@@ -141,6 +145,29 @@ test("an adapter whose cleanup throws fails", async () => {
     testNetworkAdapter(() => createHarness({ cleanupThrows: true })),
   ).rejects.toThrow(
     "Network adapter conformance: releasing removes every subscription and nothing reports afterwards.",
+  );
+});
+
+test("an adapter that reports a supported fact unsupported fails", async () => {
+  await expect(
+    testNetworkAdapter(() =>
+      createHarness({ saveData: { status: "unsupported" } }),
+    ),
+  ).rejects.toThrow(
+    "Network adapter conformance: every report is complete and within the declared capabilities.",
+  );
+});
+
+test("an adapter that reports an unsupported fact as anything but unsupported fails", async () => {
+  const capabilities: NetworkCapabilities = {
+    ...MOCK_CAPABILITIES,
+    "preferences.saveData": { support: "unsupported" },
+  };
+
+  await expect(
+    testNetworkAdapter(() => createHarness({ capabilities })),
+  ).rejects.toThrow(
+    "Network adapter conformance: every report is complete and within the declared capabilities.",
   );
 });
 

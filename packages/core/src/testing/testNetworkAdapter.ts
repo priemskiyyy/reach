@@ -37,7 +37,8 @@ const getFields = ({
   "preferences.saveData": preferences.saveData,
 });
 
-// A report must never claim more than the adapter declared it can observe.
+// A report says exactly what the adapter declared: an unsupported fact is
+// reported unsupported, and a current one rests on a declared basis.
 const findContradictions = (
   observation: NetworkObservation,
   capabilities: NetworkCapabilities,
@@ -48,12 +49,22 @@ const findContradictions = (
     const reported = fields[field];
     const declared = capabilities[field];
 
-    if (reported.status !== "current") {
-      return [];
+    if (declared.support === "unsupported") {
+      if (reported.status === "unsupported") {
+        return [];
+      }
+
+      return [
+        `${field} is reported ${reported.status} but declared unsupported`,
+      ];
     }
 
-    if (declared.support === "unsupported") {
-      return [`${field} is reported current but declared unsupported`];
+    if (reported.status === "unsupported") {
+      return [`${field} is reported unsupported but declared supported`];
+    }
+
+    if (reported.status !== "current") {
+      return [];
     }
 
     if (!declared.bases.includes(reported.basis)) {
