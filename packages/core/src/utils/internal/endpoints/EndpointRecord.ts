@@ -92,10 +92,13 @@ export class EndpointRecord {
           this.#isExpired(),
         ),
       isEqual: isSameEndpointState,
+      listeners: environment.createListeners(),
     }).observable;
 
-    this.available = deriveCondition([this.state], () =>
-      evaluateAvailability(definition.name, this.state.get()),
+    this.available = deriveCondition(
+      [this.state],
+      () => evaluateAvailability(definition.name, this.state.get()),
+      { listeners: environment.createListeners() },
     );
   }
 

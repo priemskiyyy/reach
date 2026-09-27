@@ -54,6 +54,7 @@ export class Reach<TNative, TName extends string = never> {
   #endpoints: EndpointRegistry;
   #diagnostics: Diagnostics;
   #capacity: { outstanding: number; detached: number; max: number };
+  #createListeners: () => Listeners;
 
   /**
    * The normalized facts and their evidence, as one frozen snapshot that
@@ -158,6 +159,8 @@ export class Reach<TNative, TName extends string = never> {
 
     const createListeners = () => new Listeners(reportListenerError);
 
+    this.#createListeners = createListeners;
+
     const reportCleanupError = (error: unknown) => {
       this.#diagnostics.record("cleanup-error");
       reportUnhandledError(error);
@@ -258,8 +261,10 @@ export class Reach<TNative, TName extends string = never> {
   condition = (requirements: NetworkRequirements): Condition => {
     const required = Object.freeze({ ...requirements });
 
-    return deriveCondition([this.state], () =>
-      evaluateRequirements(this.state.get(), required),
+    return deriveCondition(
+      [this.state],
+      () => evaluateRequirements(this.state.get(), required),
+      { listeners: this.#createListeners() },
     );
   };
 

@@ -8,6 +8,8 @@ type DerivedValueOptions<TValue> = {
   compute: () => TValue;
   /** Keeps the previous value's identity when the next one is equal to it. */
   isEqual?: (previous: TValue, next: TValue) => boolean;
+  /** Where the derived value's own listeners are registered, and their errors reported. */
+  listeners?: Listeners;
 };
 
 type Cache<TValue> = { inputs: unknown[] | null; value: TValue };
@@ -41,7 +43,7 @@ export class DerivedValue<TValue> {
   #isEqual: (previous: TValue, next: TValue) => boolean;
   #cache: Cache<TValue> | null = null;
   #reading = false;
-  #listeners = new Listeners();
+  #listeners: Listeners;
   #announced: { value: TValue } | null = null;
   #unsubscribes: Array<() => void> = [];
 
@@ -49,10 +51,12 @@ export class DerivedValue<TValue> {
     sources,
     compute,
     isEqual = Object.is,
+    listeners = new Listeners(),
   }: DerivedValueOptions<TValue>) {
     this.#sources = [...new Set(sources)];
     this.#compute = compute;
     this.#isEqual = isEqual;
+    this.#listeners = listeners;
   }
 
   get = (): TValue => {

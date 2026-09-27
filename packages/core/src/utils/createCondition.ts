@@ -46,5 +46,5 @@ export const createCondition = <
 
       return createConditionState(evaluation.status, evaluation.reasons ?? []);
     },
-    onError,
+    onError === undefined ? {} : { report: onError },
   );

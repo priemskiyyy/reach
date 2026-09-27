@@ -270,3 +270,35 @@ test("observers hear an invalidation, which records no event", async () => {
 
   expect(listener).toHaveBeenCalledTimes(1);
 });
+
+test("a throwing listener of a Reach condition or endpoint is counted", async () => {
+  const reported: unknown[] = [];
+
+  vi.spyOn(globalThis, "queueMicrotask").mockImplementation((task) => {
+    try {
+      task();
+    } catch (error) {
+      reported.push(error);
+    }
+  });
+
+  const { reach, mock, probe, api } = createEndpointReach();
+
+  const fail = () => {
+    throw new Error("listener");
+  };
+
+  reach.condition({ type: "cellular" }).subscribe(fail);
+  api.state.subscribe(fail);
+  api.available.subscribe(fail);
+  reach.start();
+  mock.emit(CONNECTED_CELLULAR);
+
+  const checking = api.check();
+
+  probe.pass();
+  await checking.catch(() => {});
+
+  expect(reported.length).toBeGreaterThanOrEqual(3);
+  expect(reach.diagnostics.get().counters.listenerErrors).toBe(reported.length);
+});
