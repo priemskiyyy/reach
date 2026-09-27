@@ -343,3 +343,38 @@ test("a diagnostics listener that starts again while the runtime stops keeps its
   expect(reach.capabilities.get()).not.toBeNull();
   expect(reach.native.get()).not.toBeNull();
 });
+
+test("a probe that starts again joins the opening instead of opening another", () => {
+  const mock = createMockNetwork({ initial: CONNECTED_WIFI });
+
+  const reachRef: { current: Reach<{ session: number }> | null } = {
+    current: null,
+  };
+
+  const nested: { lease: RuntimeLease | null } = { lease: null };
+
+  const reach = new Reach({
+    adapter: {
+      ...mock.adapter,
+      available: () => {
+        if (nested.lease === null) {
+          nested.lease = reachRef.current?.start() ?? null;
+        }
+
+        return true;
+      },
+    },
+    clock: createTestClock(),
+  });
+
+  reachRef.current = reach;
+
+  const lease = reach.start();
+
+  expect(mock.stats().opens).toBe(1);
+
+  lease.release();
+  nested.lease?.release();
+
+  expect(mock.stats().activeSessions).toBe(0);
+});

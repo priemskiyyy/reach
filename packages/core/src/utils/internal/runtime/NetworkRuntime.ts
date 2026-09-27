@@ -448,15 +448,22 @@ export class NetworkRuntime<TNative> {
       refresh: null,
     };
 
+    // The session opens from here, so a probe that calls back joins it instead of opening another.
+    this.#ownership = { state: "STARTING", session };
+
     let available: boolean;
 
     try {
       available = this.#adapter.available();
     } catch (error) {
       // A probe that throws fails this opening, as a throwing open would.
-      this.#ownership = { state: "STARTING", session };
       this.#fail(session, this.#createSourceError("open", error));
 
+      return;
+    }
+
+    // A probe that called back may have released or disposed the runtime.
+    if (!this.#isOpening(session)) {
       return;
     }
 
@@ -476,7 +483,6 @@ export class NetworkRuntime<TNative> {
       return;
     }
 
-    this.#ownership = { state: "STARTING", session };
     session.cancelOpening = this.#clock.setTimer(() => {
       this.#fail(
         session,
