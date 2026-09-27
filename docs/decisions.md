@@ -74,6 +74,6 @@ The adapters are tested against fakes modeled on the SDK sources and against the
 - Native start, stop and start again for NetInfo and Expo Network.
 - Real NetInfo and Expo Network reports on iOS and Android.
 - Real browser `online`, `offline`, `pagehide`, `freeze` and Network Information events.
-- React Native fetch clients honoring abort through the HTTP endpoint.
+- React Native fetch clients honoring abort through the HTTP endpoint. Node's own `fetch` is verified: the HTTP tests abandon a real loopback connection on a timeout and on a network change.
 
 The packed packages are verified: `pnpm verify:packages` installs every tarball into a consumer without any native SDK, React or Query, imports each entry in Node without browser globals, and typechecks it.
