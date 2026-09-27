@@ -1,6 +1,6 @@
 # Contributing
 
-Use Node 22.18 or newer and the pnpm version in `package.json`. Run `pnpm install --frozen-lockfile`, then `pnpm check` before submitting a change. It builds every package, typechecks, lints, runs the lint rule probes, typechecks every documentation snippet, checks formatting and runs every test. `pnpm check:release` adds the packed consumer, and is what a release must pass.
+Use Node 22.18 or newer and the pnpm version in `package.json`. Run `pnpm install --frozen-lockfile`, then `pnpm check` before submitting a change. It builds every package, typechecks, lints, runs the lint rule probes, typechecks every documentation snippet, checks formatting and runs every test. `pnpm check:release` adds the release metadata and the packed consumer, and is what a release must pass.
 
 ## Layout
 
