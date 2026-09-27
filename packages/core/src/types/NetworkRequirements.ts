@@ -1,14 +1,4 @@
-import type { ConnectionType } from "src/types/ConnectionType";
-
-type RequirementFields = {
-  connection: "connected" | "disconnected";
-  internet: "online" | "offline";
-  type: Exclude<ConnectionType, "unknown">;
-  metered: boolean;
-  expensive: boolean;
-  constrained: boolean;
-  saveData: boolean;
-};
+import type { RequirementFields } from "src/types/internal/RequirementFields";
 
 /**
  * Exact values the current facts must have, at least one of them, all of
