@@ -1,6 +1,6 @@
 # Contributing
 
-Use Node 22.18 or newer and the pnpm version in `package.json`. Run `pnpm install --frozen-lockfile`, then `pnpm check` before submitting a change. It builds every package, typechecks, lints, runs the lint rule probes, typechecks every documentation snippet, checks formatting and runs every test. `pnpm check:release` adds the release metadata and the packed consumer, and is what a release must pass.
+Use Node 22.18 or newer and the pnpm version in `package.json`. Run `pnpm install --frozen-lockfile`, then `pnpm check` before submitting a change. It builds every package, typechecks, lints, runs the lint rule probes, typechecks every documentation snippet, checks formatting and runs every test. `pnpm check:release` adds the documentation site, the release metadata, the packed consumer and the examples' builds, and is what a release must pass.
 
 ## Layout
 
@@ -9,7 +9,7 @@ Use Node 22.18 or newer and the pnpm version in `package.json`. Run `pnpm instal
 - `packages/react`: the React binding, a provider and hooks.
 - `packages/tanstack-query`: the bridge to TanStack Query's online manager.
 - `examples/`: Darkroom, the example app. `shared` holds its domain, the simulated phone and API and the Tailwind recipes; `react` is the web tour, `expo` the React Native app, and `server` the fixture API the Expo app checks. `pnpm dev` starts the tour, and `pnpm test:examples` drives it in Chromium.
-- `docs/`: the decision record and the internals.
+- `docs/`: the documentation site, built with VitePress: the guides, the decision record and the internals. `pnpm dev:docs` serves it, and `pnpm build:docs` then `pnpm verify:docs` checks every page, link, anchor and description. A new page goes in the sidebar in `docs/.vitepress/config.ts`.
 - `scripts/`: the checks beyond the tests. `verify-lint-rules.mjs` proves each lint rule still rejects what it was written for, `verify-snippets.mjs` typechecks every `ts` and `tsx` example in the READMEs and docs against the built packages, and `verify-packages.mjs` installs the packed tarballs into a consumer without native peers. Each has been probed with a deliberately broken input, so keep that habit when changing one.
 
 Runtime owners and helpers live in `utils/`, constants in `utils/constants/`, and shared contracts in `types/`, one type per file. Internal code belongs in each folder's `internal/` directory, so `utils/internal/` holds the helpers no consumer may import. The mock adapter lives in `mock/` and the conformance suite in `testing/`. Package roots export the supported public API explicitly, and no other file is a barrel. An adapter keeps its factory in `src/<name>.ts`, its mapping in `utils/`, and the provider's names and declared capabilities in `utils/constants/`.
@@ -36,7 +36,7 @@ A network adapter maps one source's reports onto field observations and nothing 
 
 `pnpm test:unit` runs one vitest project per package, each with a `src` alias onto its own source. Tests sit beside their sources and are named after the specification case they prove, such as `T041`. A new test is watched failing once before it is trusted: when the implementation came first, break it on purpose and confirm the test goes red. Time is the test clock's, never a sleep; interleaving is tested with held reads and held checks.
 
-Everything runs against fakes. Real device and browser verification is listed as missing in [the decision record](docs/decisions.md).
+Everything runs against fakes, except Chromium in the example tour. What a device or a real browser still has to verify is listed in [the verification matrix](docs/verification.md) and [the decision record](docs/decisions.md).
 
 ## Documentation
 
