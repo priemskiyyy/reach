@@ -12,10 +12,12 @@ const createHarness = ({
   available = true,
   capabilities = MOCK_CAPABILITIES,
   keepListener = false,
+  refreshReports = true,
 }: {
   available?: boolean;
   capabilities?: NetworkCapabilities;
   keepListener?: boolean;
+  refreshReports?: boolean;
 } = {}): NetworkAdapterHarness => {
   const listeners = new Set<() => void>();
   const host: { type: "wifi" | "cellular" } = { type: "wifi" };
@@ -47,7 +49,11 @@ const createHarness = ({
         return {
           native: host,
           capabilities,
-          refresh: ({ emit }) => emit(report()),
+          refresh: ({ emit }) => {
+            if (refreshReports) {
+              emit(report());
+            }
+          },
         };
       },
     },
@@ -103,6 +109,14 @@ test("an adapter that keeps its listener after release fails", async () => {
     testNetworkAdapter(() => createHarness({ keepListener: true })),
   ).rejects.toThrow(
     "Network adapter conformance: releasing removes every subscription and nothing reports afterwards.",
+  );
+});
+
+test("an adapter whose refresh reports nothing fails", async () => {
+  await expect(
+    testNetworkAdapter(() => createHarness({ refreshReports: false })),
+  ).rejects.toThrow(
+    "Network adapter conformance: a refresh settles and reports within its capabilities.",
   );
 });
 

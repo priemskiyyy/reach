@@ -280,7 +280,14 @@ const CHECKS: Check[] = [
     name: "a refresh settles and reports within its capabilities",
     run: (harness) =>
       withReach(harness, async ({ reach, inspected }) => {
-        await reach.refresh();
+        const reported = inspected.observations.length;
+        const { status } = await reach.refresh();
+
+        // A session without a refresh is one that cannot refresh; one with it reads the host.
+        assert(
+          status === "unsupported" || inspected.observations.length > reported,
+          "The refresh reported nothing.",
+        );
 
         const contradictions = inspected.getContradictions();
 
