@@ -61,6 +61,12 @@ importers:
         specifier: workspace:*
         version: link:../../core
 
+  packages/adapters/http:
+    devDependencies:
+      '@priemskiyyy/reach':
+        specifier: workspace:*
+        version: link:../../core
+
   packages/adapters/netinfo:
     dependencies:
       '@react-native-community/netinfo':
