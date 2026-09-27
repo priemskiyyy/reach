@@ -14,10 +14,8 @@ export const DEFAULT_CHECK_TIMEOUT = 5_000;
 export const DEFAULT_MAX_OUTSTANDING_CHECKS = 4;
 
 /** What starts a monitored check when the policy names no triggers. */
-export const DEFAULT_MONITOR_TRIGGERS: MonitorTrigger[] = freezeList([
-  "start",
-  "network-change",
-]);
+export const DEFAULT_MONITOR_TRIGGERS: MonitorTrigger[] =
+  freezeList<MonitorTrigger>(["start", "network-change"]);
 
 /** Milliseconds between two automatic starts of one endpoint. */
 export const DEFAULT_MIN_INTERVAL = 1_000;
