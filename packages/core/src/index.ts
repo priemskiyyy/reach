@@ -2,6 +2,7 @@ export { all } from "src/utils/all";
 export { any } from "src/utils/any";
 export { createCondition } from "src/utils/createCondition";
 export { not } from "src/utils/not";
+export { Reach } from "src/utils/Reach";
 export { ReachError } from "src/utils/ReachError";
 export { UNKNOWN_NETWORK_STATE } from "src/utils/constants/network";
 
