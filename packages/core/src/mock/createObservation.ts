@@ -20,7 +20,6 @@ export const createObservation = ({
   internet = {},
   cost = {},
   preferences = {},
-  route,
 }: ObservationInput = {}): NetworkObservation => ({
   connection: {
     status: connection.status ?? { status: "unknown" },
@@ -38,5 +37,4 @@ export const createObservation = ({
     constrained: preferences.constrained ?? { status: "unknown" },
     saveData: preferences.saveData ?? { status: "unknown" },
   },
-  ...(route === undefined ? {} : { route }),
 });

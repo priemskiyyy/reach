@@ -10,7 +10,7 @@ export type RuntimeHooks = {
   onStop: (transaction: Transaction, error: ReachError) => void;
   /** Runs once a session's first state was published. */
   onAdopt: () => void;
-  /** Runs once an observed route change was published. */
+  /** Runs once a connection change was published. */
   onNetworkChange: () => void;
   record: (type: ReachDiagnosticEventType, details?: DiagnosticDetails) => void;
   /** Receives what a cleanup threw. */

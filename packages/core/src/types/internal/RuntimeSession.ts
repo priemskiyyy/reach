@@ -15,7 +15,6 @@ export type RuntimeSession = {
   reserved: number;
   /** The last place whose report was accepted; older ones are obsolete. */
   committed: number;
-  routeKey: string | number | null;
   /** The newest report while the session opens, adopted with it. */
   pending: SourceIntake | null;
   cancelOpening: () => void;

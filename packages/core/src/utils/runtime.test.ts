@@ -255,7 +255,7 @@ test("T016 a report that leaves a fact out never keeps its old value", () => {
   expect(reach.state.get().evidence["cost.metered"].status).toBe("unknown");
 });
 
-test("a cost change keeps the generation, a route change starts a new one", () => {
+test("a cost change keeps the generation, a connection change starts a new one", () => {
   const { reach, mock } = createReach({ initial: CONNECTED_WIFI });
 
   reach.start();
@@ -267,9 +267,6 @@ test("a cost change keeps the generation, a route change starts a new one", () =
 
   mock.emit(CONNECTED_CELLULAR);
   expect(reach.state.get().generation).toBe(generation + 1);
-
-  mock.emit({ ...CONNECTED_CELLULAR, route: { changed: true } });
-  expect(reach.state.get().generation).toBe(generation + 2);
 });
 
 test("an observation gap turns current facts stale and starts a new generation", () => {

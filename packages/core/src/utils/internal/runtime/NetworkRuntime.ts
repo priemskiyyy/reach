@@ -35,7 +35,7 @@ import { createNotStartedError } from "src/utils/internal/errors/createNotStarte
 import { copyCapabilities } from "src/utils/internal/evidence/copyCapabilities";
 import { getFailedFacts } from "src/utils/internal/evidence/getFailedFacts";
 import { getStaleFacts } from "src/utils/internal/evidence/getStaleFacts";
-import { isRouteChange } from "src/utils/internal/evidence/isRouteChange";
+import { isConnectionChange } from "src/utils/internal/evidence/isConnectionChange";
 import { isSameFacts } from "src/utils/internal/evidence/isSameFacts";
 import { readObservation } from "src/utils/internal/evidence/readObservation";
 import type { Listeners } from "src/utils/internal/observable/Listeners";
@@ -408,7 +408,6 @@ export class NetworkRuntime<TNative> {
       controller: new AbortController(),
       reserved: 0,
       committed: 0,
-      routeKey: null,
       pending: null,
       cancelOpening: () => {},
       refresh: null,
@@ -622,7 +621,6 @@ export class NetworkRuntime<TNative> {
       kind: "observation",
       sequence,
       facts: readObservation(observation, this.#clock.now()),
-      route: observation.route,
     });
   }
 
@@ -645,7 +643,7 @@ export class NetworkRuntime<TNative> {
     }
 
     session.committed = intake.sequence;
-    this.#apply(session, intake);
+    this.#apply(intake);
 
     return true;
   }
@@ -665,7 +663,7 @@ export class NetworkRuntime<TNative> {
     return true;
   }
 
-  #apply(session: RuntimeSession, intake: SourceIntake) {
+  #apply(intake: SourceIntake) {
     const state = this.state.get();
 
     if (intake.kind === "gap") {
@@ -682,7 +680,7 @@ export class NetworkRuntime<TNative> {
     }
 
     if (intake.kind === "observation") {
-      this.#applyObservation(session, state, intake);
+      this.#applyObservation(state, intake.facts);
 
       return;
     }
@@ -702,31 +700,19 @@ export class NetworkRuntime<TNative> {
     this.#publish(facts, state.generation + 1);
   }
 
-  #applyObservation(
-    session: RuntimeSession,
-    state: NetworkState,
-    { facts, route }: Extract<SourceIntake, { kind: "observation" }>,
-  ) {
-    const previousKey = session.routeKey;
-    const routeChanged = isRouteChange(state, facts, route, previousKey);
-
-    if (route?.key !== undefined) {
-      session.routeKey = route.key;
-    }
-
-    if (!routeChanged && isSameFacts(state, facts)) {
+  #applyObservation(state: NetworkState, facts: NetworkFacts) {
+    if (isSameFacts(state, facts)) {
       this.#hooks.record("observation-duplicate");
 
       return;
     }
 
-    this.#publish(
-      facts,
-      routeChanged ? state.generation + 1 : state.generation,
-    );
+    const changed = isConnectionChange(state, facts);
+
+    this.#publish(facts, changed ? state.generation + 1 : state.generation);
     this.#hooks.record("observation-accepted");
 
-    if (routeChanged) {
+    if (changed) {
       this.#hooks.onNetworkChange();
     }
   }

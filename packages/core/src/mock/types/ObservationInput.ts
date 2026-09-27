@@ -14,5 +14,4 @@ export type ObservationInput = {
   internet?: Partial<NetworkObservation["internet"]>;
   cost?: Partial<NetworkObservation["cost"]>;
   preferences?: Partial<NetworkObservation["preferences"]>;
-  route?: NetworkObservation["route"];
 };

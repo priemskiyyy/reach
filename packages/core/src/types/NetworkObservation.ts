@@ -5,8 +5,7 @@ import type { Transport } from "src/types/Transport";
 /**
  * One complete report from a source: every fact, each with its own evidence.
  * It replaces the previous report as a whole, so a fact left unknown never
- * inherits an older value. `route` tells Reach about a route change the coarse
- * facts cannot show.
+ * inherits an older value.
  *
  * @example
  * ```ts
@@ -39,11 +38,5 @@ export type NetworkObservation = {
   preferences: {
     constrained: FieldObservation<boolean>;
     saveData: FieldObservation<boolean>;
-  };
-  route?: {
-    /** An opaque key for the current route, local to this session; never an SSID or an address. */
-    key?: string | number;
-    /** The source knows the route changed even though the coarse facts did not. */
-    changed?: boolean;
   };
 };

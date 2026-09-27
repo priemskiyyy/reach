@@ -18,7 +18,7 @@ import type { Transport } from "src/types/Transport";
 export type NetworkState = {
   /** Grows with every meaningful change of this snapshot. */
   revision: number;
-  /** Grows with every observed route change or observation gap; not a network identifier. */
+  /** Grows with every connection change or observation gap; not a network identifier. */
   generation: number;
   connection: {
     status: ConnectionStatus;
