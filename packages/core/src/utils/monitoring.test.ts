@@ -575,3 +575,52 @@ test("a trigger during a check joins it, never starting another for a key read m
 
   expect(probe.calls).toHaveLength(1);
 });
+
+test("a trigger after the minimum interval starts at once and satisfies a delayed start", () => {
+  const mock = createMockNetwork({ initial: CONNECTED_WIFI });
+  const clock = createTestClock();
+  let calls = 0;
+
+  const reach = new Reach({
+    adapter: mock.adapter,
+    clock,
+    endpoints: {
+      api: {
+        staleAfter: 30_000,
+        check: () => {
+          calls += 1;
+
+          return { verdict: "pass", response: "received" };
+        },
+      },
+    },
+  });
+
+  reach.start();
+  reach.endpoint("api").monitor();
+  clock.advance(100);
+  mock.emit(CONNECTED_CELLULAR);
+  clock.skip(1_000);
+  mock.emit(CONNECTED_WIFI);
+
+  expect(calls).toBe(2);
+
+  clock.runDue();
+
+  expect(calls).toBe(2);
+});
+
+test("the first automatic start runs at once, whatever the monotonic clock's origin", () => {
+  const probe = createMockEndpoint({ staleAfter: 30_000 });
+
+  const reach = new Reach({
+    adapter: createMockNetwork({ initial: CONNECTED_WIFI }).adapter,
+    clock: createTestClock({ monotonic: -60_000 }),
+    endpoints: { api: probe.definition },
+  });
+
+  reach.start();
+  reach.endpoint("api").monitor();
+
+  expect(probe.calls).toHaveLength(1);
+});

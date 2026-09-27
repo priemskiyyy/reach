@@ -76,13 +76,12 @@ export class EndpointMonitor {
     }
 
     const lastStart = this.#record.lastStart();
+    const { clock, scheduler } = this.#environment;
+    const { minInterval } = this.#definition.monitoring;
 
-    const earliest =
-      lastStart === null
-        ? 0
-        : lastStart + this.#definition.monitoring.minInterval;
-
-    if (this.#environment.clock.monotonic() >= earliest) {
+    // The first start is never held back, and a start now satisfies a later one.
+    if (lastStart === null || clock.monotonic() >= lastStart + minInterval) {
+      this.#cancelPendingStart();
       this.#run();
 
       return;
@@ -93,9 +92,10 @@ export class EndpointMonitor {
       return;
     }
 
-    this.#cancelPending = this.#environment.scheduler.schedule(earliest, () => {
+    this.#cancelPending = scheduler.schedule(lastStart + minInterval, () => {
       this.#cancelPending = null;
-      this.#run();
+      // Offered again, so a check that started meanwhile satisfies it or moves it later.
+      this.offer(trigger);
     });
   };
 
@@ -222,9 +222,13 @@ export class EndpointMonitor {
     });
   }
 
-  #cancelTimers() {
+  #cancelPendingStart() {
     this.#cancelPending?.();
     this.#cancelPending = null;
+  }
+
+  #cancelTimers() {
+    this.#cancelPendingStart();
     this.#cancelInterval?.();
     this.#cancelInterval = null;
   }
