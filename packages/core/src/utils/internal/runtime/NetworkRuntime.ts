@@ -32,6 +32,7 @@ import {
 } from "src/utils/constants/status";
 import { assertUnreachable } from "src/utils/internal/common/assertUnreachable";
 import { createDeferred } from "src/utils/internal/common/createDeferred";
+import { isPromiseLike } from "src/utils/internal/common/isPromiseLike";
 import { waitWithSignal } from "src/utils/internal/common/waitWithSignal";
 import { createAbortedError } from "src/utils/internal/errors/createAbortedError";
 import { createDisposedError } from "src/utils/internal/errors/createDisposedError";
@@ -506,7 +507,7 @@ export class NetworkRuntime<TNative> {
       return;
     }
 
-    if (opened instanceof Promise) {
+    if (isPromiseLike(opened)) {
       opened.then(
         (source) => this.#adopt(session, source),
         (error: unknown) =>
@@ -970,7 +971,7 @@ export class NetworkRuntime<TNative> {
     try {
       const refreshed = refresh({ signal: controller.signal, emit });
 
-      if (refreshed instanceof Promise) {
+      if (isPromiseLike(refreshed)) {
         refreshed.then(complete, handleFailure);
 
         return flight;

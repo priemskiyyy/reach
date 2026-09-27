@@ -1,6 +1,9 @@
+import { runInNewContext } from "node:vm";
+
 import { afterEach, expect, test, vi } from "vitest";
 
 import { createMockNetwork } from "src/mock/createMockNetwork";
+import { createObservation } from "src/mock/createObservation";
 import { createTestClock } from "src/mock/createTestClock";
 import { observed } from "src/mock/observed";
 import { MOCK_CAPABILITIES } from "src/mock/utils/constants/capabilities";
@@ -798,4 +801,29 @@ test("a session whose capabilities cannot be read fails its opening instead of h
     code: "SOURCE_ERROR",
   });
   expect(reach.status.get()).toMatchObject({ state: "error" });
+});
+
+test("an open and a refresh whose promises come from another realm are awaited", async () => {
+  const ForeignPromise: PromiseConstructor = runInNewContext("Promise");
+  const mock = createMockNetwork({ initial: CONNECTED_WIFI });
+
+  const adapter: typeof mock.adapter = {
+    ...mock.adapter,
+    open: (context) =>
+      ForeignPromise.resolve(mock.adapter.open(context)).then((session) => ({
+        ...session,
+        refresh: ({ emit }) =>
+          ForeignPromise.resolve().then(() =>
+            emit(createObservation(CONNECTED_CELLULAR)),
+          ),
+      })),
+  };
+
+  const reach = new Reach({ adapter, clock: createTestClock() });
+
+  await reach.start().ready;
+
+  expect(reach.state.get().connection.type).toBe("wifi");
+  await expect(reach.refresh()).resolves.toMatchObject({ status: "updated" });
+  expect(reach.state.get().connection.type).toBe("cellular");
 });

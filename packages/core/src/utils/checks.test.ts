@@ -1,3 +1,5 @@
+import { runInNewContext } from "node:vm";
+
 import { expect, test, vi } from "vitest";
 
 import { createMockEndpoint } from "src/mock/createMockEndpoint";
@@ -551,4 +553,30 @@ test("the check receives its scope and a signal that aborts once the network mov
 
   mock.emit(CONNECTED_WIFI);
   expect(context?.signal.aborted).toBe(true);
+});
+
+test("a check whose promise comes from another realm is awaited", async () => {
+  const ForeignPromise: PromiseConstructor = runInNewContext("Promise");
+
+  const reach = new Reach({
+    adapter: createMockNetwork({ initial: CONNECTED_WIFI }).adapter,
+    clock: createTestClock({ now: 1_000 }),
+    endpoints: {
+      api: {
+        staleAfter: 30_000,
+        check: () =>
+          ForeignPromise.resolve<ProbeResult>({
+            verdict: "pass",
+            response: "received",
+          }),
+      },
+    },
+  });
+
+  reach.start();
+
+  await expect(reach.endpoint("api").check()).resolves.toMatchObject({
+    observation: { verdict: "pass" },
+    state: { status: "available" },
+  });
 });

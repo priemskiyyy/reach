@@ -11,6 +11,7 @@ import type { ProbeContext } from "src/types/ProbeContext";
 import type { ProbeResult } from "src/types/ProbeResult";
 import { EMPTY_RECORD_STATE } from "src/utils/constants/endpoints";
 import { createDeferred } from "src/utils/internal/common/createDeferred";
+import { isPromiseLike } from "src/utils/internal/common/isPromiseLike";
 import { waitWithSignal } from "src/utils/internal/common/waitWithSignal";
 import { deriveCondition } from "src/utils/internal/conditions/deriveCondition";
 import { evaluateAvailability } from "src/utils/internal/conditions/evaluateAvailability";
@@ -373,33 +374,25 @@ export class EndpointRecord {
       scope: flight.scopeKey,
     });
 
-    let answer: ProbeResult | Promise<ProbeResult>;
+    let answer: ProbeResult | PromiseLike<ProbeResult>;
 
     try {
       answer = this.#definition.check(context);
     } catch (error) {
-      this.#release(flight);
       this.#fail(flight, error);
 
       return;
     }
 
-    if (!(answer instanceof Promise)) {
-      this.#release(flight);
+    if (!isPromiseLike(answer)) {
       this.#complete(flight, answer);
 
       return;
     }
 
     answer.then(
-      (result) => {
-        this.#release(flight);
-        this.#complete(flight, result);
-      },
-      (error: unknown) => {
-        this.#release(flight);
-        this.#fail(flight, error);
-      },
+      (result) => this.#complete(flight, result),
+      (error: unknown) => this.#fail(flight, error),
     );
   }
 
@@ -437,6 +430,8 @@ export class EndpointRecord {
   }
 
   #complete(flight: ProbeFlight, { verdict, response, reason }: ProbeResult) {
+    this.#release(flight);
+
     if (flight.settled) {
       return;
     }
@@ -526,6 +521,8 @@ export class EndpointRecord {
   }
 
   #fail(flight: ProbeFlight, cause: unknown) {
+    this.#release(flight);
+
     if (flight.settled) {
       return;
     }
