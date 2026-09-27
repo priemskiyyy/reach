@@ -1,0 +1,54 @@
+{
+  "name": "@priemskiyyy/reach-tanstack-query",
+  "version": "0.1.0",
+  "description": "TanStack Query bridge for Reach: turns a condition into the online event listener Query's online manager installs, with an explicit policy for unknown.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/priemskiyyy/reach.git",
+    "directory": "packages/tanstack-query"
+  },
+  "bugs": {
+    "url": "https://github.com/priemskiyyy/reach/issues"
+  },
+  "homepage": "https://priemskiyyy.github.io/reach/",
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "lint:typescript": "tsc --noEmit -p .",
+    "lint:eslint": "eslint src",
+    "test:unit": "vitest run --root ../.. --project tanstack-query"
+  },
+  "peerDependencies": {
+    "@priemskiyyy/reach": ">=0.1.0 <0.2"
+  },
+  "devDependencies": {
+    "@priemskiyyy/reach": "workspace:*"
+  },
+  "keywords": [
+    "tanstack-query",
+    "react-query",
+    "online-manager",
+    "connectivity",
+    "typescript",
+    "reach"
+  ]
+}

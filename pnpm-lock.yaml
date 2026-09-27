@@ -113,6 +113,12 @@ importers:
         specifier: workspace:*
         version: link:../core
 
+  packages/tanstack-query:
+    devDependencies:
+      '@priemskiyyy/reach':
+        specifier: workspace:*
+        version: link:../core
+
 packages:
 
   '@acemir/cssom@0.9.31':
