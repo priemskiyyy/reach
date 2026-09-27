@@ -10,14 +10,14 @@ export const formatAutomaticBackup = (
   { status, reasons }: ConditionState,
 ) => {
   if (!enabled) {
-    return "Off. New photos wait for Back up now, and nothing checks the API on its own.";
+    return "New photos wait for Back up now, and nothing checks the API on its own.";
   }
 
   return match(AUTOMATIC_DECISIONS[status])
     .with(
       "back-up",
       () =>
-        "On. New photos back up on their own: the API is available and the connection is unmetered.",
+        "New photos back up on their own: the API is available and the connection is unmetered.",
     )
     .with(
       "wait",

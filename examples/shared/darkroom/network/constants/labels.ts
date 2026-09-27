@@ -6,10 +6,12 @@ import type {
   EndpointState,
   EvidenceBasis,
   EvidenceStatus,
+  FieldCapability,
   InternetStatus,
   NetworkField,
   ProbeResponse,
   ProbeVerdict,
+  ReachDiagnosticEventType,
   RuntimeStatus,
 } from "@priemskiyyy/reach";
 
@@ -213,4 +215,51 @@ export const SOURCE_MEANINGS: Record<NetworkSource, string> = {
     "A phone's network stack, inside this page. The lab changes its link, Low Data Mode and service.",
   browser:
     "Your browser's own network, through the real browser adapter. It only hints at the connection, and cannot tell metering at all.",
+};
+
+/** How much of a fact's changes the source reports. */
+export const NOTIFICATION_LABELS: Record<
+  Extract<FieldCapability, { support: "supported" }>["notifications"],
+  string
+> = {
+  complete: "every change reported",
+  partial: "some changes may be missed",
+  none: "read only alongside other reports",
+};
+
+/** The condition statuses in the order a decision table lists them. */
+export const CONDITION_STATUS_ORDER: ConditionStatus[] = [
+  "met",
+  "unknown",
+  "unmet",
+];
+
+export const EVENT_LABELS: Record<ReachDiagnosticEventType, string> = {
+  "lease-acquired": "Lease acquired",
+  "lease-released": "Lease released",
+  "session-opening": "Session opening",
+  "session-opened": "Session opened",
+  "source-unavailable": "Source unavailable",
+  "session-failed": "Session failed",
+  "session-stopped": "Session stopped",
+  disposed: "Disposed",
+  "observation-accepted": "Observation accepted",
+  "observation-duplicate": "Duplicate observation",
+  "observation-discarded": "Observation discarded",
+  "late-callback": "Late callback",
+  "source-invalidated": "Source invalidated",
+  "source-error": "Source error",
+  "refresh-started": "Refresh started",
+  "refresh-settled": "Refresh settled",
+  "monitor-acquired": "Monitor acquired",
+  "monitor-released": "Monitor released",
+  "check-started": "Check started",
+  "check-joined": "Check joined",
+  "check-completed": "Check completed",
+  "check-aborted": "Check aborted",
+  "check-superseded": "Check superseded",
+  "check-failed": "Check failed",
+  "check-skipped": "Check skipped",
+  "listener-error": "Listener error",
+  "cleanup-error": "Cleanup error",
 };

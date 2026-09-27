@@ -68,7 +68,7 @@ test("Back up now on an unknown API says it tries, and on an unavailable one say
 
 test("automatic backup backs up when met, waits when unknown and pauses when unmet", () => {
   expect(formatAutomaticBackup(true, MET)).toBe(
-    "On. New photos back up on their own: the API is available and the connection is unmetered.",
+    "New photos back up on their own: the API is available and the connection is unmetered.",
   );
   expect(formatAutomaticBackup(true, UNKNOWN)).toBe(
     "Waiting, because nothing can tell yet: this source cannot tell whether the connection is metered.",
@@ -77,6 +77,6 @@ test("automatic backup backs up when met, waits when unknown and pauses when unm
     "Paused: the API's last check failed.",
   );
   expect(formatAutomaticBackup(false, MET)).toBe(
-    "Off. New photos wait for Back up now, and nothing checks the API on its own.",
+    "New photos wait for Back up now, and nothing checks the API on its own.",
   );
 });

@@ -2,6 +2,7 @@ import type {
   ConditionStatus,
   EndpointState,
   EvidenceStatus,
+  ReachDiagnosticEventType,
   RuntimeStatus,
 } from "@priemskiyyy/reach";
 
@@ -90,4 +91,34 @@ export const BACKUP_RESULT_TONES: Record<BackupResult["state"], Tone> = {
   refused: "warning",
   "signed-out": "neutral",
   "nothing-waiting": "neutral",
+};
+
+export const EVENT_TONES: Record<ReachDiagnosticEventType, Tone> = {
+  "lease-acquired": "neutral",
+  "lease-released": "neutral",
+  "session-opening": "info",
+  "session-opened": "positive",
+  "source-unavailable": "warning",
+  "session-failed": "danger",
+  "session-stopped": "neutral",
+  disposed: "neutral",
+  "observation-accepted": "accent",
+  "observation-duplicate": "neutral",
+  "observation-discarded": "warning",
+  "late-callback": "warning",
+  "source-invalidated": "warning",
+  "source-error": "danger",
+  "refresh-started": "info",
+  "refresh-settled": "neutral",
+  "monitor-acquired": "neutral",
+  "monitor-released": "neutral",
+  "check-started": "info",
+  "check-joined": "accent",
+  "check-completed": "positive",
+  "check-aborted": "warning",
+  "check-superseded": "warning",
+  "check-failed": "danger",
+  "check-skipped": "neutral",
+  "listener-error": "danger",
+  "cleanup-error": "danger",
 };
