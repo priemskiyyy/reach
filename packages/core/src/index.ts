@@ -1,5 +1,6 @@
 export { ReachError } from "src/utils/ReachError";
 
+export type { Activity } from "src/types/Activity";
 export type { CheckResult } from "src/types/CheckResult";
 export type { Condition } from "src/types/Condition";
 export type { ConditionEvaluation } from "src/types/ConditionEvaluation";
