@@ -2,7 +2,11 @@ export { ReachError } from "src/utils/ReachError";
 
 export type { ConnectionStatus } from "src/types/ConnectionStatus";
 export type { ConnectionType } from "src/types/ConnectionType";
+export type { Evidence } from "src/types/Evidence";
+export type { EvidenceBasis } from "src/types/EvidenceBasis";
+export type { EvidenceStatus } from "src/types/EvidenceStatus";
 export type { InternetStatus } from "src/types/InternetStatus";
+export type { NetworkField } from "src/types/NetworkField";
 export type { ObservableValue } from "src/types/ObservableValue";
 export type { ReachErrorCode } from "src/types/ReachErrorCode";
 export type { ReachErrorInfo } from "src/types/ReachErrorInfo";
