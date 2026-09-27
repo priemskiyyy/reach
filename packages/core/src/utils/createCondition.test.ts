@@ -162,3 +162,17 @@ test("custom reasons are copied and frozen, never kept by reference", () => {
   expect(Object.isFrozen(state)).toBe(true);
   expect(Object.isFrozen(state.reasons)).toBe(true);
 });
+
+test("a met evaluation carries no reasons", () => {
+  const source = new ValueStore(1);
+
+  const condition = createCondition({
+    sources: { source: source.observable },
+    evaluate: () => ({
+      status: "met",
+      reasons: [{ code: "settings-loaded", field: null, endpoint: null }],
+    }),
+  });
+
+  expect(condition.get()).toEqual({ status: "met", reasons: [] });
+});
