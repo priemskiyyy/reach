@@ -7,9 +7,9 @@ type ConnectionInput = { type?: string; saveData?: boolean };
 export const createFakeWindow = ({
   onLine = true,
   connection = null,
-}: { onLine?: unknown; connection?: ConnectionInput | null } = {}) => {
+}: { onLine?: boolean; connection?: ConnectionInput | null } = {}) => {
   const { window } = new JSDOM("<!doctype html>");
-  const page: { onLine: unknown } = { onLine };
+  const page = { onLine };
   const listeners = { count: 0 };
 
   Object.defineProperty(window.navigator, "onLine", {
@@ -70,7 +70,7 @@ export const createFakeWindow = ({
       page.onLine = true;
       fire(window, "online");
     },
-    setOnLine: (value: unknown) => {
+    setOnLine: (value: boolean) => {
       page.onLine = value;
     },
     changeConnection: (next: ConnectionInput) => {

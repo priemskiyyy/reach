@@ -7,27 +7,15 @@ import { BROWSER_CONNECTION_TYPES } from "src/utils/constants/connectionTypes";
 export const readConnectionType = (
   connection: NetworkInformationLike | null,
 ): FieldObservation<Exclude<ConnectionType, "unknown">> => {
-  if (connection === null) {
+  if (connection?.type === undefined) {
     return { status: "unsupported" };
   }
 
-  let type: unknown;
+  const type = BROWSER_CONNECTION_TYPES.get(connection.type);
 
-  try {
-    type = connection.type;
-  } catch {
-    return { status: "error" };
-  }
-
-  if (typeof type !== "string") {
+  if (type === undefined) {
     return { status: "unknown" };
   }
 
-  const value = BROWSER_CONNECTION_TYPES.get(type);
-
-  if (value === undefined) {
-    return { status: "unknown" };
-  }
-
-  return { status: "current", value, basis: "browser-hint" };
+  return { status: "current", value: type, basis: "browser-hint" };
 };

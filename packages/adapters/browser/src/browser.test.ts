@@ -61,12 +61,6 @@ test("T011 an offline browser is a disconnected hint, and internet stays unknown
   );
 });
 
-test("an onLine that is not a Boolean is no evidence either way", () => {
-  const reach = startBrowser(createFakeWindow({ onLine: "yes" }));
-
-  expect(reach.state.get().connection.status).toBe("unknown");
-});
-
 test("T017 without Network Information only the online hint is supported", () => {
   const reach = startBrowser(createFakeWindow());
   const capabilities = reach.capabilities.get();

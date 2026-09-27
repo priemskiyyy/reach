@@ -6,26 +6,16 @@ import {
   UNSUPPORTED_FIELD,
 } from "src/utils/constants/capabilities";
 
+// A Network Information property reports its every change through the change event.
 const getConnectionField = (
-  connection: NetworkInformationLike | null,
-  isPresent: (connection: NetworkInformationLike) => boolean,
+  present: boolean,
   basis: "browser-hint" | "user-data-preference",
 ): FieldCapability => {
-  if (connection === null) {
+  if (!present) {
     return UNSUPPORTED_FIELD;
   }
 
-  if (!isPresent(connection)) {
-    return UNSUPPORTED_FIELD;
-  }
-
-  return {
-    support: "supported",
-    // Without its change event, a value is read only when something else is.
-    notifications:
-      typeof connection.addEventListener === "function" ? "complete" : "none",
-    bases: [basis],
-  };
+  return { support: "supported", notifications: "complete", bases: [basis] };
 };
 
 /** What this browser can report, detected property by property when the session opens. */
@@ -34,8 +24,7 @@ export const getBrowserCapabilities = (
 ): NetworkCapabilities => ({
   "connection.status": ONLINE_HINT_FIELD,
   "connection.type": getConnectionField(
-    connection,
-    (candidate) => "type" in candidate,
+    connection?.type !== undefined,
     "browser-hint",
   ),
   "connection.transports": UNSUPPORTED_FIELD,
@@ -44,8 +33,7 @@ export const getBrowserCapabilities = (
   "cost.expensive": UNSUPPORTED_FIELD,
   "preferences.constrained": UNSUPPORTED_FIELD,
   "preferences.saveData": getConnectionField(
-    connection,
-    (candidate) => typeof candidate.saveData === "boolean",
+    connection?.saveData !== undefined,
     "user-data-preference",
   ),
 });

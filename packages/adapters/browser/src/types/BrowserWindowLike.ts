@@ -15,8 +15,8 @@ type DocumentEvent = "freeze" | "resume";
  * ```
  */
 export type BrowserWindowLike = {
-  navigator: { onLine?: boolean; connection?: NetworkInformationLike };
-  document?: {
+  navigator: { onLine: boolean; connection?: NetworkInformationLike };
+  document: {
     addEventListener: (type: DocumentEvent, listener: () => void) => void;
     removeEventListener: (type: DocumentEvent, listener: () => void) => void;
   };

@@ -5,12 +5,12 @@
  *
  * @example
  * ```ts
- * const connection: NetworkInformationLike = { type: "wifi", saveData: false };
+ * const connection: NetworkInformationLike | undefined = target.navigator.connection;
  * ```
  */
 export type NetworkInformationLike = {
   type?: string;
   saveData?: boolean;
-  addEventListener?: (type: "change", listener: () => void) => void;
-  removeEventListener?: (type: "change", listener: () => void) => void;
+  addEventListener: (type: "change", listener: () => void) => void;
+  removeEventListener: (type: "change", listener: () => void) => void;
 };

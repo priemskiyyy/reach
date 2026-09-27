@@ -1,5 +1,4 @@
 import type { NetworkAdapter } from "@priemskiyyy/reach";
-import { ReachError } from "@priemskiyyy/reach";
 
 import type { BrowserNative } from "src/types/BrowserNative";
 import type { BrowserOptions } from "src/types/BrowserOptions";
@@ -7,30 +6,12 @@ import type { BrowserWindowLike } from "src/types/BrowserWindowLike";
 import { getBrowserCapabilities } from "src/utils/getBrowserCapabilities";
 import { readBrowserObservation } from "src/utils/readBrowserObservation";
 
-const resolveWindow = (
-  target: BrowserWindowLike | undefined,
-): BrowserWindowLike => {
-  if (target !== undefined) {
-    return target;
-  }
-
-  // A server render has no window.
-  if (typeof window !== "object") {
-    throw new ReachError({
-      code: "UNSUPPORTED_ENVIRONMENT",
-      message:
-        "The browser adapter needs a window. Start Reach in the browser.",
-    });
-  }
-
-  return window;
-};
-
 /**
  * Observes one browser window: `navigator.onLine` as a connection hint, the
  * Network Information type and data-saver preference where the browser has
  * them, and page hiding as an observation gap. It never reports internet
- * access or cost; nothing standard in a browser says either.
+ * access or cost; nothing standard in a browser says either. Without a
+ * window, such as in a server render, it is unavailable.
  *
  * @example
  * ```ts
@@ -52,11 +33,11 @@ export const browser = ({
     return typeof window !== "undefined";
   },
   open: (context) => {
-    const targetWindow = resolveWindow(target);
-    const connection = targetWindow.navigator.connection ?? null;
+    const page: BrowserWindowLike = target ?? window;
+    const connection = page.navigator.connection ?? null;
 
     const handleChange = () => {
-      context.emit(readBrowserObservation(targetWindow));
+      context.emit(readBrowserObservation(page));
     };
 
     // A page on its way into the back/forward cache or a freeze stops being observed.
@@ -65,37 +46,23 @@ export const browser = ({
     };
 
     // Subscribed before the first read, so a change during that read is not lost.
-    targetWindow.addEventListener("online", handleChange);
-    targetWindow.addEventListener("offline", handleChange);
-    targetWindow.addEventListener("pagehide", handleGap);
-    targetWindow.addEventListener("pageshow", handleChange);
+    page.addEventListener("online", handleChange);
+    page.addEventListener("offline", handleChange);
+    page.addEventListener("pagehide", handleGap);
+    page.addEventListener("pageshow", handleChange);
+    page.document.addEventListener("freeze", handleGap);
+    page.document.addEventListener("resume", handleChange);
+    connection?.addEventListener("change", handleChange);
+
     context.onDispose(() => {
-      targetWindow.removeEventListener("online", handleChange);
-      targetWindow.removeEventListener("offline", handleChange);
-      targetWindow.removeEventListener("pagehide", handleGap);
-      targetWindow.removeEventListener("pageshow", handleChange);
+      page.removeEventListener("online", handleChange);
+      page.removeEventListener("offline", handleChange);
+      page.removeEventListener("pagehide", handleGap);
+      page.removeEventListener("pageshow", handleChange);
+      page.document.removeEventListener("freeze", handleGap);
+      page.document.removeEventListener("resume", handleChange);
+      connection?.removeEventListener("change", handleChange);
     });
-
-    const targetDocument = targetWindow.document;
-
-    if (targetDocument !== undefined) {
-      targetDocument.addEventListener("freeze", handleGap);
-      targetDocument.addEventListener("resume", handleChange);
-      context.onDispose(() => {
-        targetDocument.removeEventListener("freeze", handleGap);
-        targetDocument.removeEventListener("resume", handleChange);
-      });
-    }
-
-    if (
-      connection !== null &&
-      typeof connection.addEventListener === "function"
-    ) {
-      connection.addEventListener("change", handleChange);
-      context.onDispose(() => {
-        connection.removeEventListener?.("change", handleChange);
-      });
-    }
 
     handleChange();
 
@@ -103,7 +70,7 @@ export const browser = ({
       native: Object.freeze({ connection }),
       capabilities: getBrowserCapabilities(connection),
       refresh: ({ emit }) => {
-        emit(readBrowserObservation(targetWindow));
+        emit(readBrowserObservation(page));
       },
     };
   },

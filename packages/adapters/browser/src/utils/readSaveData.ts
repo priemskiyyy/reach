@@ -6,21 +6,13 @@ import type { NetworkInformationLike } from "src/types/NetworkInformationLike";
 export const readSaveData = (
   connection: NetworkInformationLike | null,
 ): FieldObservation<boolean> => {
-  if (connection === null) {
+  if (connection?.saveData === undefined) {
     return { status: "unsupported" };
   }
 
-  let saveData: unknown;
-
-  try {
-    saveData = connection.saveData;
-  } catch {
-    return { status: "error" };
-  }
-
-  if (typeof saveData !== "boolean") {
-    return { status: "unsupported" };
-  }
-
-  return { status: "current", value: saveData, basis: "user-data-preference" };
+  return {
+    status: "current",
+    value: connection.saveData,
+    basis: "user-data-preference",
+  };
 };
