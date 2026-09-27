@@ -164,6 +164,17 @@ export class EndpointRecord {
     return "started";
   };
 
+  /** Makes the current check monitoring's own too, so it outlives its manual waiters. */
+  joinAutomatic = () => {
+    const flight = this.#flight;
+
+    if (flight === null) {
+      return;
+    }
+
+    flight.monitored = true;
+  };
+
   /** Leaves the current check to its manual waiters, and ends it when there are none. */
   releaseAutomatic = () => {
     const flight = this.#flight;

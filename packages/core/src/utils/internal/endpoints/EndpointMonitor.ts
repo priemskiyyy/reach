@@ -70,9 +70,7 @@ export class EndpointMonitor {
 
     // A trigger during a check is satisfied by that check.
     if (this.#record.isChecking()) {
-      this.#record.startAutomatic(
-        () => this.#isEligible() && this.#isForeground(),
-      );
+      this.#record.joinAutomatic();
 
       return;
     }

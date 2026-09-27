@@ -551,3 +551,27 @@ test("an unsubscribe that throws is reported, and the stop still completes", asy
   expect(reported).toEqual([failure]);
   expect(reach.diagnostics.get().counters.cleanupErrors).toBe(1);
 });
+
+test("a trigger during a check joins it, never starting another for a key read meanwhile", async () => {
+  const key = { current: "account-a" };
+
+  const probe = createMockEndpoint({
+    staleAfter: 30_000,
+    scope: { get: () => key.current, subscribe: () => () => {} },
+  });
+
+  const reach = new Reach({
+    adapter: createMockNetwork({ initial: CONNECTED_WIFI }).adapter,
+    clock: createTestClock(),
+    endpoints: { api: probe.definition },
+  });
+
+  const api = reach.endpoint("api");
+
+  reach.start();
+  api.check().catch(() => {});
+  key.current = "account-b";
+  api.monitor();
+
+  expect(probe.calls).toHaveLength(1);
+});
