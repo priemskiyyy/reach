@@ -70,7 +70,9 @@ export class EndpointMonitor {
 
     // A trigger during a check is satisfied by that check.
     if (this.#record.isChecking()) {
-      this.#record.startAutomatic();
+      this.#record.startAutomatic(
+        () => this.#isEligible() && this.#isForeground(),
+      );
 
       return;
     }
@@ -168,13 +170,20 @@ export class EndpointMonitor {
       return;
     }
 
-    const outcome = this.#record.startAutomatic();
+    // Reconciling the scope runs listeners, which may end this demand before a check starts.
+    const outcome = this.#record.startAutomatic(
+      () => this.#isEligible() && this.#isForeground(),
+    );
 
     if (outcome === "started") {
       return;
     }
 
     if (outcome === "joined") {
+      return;
+    }
+
+    if (outcome === "overtaken") {
       return;
     }
 

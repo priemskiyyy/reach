@@ -348,3 +348,90 @@ test("a check whose new key stops the runtime never starts", async () => {
   expect(probe.calls).toHaveLength(1);
   expect(reach.diagnostics.get().checks.outstanding).toBe(0);
 });
+
+test("a monitored start whose new key stopped the runtime never starts", async () => {
+  const key = { current: "account-a" };
+
+  // A scope read on demand, whose store never notifies.
+  const probe = createMockEndpoint({
+    staleAfter: 30_000,
+    scope: { get: () => key.current, subscribe: () => () => {} },
+  });
+
+  const clock = createTestClock();
+
+  const reach = new Reach({
+    adapter: createMockNetwork({ initial: CONNECTED_WIFI }).adapter,
+    clock,
+    endpoints: { api: probe.definition },
+  });
+
+  const api = reach.endpoint("api");
+  const lease = reach.start();
+  const first = api.check();
+
+  probe.pass();
+  await first;
+  clock.advance(5_000);
+
+  api.state.subscribe(() => {
+    if (api.state.get().freshness !== "never") {
+      return;
+    }
+
+    lease.release();
+  });
+
+  key.current = "account-b";
+  api.monitor();
+
+  expect(probe.calls).toHaveLength(1);
+  expect(reach.diagnostics.get().checks.outstanding).toBe(0);
+});
+
+test("a check is never sent for a key a listener already replaced", async () => {
+  const scope = new ValueStore<string | null>("account-a");
+
+  const probe = createMockEndpoint({
+    staleAfter: 30_000,
+    scope: scope.observable,
+  });
+
+  const reach = new Reach({
+    adapter: createMockNetwork({ initial: CONNECTED_WIFI }).adapter,
+    clock: createTestClock(),
+    endpoints: { api: probe.definition },
+  });
+
+  const api = reach.endpoint("api");
+  const checks: Array<Promise<unknown>> = [];
+
+  // Subscribed before the Reach, so it asks for the new key first.
+  scope.observable.subscribe(() => {
+    if (scope.get() === "account-b") {
+      checks.push(api.check());
+    }
+  });
+
+  reach.start();
+
+  const first = api.check();
+
+  probe.pass();
+  await first;
+
+  api.state.subscribe(() => {
+    if (api.state.get().freshness !== "never") {
+      return;
+    }
+
+    if (scope.get() === "account-b") {
+      scope.update("account-c");
+    }
+  });
+
+  scope.update("account-b");
+
+  await expect(checks[0]).rejects.toMatchObject({ code: "SUPERSEDED" });
+  expect(probe.calls).toHaveLength(1);
+});

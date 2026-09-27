@@ -6,6 +6,7 @@ import type { EndpointEnvironment } from "src/types/internal/EndpointEnvironment
 import type { EndpointRecordState } from "src/types/internal/EndpointRecordState";
 import type { CheckWaiter, ProbeFlight } from "src/types/internal/ProbeFlight";
 import type { ResolvedEndpoint } from "src/types/internal/ResolvedEndpoint";
+import type { ScopeReading } from "src/types/internal/ScopeReading";
 import type { ObservableValue } from "src/types/ObservableValue";
 import type { ProbeContext } from "src/types/ProbeContext";
 import type { ProbeResult } from "src/types/ProbeResult";
@@ -125,11 +126,21 @@ export class EndpointRecord {
     return network.whenRunning(signal).then(() => this.#checkNow(signal));
   };
 
-  /** Joins or starts a check on behalf of monitoring, or says why it cannot. */
-  startAutomatic = ():
-    "started" | "joined" | "scope-unavailable" | "capacity" => {
+  /**
+   * Joins or starts a check on behalf of monitoring while `isWanted()` still
+   * holds once the scope is reconciled, or says why it cannot.
+   */
+  startAutomatic = (
+    isWanted: () => boolean,
+  ): "started" | "joined" | "overtaken" | "scope-unavailable" | "capacity" => {
+    const reading = this.#reconcileForCheck();
+
+    // Listeners of a new key stopped the runtime, changed the key again or ended the demand.
+    if (reading === "stopped" || reading === "moved" || !isWanted()) {
+      return "overtaken";
+    }
+
     // A new key's listeners may start a check of their own, which this joins.
-    const { reading } = this.reconcileScope();
     const flight = this.#flight;
 
     if (flight !== null) {
@@ -245,6 +256,22 @@ export class EndpointRecord {
     });
   }
 
+  // The scope as a check about to start reads it. Reconciling runs listeners,
+  // which may stop the runtime or change the key again; no check starts then.
+  #reconcileForCheck(): ScopeReading | "stopped" | "moved" {
+    const { reading } = this.reconcileScope();
+
+    if (!this.#environment.network.isRunning()) {
+      return "stopped";
+    }
+
+    if (reading.key !== this.#record.get().scopeKey) {
+      return "moved";
+    }
+
+    return reading;
+  }
+
   #checkNow(signal: AbortSignal | undefined): Promise<CheckResult> {
     // A caller who gave up while the source opened sends nothing.
     if (signal?.aborted === true) {
@@ -255,11 +282,14 @@ export class EndpointRecord {
       return Promise.reject(createNotStartedError());
     }
 
-    const { reading } = this.reconcileScope();
+    const reading = this.#reconcileForCheck();
 
-    // A listener of the new key may have stopped the runtime.
-    if (!this.#environment.network.isRunning()) {
+    if (reading === "stopped") {
       return Promise.reject(createNotStartedError());
+    }
+
+    if (reading === "moved") {
+      return Promise.reject(this.#createSuperseded());
     }
 
     if (reading.error !== null) {
