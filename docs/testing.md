@@ -41,7 +41,7 @@ await network.start().ready;
 
 `createMockNetwork(options)` returns an `adapter` and the controls of its source:
 
-- `emit(input)` reports an observation. A fact you leave out is unknown, as with a real adapter. `observed(value, basis?)` builds a current fact.
+- `emit(input)` reports an observation. A fact you leave out is unknown, as with a real adapter. `observed(value, basis?)` builds a current fact. The report changes the source: the open session hears it, and a later session opens on it.
 - `invalidate()` reports a gap, `reportError(error)` a source error.
 - `reserve()` starts a slower read that takes its place in the order now and reports later.
 - With `open: "held"`, opening waits for `resolveOpen()` or `rejectOpen(error)`; `failNextOpen(error)` fails the next one.
@@ -85,7 +85,7 @@ console.info(api.state.get().freshness);
 
 ## The test clock
 
-`createTestClock()` drives every timer and time source Reach reads. `advance(ms)` moves both clocks and runs what falls due, `skip(ms)` moves only the wall clock as a sleep would, `runDue()` runs timers already due, and `pendingTimers()` counts what is armed.
+`createTestClock()` drives every timer and time source Reach reads. `advance(ms)` moves both clocks and runs what falls due, `skip(ms)` moves both clocks without running a timer, as a suspended runtime does, `setNow(ms)` moves the wall clock alone, `runDue()` runs timers already due, and `pendingTimers()` counts what is armed.
 
 ## Testing your conditions
 
