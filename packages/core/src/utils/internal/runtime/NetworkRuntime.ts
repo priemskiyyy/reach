@@ -126,24 +126,10 @@ export class NetworkRuntime<TNative> {
 
   isDisposed = () => this.#ownership.state === "DISPOSED";
 
-  sessionId = () => {
-    const ownership = this.#ownership;
-
-    if (ownership.state === "STARTING") {
-      return ownership.session.id;
-    }
-
-    if (ownership.state === "RUNNING") {
-      return ownership.session.id;
-    }
-
-    return null;
-  };
+  sessionId = () => this.#sessionOf(this.#ownership)?.id ?? null;
 
   start = (): RuntimeLease => {
-    const ownership = this.#ownership;
-
-    if (ownership.state === "DISPOSED") {
+    if (this.#ownership.state === "DISPOSED") {
       throw createDisposedError();
     }
 
@@ -162,19 +148,8 @@ export class NetworkRuntime<TNative> {
     this.#leases.add(lease);
     this.#hooks.record("lease-acquired");
 
-    if (ownership.state === "RUNNING") {
-      ready.resolve();
-
-      return handle;
-    }
-
-    this.#waiters.add(lease.waiter);
-
-    if (ownership.state === "STARTING") {
-      return handle;
-    }
-
-    this.#open();
+    // A diagnostics listener may have started, released or disposed meanwhile.
+    this.#admit(lease);
 
     return handle;
   };
@@ -264,31 +239,13 @@ export class NetworkRuntime<TNative> {
     this.#leases.clear();
     this.#rejectWaiters(error);
 
-    const transaction = new Transaction();
+    const session = this.#sessionOf(ownership);
 
-    if (ownership.state === "STARTING") {
-      this.#endSession(ownership.session, error);
+    if (session !== null) {
+      this.#endSession(session, error);
     }
 
-    // Pending checks learn why they end before the stale state starts a new generation.
-    this.#hooks.onStop(transaction, error);
-
-    if (ownership.state === "RUNNING") {
-      this.#endSession(ownership.session, error);
-
-      const state = this.state.get();
-
-      this.#install(
-        transaction,
-        getStaleFacts(state, "runtime-disposed"),
-        state.generation + 1,
-      );
-    }
-
-    transaction.set(this.status, DISPOSED_STATUS);
-    transaction.set(this.capabilities, null);
-    transaction.set(this.native, null);
-    transaction.commit();
+    this.#publishStopped(ownership, error, "runtime-disposed", DISPOSED_STATUS);
     this.#hooks.record("disposed");
     this.state.close();
     this.status.close();
@@ -311,18 +268,61 @@ export class NetworkRuntime<TNative> {
     return waitWithSignal(flight.promise, signal);
   }
 
-  #isLive(session: RuntimeSession) {
-    const ownership = this.#ownership;
-
+  #sessionOf(ownership: RuntimeOwnership) {
     if (ownership.state === "STARTING") {
-      return ownership.session === session;
+      return ownership.session;
     }
 
     if (ownership.state === "RUNNING") {
-      return ownership.session === session;
+      return ownership.session;
     }
 
-    return false;
+    return null;
+  }
+
+  #isLive(session: RuntimeSession) {
+    return this.#sessionOf(this.#ownership) === session;
+  }
+
+  // Puts a new lease to work on the runtime as it is now.
+  #admit(lease: Lease) {
+    const ownership = this.#ownership;
+
+    if (lease.released) {
+      return;
+    }
+
+    if (ownership.state === "DISPOSED") {
+      lease.waiter.reject(createDisposedError());
+
+      return;
+    }
+
+    if (ownership.state === "RUNNING") {
+      lease.waiter.resolve();
+
+      return;
+    }
+
+    this.#waiters.add(lease.waiter);
+
+    if (ownership.state === "STARTING") {
+      return;
+    }
+
+    if (ownership.state === "IDLE") {
+      this.#open();
+
+      return;
+    }
+
+    if (ownership.state === "FAILED") {
+      this.#open();
+
+      return;
+    }
+
+    assertUnreachable(ownership);
   }
 
   #isOpening(session: RuntimeSession) {
@@ -390,26 +390,41 @@ export class NetworkRuntime<TNative> {
 
     this.#endSession(ownership.session, stopped);
 
+    // A cleanup that called back may have started or disposed the runtime, and published that itself.
+    if (this.#ownership !== IDLE) {
+      return;
+    }
+
+    this.#publishStopped(ownership, stopped, "runtime-idle", IDLE_STATUS);
+    this.#hooks.record("session-stopped");
+  }
+
+  // One transaction for a source that stopped: checks learn why they end
+  // before the stale state starts a new generation, and nothing reads as open.
+  #publishStopped(
+    ownership: RuntimeOwnership,
+    error: ReachError,
+    reason: string,
+    status: RuntimeStatus,
+  ) {
     const transaction = new Transaction();
 
-    // Pending checks learn why they end before the stale state starts a new generation.
-    this.#hooks.onStop(transaction, stopped);
+    this.#hooks.onStop(transaction, error);
 
     if (ownership.state === "RUNNING") {
       const state = this.state.get();
 
       this.#install(
         transaction,
-        getStaleFacts(state, "runtime-idle"),
+        getStaleFacts(state, reason),
         state.generation + 1,
       );
     }
 
-    transaction.set(this.status, IDLE_STATUS);
+    transaction.set(this.status, status);
     transaction.set(this.capabilities, null);
     transaction.set(this.native, null);
     transaction.commit();
-    this.#hooks.record("session-stopped");
   }
 
   #open() {
@@ -528,7 +543,18 @@ export class NetworkRuntime<TNative> {
     transaction.set(this.native, native);
     transaction.set(this.status, RUNNING_STATUS);
     transaction.commit();
+
+    // A listener may have stopped, restarted or disposed the runtime; this session is then over.
+    if (!this.#isLive(session)) {
+      return;
+    }
+
     this.#hooks.record(event);
+
+    if (!this.#isLive(session)) {
+      return;
+    }
+
     this.#resolveWaiters();
     this.#hooks.onAdopt();
   }
@@ -555,11 +581,21 @@ export class NetworkRuntime<TNative> {
 
   #fail(session: RuntimeSession, error: ReachError) {
     if (!this.#isOpening(session)) {
+      this.#hooks.record("late-callback", { reason: "session" });
+
       return;
     }
 
-    this.#ownership = { state: "FAILED", error };
+    const failed: RuntimeOwnership = { state: "FAILED", error };
+
+    this.#ownership = failed;
     this.#endSession(session, error);
+
+    // A cleanup that called back may have started or disposed the runtime meanwhile.
+    if (this.#ownership !== failed) {
+      return;
+    }
+
     this.#rejectWaiters(error);
     this.status.update(getErrorStatus(error));
     this.#hooks.record("session-failed", { reason: error.code });
@@ -681,7 +717,7 @@ export class NetworkRuntime<TNative> {
     }
 
     session.committed = intake.sequence;
-    this.#apply(intake);
+    this.#apply(session, intake);
 
     return true;
   }
@@ -701,7 +737,7 @@ export class NetworkRuntime<TNative> {
     return true;
   }
 
-  #apply(intake: SourceIntake) {
+  #apply(session: RuntimeSession, intake: SourceIntake) {
     const state = this.state.get();
 
     if (intake.kind === "gap") {
@@ -721,7 +757,7 @@ export class NetworkRuntime<TNative> {
     }
 
     if (intake.kind === "observation") {
-      this.#applyObservation(state, intake.facts);
+      this.#applyObservation(session, state, intake.facts);
 
       return;
     }
@@ -741,7 +777,11 @@ export class NetworkRuntime<TNative> {
     this.#publish(facts, state.generation + 1);
   }
 
-  #applyObservation(state: NetworkState, facts: NetworkFacts) {
+  #applyObservation(
+    session: RuntimeSession,
+    state: NetworkState,
+    facts: NetworkFacts,
+  ) {
     if (isSameFacts(state, facts)) {
       this.#hooks.record("observation-duplicate");
 
@@ -751,6 +791,12 @@ export class NetworkRuntime<TNative> {
     const changed = isConnectionChange(state, facts);
 
     this.#publish(facts, changed ? state.generation + 1 : state.generation);
+
+    // A state listener may have ended this session; a change it never saw through triggers nothing.
+    if (!this.#isLive(session)) {
+      return;
+    }
+
     this.#hooks.record("observation-accepted");
 
     if (changed) {
