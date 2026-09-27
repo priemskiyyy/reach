@@ -50,6 +50,10 @@ automaticUpload.subscribe(() => {
 
 Reach does not make requests on your behalf, retry them or queue them offline. It tells you what the evidence shows; what to do with it stays yours.
 
+## Why there is no isOnline
+
+Every source has a way to say `false` that does not mean offline, so there is no `isOnline` property, and a condition never becomes a Boolean on its own. `unknown` has to go somewhere, and where depends on the feature: an automatic upload can wait, and a button the user pressed can try. Write that choice where the feature decides, with the status in hand, instead of coercing it once for the whole application.
+
 ## Packages
 
 | Package                                                             | What it is                                               |
@@ -80,6 +84,7 @@ Everything is tested in process, against fakes modeled on each SDK's source and 
 
 ## Documentation
 
+- [The documentation site](https://priemskiyyy.github.io/reach/), built from [`docs/`](docs): guides, the adapters' capabilities, recipes for unknown, troubleshooting and the verification matrix.
 - The README of each package above.
 - [Decisions](docs/decisions.md) and the [runtime architecture](docs/internals/architecture.md).
 - [Contributing](CONTRIBUTING.md), [support](SUPPORT.md) and [security](SECURITY.md).

@@ -172,6 +172,8 @@ export default tseslint.config(
       "**/node_modules/**",
       ".artifacts/**",
       "tasks/**",
+      "docs/.vitepress/cache/**",
+      "docs/.vitepress/dist/**",
       "test-results/**",
       "playwright-report/**",
     ],
