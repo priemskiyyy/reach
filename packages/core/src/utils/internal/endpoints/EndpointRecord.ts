@@ -96,8 +96,6 @@ export class EndpointRecord {
     );
   }
 
-  name = () => this.#definition.name;
-
   scope = () => this.#definition.scope;
 
   isChecking = () => this.#flight !== null;
