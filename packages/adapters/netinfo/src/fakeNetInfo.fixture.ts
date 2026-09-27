@@ -19,7 +19,12 @@ export const CELLULAR_STATE: NetInfoStateLike = {
 // once, inside addEventListener, and fetch answers the current state.
 export const createFakeNetInfo = (initial: NetInfoStateLike = WIFI_STATE) => {
   const listeners = new Set<(state: NetInfoStateLike) => void>();
-  const heldFetches: Array<(state: NetInfoStateLike) => void> = [];
+
+  const heldFetches: Array<{
+    resolve: (state: NetInfoStateLike) => void;
+    reject: (error: Error) => void;
+  }> = [];
+
   const calls = { configure: 0, refresh: 0 };
   const behavior = { holdFetch: false, announceOnSubscribe: true };
 
@@ -42,8 +47,8 @@ export const createFakeNetInfo = (initial: NetInfoStateLike = WIFI_STATE) => {
         return Promise.resolve(current);
       }
 
-      return new Promise<NetInfoStateLike>((resolve) => {
-        heldFetches.push(resolve);
+      return new Promise<NetInfoStateLike>((resolve, reject) => {
+        heldFetches.push({ resolve, reject });
       });
     },
     refresh: () => {
@@ -69,13 +74,22 @@ export const createFakeNetInfo = (initial: NetInfoStateLike = WIFI_STATE) => {
       }
     },
     resolveFetch: (state: NetInfoStateLike) => {
-      const resolve = heldFetches.shift();
+      const held = heldFetches.shift();
 
-      if (resolve === undefined) {
+      if (held === undefined) {
         throw new Error("No fetch is held.");
       }
 
-      resolve(state);
+      held.resolve(state);
+    },
+    rejectFetch: (error: Error) => {
+      const held = heldFetches.shift();
+
+      if (held === undefined) {
+        throw new Error("No fetch is held.");
+      }
+
+      held.reject(error);
     },
     listenerCount: () => listeners.size,
   };

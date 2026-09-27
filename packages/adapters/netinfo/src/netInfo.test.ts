@@ -187,6 +187,28 @@ test("T041 an event that arrives before the first read wins over it", async () =
   expect(reach.state.get().connection.type).toBe("cellular");
 });
 
+test("a first read that fails is a source error, never offline", async () => {
+  const fake = createFakeNetInfo(WIFI_STATE);
+
+  fake.behavior.holdFetch = true;
+  fake.behavior.announceOnSubscribe = false;
+
+  const reach = new Reach({
+    adapter: netInfo({ sdk: fake.sdk, platform: "android" }),
+    clock: createTestClock(),
+  });
+
+  await reach.start().ready;
+  fake.rejectFetch(new Error("NetInfo is not linked."));
+  await flush();
+
+  expect(reach.state.get().internet.status).toBe("unknown");
+  expect(reach.state.get().evidence["internet.status"]).toMatchObject({
+    status: "error",
+    reason: "source-error",
+  });
+});
+
 test("a refresh asks NetInfo to refresh and reports what it answers", async () => {
   const { reach, fake } = await startNetInfo(WIFI_STATE);
 
