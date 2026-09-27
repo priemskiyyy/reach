@@ -33,7 +33,12 @@ export const createFakeExpoNetwork = (
   initial: ExpoNetworkStateLike = WIFI_STATE,
 ) => {
   const listeners = new Set<(state: ExpoNetworkStateLike) => void>();
-  const heldReads: Array<(state: ExpoNetworkStateLike) => void> = [];
+
+  const heldReads: Array<{
+    resolve: (state: ExpoNetworkStateLike) => void;
+    reject: (error: Error) => void;
+  }> = [];
+
   const calls = { reads: 0, ipAddress: 0 };
   const behavior = { holdRead: false };
 
@@ -58,8 +63,8 @@ export const createFakeExpoNetwork = (
         return Promise.resolve(current);
       }
 
-      return new Promise<ExpoNetworkStateLike>((resolve) => {
-        heldReads.push(resolve);
+      return new Promise<ExpoNetworkStateLike>((resolve, reject) => {
+        heldReads.push({ resolve, reject });
       });
     },
     // Present, as on the real module, so a test can prove it is never called.
@@ -85,13 +90,22 @@ export const createFakeExpoNetwork = (
       }
     },
     resolveRead: (state: ExpoNetworkStateLike) => {
-      const resolve = heldReads.shift();
+      const held = heldReads.shift();
 
-      if (resolve === undefined) {
+      if (held === undefined) {
         throw new Error("No read is held.");
       }
 
-      resolve(state);
+      held.resolve(state);
+    },
+    rejectRead: (error: Error) => {
+      const held = heldReads.shift();
+
+      if (held === undefined) {
+        throw new Error("No read is held.");
+      }
+
+      held.reject(error);
     },
     listenerCount: () => listeners.size,
   };

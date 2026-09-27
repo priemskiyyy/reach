@@ -229,6 +229,27 @@ test("T041 an event that arrives before the first read wins over it", async () =
   expect(reach.state.get().connection.type).toBe("cellular");
 });
 
+test("a first read that fails is a source error, never offline", async () => {
+  const fake = createFakeExpoNetwork(WIFI_STATE);
+
+  fake.behavior.holdRead = true;
+
+  const reach = new Reach({
+    adapter: expoNetwork({ sdk: fake.sdk, platform: "android" }),
+    clock: createTestClock(),
+  });
+
+  await reach.start().ready;
+  fake.rejectRead(new Error("The native module is missing."));
+  await flush();
+
+  expect(reach.state.get().internet.status).toBe("unknown");
+  expect(reach.state.get().evidence["internet.status"]).toMatchObject({
+    status: "error",
+    reason: "source-error",
+  });
+});
+
 test("a refresh reads Expo Network again", async () => {
   const { reach, fake } = await startExpoNetwork(WIFI_STATE, "android");
 
