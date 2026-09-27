@@ -43,6 +43,7 @@ export type { ProbeVerdict } from "src/types/ProbeVerdict";
 export type { ReachClock } from "src/types/ReachClock";
 export type { ReachErrorCode } from "src/types/ReachErrorCode";
 export type { ReachErrorInfo } from "src/types/ReachErrorInfo";
+export type { ReachOptions } from "src/types/ReachOptions";
 export type { RefreshRequest } from "src/types/RefreshRequest";
 export type { RefreshResult } from "src/types/RefreshResult";
 export type { RuntimeLease } from "src/types/RuntimeLease";
