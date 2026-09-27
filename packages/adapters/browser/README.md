@@ -19,7 +19,7 @@ const network = new Reach({ adapter: browser() });
 network.start();
 ```
 
-Creating the adapter reads nothing. It resolves `window` when the runtime opens, and refuses to open with `UNSUPPORTED_ENVIRONMENT` where there is none, such as on a server.
+Creating the adapter reads nothing. It uses `window` when the runtime opens. Without one, such as in a server render, the adapter is unavailable: the runtime starts with every fact `unsupported`, for the reason `source-unavailable`, instead of failing.
 
 ## What it reports
 

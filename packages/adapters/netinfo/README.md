@@ -53,7 +53,7 @@ A false reachability while connected can be a failed check or one NetInfo skippe
 
 ## Behavior
 
-- On the web the adapter refuses to open with `UNSUPPORTED_ENVIRONMENT`. NetInfo's web module reads the browser under other names; use [the browser adapter](../browser) there.
+- Anywhere but iOS and Android, the web included, the adapter is unavailable: the runtime starts with every fact `unsupported`, for the reason `source-unavailable`. NetInfo's web module reads the browser under other names; use [the browser adapter](../browser) there.
 - The adapter subscribes before its first `fetch()`, so a change that arrives during that read wins over it.
 - Releasing removes only the adapter's own listener. Other NetInfo listeners in your application stay.
 - `refresh()` calls `NetInfo.refresh()`.

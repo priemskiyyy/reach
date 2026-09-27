@@ -54,7 +54,7 @@ No cost, expense or data preference is reported, and no transport set. A conditi
 
 ## Behavior
 
-- On the web the adapter refuses to open with `UNSUPPORTED_ENVIRONMENT`. Use [the browser adapter](../browser) there.
+- Anywhere but iOS and Android, the web included, the adapter is unavailable: the runtime starts with every fact `unsupported`, for the reason `source-unavailable`. Use [the browser adapter](../browser) on the web.
 - The adapter subscribes before its first read, so a change that arrives during that read wins over it.
 - It never calls the IP address or airplane mode helpers.
 - Releasing removes only the adapter's own subscription.
