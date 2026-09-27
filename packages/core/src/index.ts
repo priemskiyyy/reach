@@ -1,5 +1,6 @@
 export { ReachError } from "src/utils/ReachError";
 
+export type { CheckResult } from "src/types/CheckResult";
 export type { Condition } from "src/types/Condition";
 export type { ConditionEvaluation } from "src/types/ConditionEvaluation";
 export type { ConditionOptions } from "src/types/ConditionOptions";
@@ -12,6 +13,7 @@ export type { ConnectionType } from "src/types/ConnectionType";
 export type { EndpointAttempt } from "src/types/EndpointAttempt";
 export type { EndpointCheck } from "src/types/EndpointCheck";
 export type { EndpointDefinition } from "src/types/EndpointDefinition";
+export type { EndpointHandle } from "src/types/EndpointHandle";
 export type { EndpointObservation } from "src/types/EndpointObservation";
 export type { EndpointState } from "src/types/EndpointState";
 export type { Evidence } from "src/types/Evidence";
