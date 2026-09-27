@@ -8,6 +8,7 @@ import type { NetworkObservation } from "src/types/NetworkObservation";
 import type { RuntimeLease } from "src/types/RuntimeLease";
 import { NETWORK_FIELDS } from "src/utils/constants/network";
 import { createSystemClock } from "src/utils/internal/clock/createSystemClock";
+import { freezeList } from "src/utils/internal/common/freezeList";
 import { Reach } from "src/utils/Reach";
 
 type Check = {
@@ -342,5 +343,5 @@ export const testNetworkAdapter = async (
     passed.push(check.name);
   }
 
-  return Object.freeze({ passed });
+  return Object.freeze({ passed: freezeList(passed) });
 };

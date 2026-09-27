@@ -93,6 +93,7 @@ test("a well-behaved adapter passes every check", async () => {
     "a second session after a release observes again",
     "a refresh settles and reports within its capabilities",
   ]);
+  expect(Object.isFrozen(passed)).toBe(true);
 });
 
 test("an adapter unavailable on the host under test fails", async () => {
