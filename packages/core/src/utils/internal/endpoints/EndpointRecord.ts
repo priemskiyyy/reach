@@ -22,7 +22,7 @@ import { readScope } from "src/utils/internal/endpoints/readScope";
 import { createAbortedError } from "src/utils/internal/errors/createAbortedError";
 import { createNotStartedError } from "src/utils/internal/errors/createNotStartedError";
 import { DerivedValue } from "src/utils/internal/observable/DerivedValue";
-import { Listeners } from "src/utils/internal/observable/Listeners";
+import type { Listeners } from "src/utils/internal/observable/Listeners";
 import { Transaction } from "src/utils/internal/observable/Transaction";
 import { ValueStore } from "src/utils/internal/observable/ValueStore";
 import { ReachError } from "src/utils/ReachError";
@@ -44,8 +44,8 @@ export class EndpointRecord {
   #definition: ResolvedEndpoint;
   #environment: EndpointEnvironment;
   #record: ValueStore<EndpointRecordState>;
-  #expiry = new Listeners();
-  #settlements = new Listeners();
+  #expiry: Listeners;
+  #settlements: Listeners;
   #cancelExpiry = () => {};
   #flight: ProbeFlight | null = null;
   #lastStart: number | null = null;
@@ -60,6 +60,8 @@ export class EndpointRecord {
       EMPTY_RECORD_STATE,
       environment.createListeners(),
     );
+    this.#expiry = environment.createListeners();
+    this.#settlements = environment.createListeners();
 
     const { scope } = definition;
 
