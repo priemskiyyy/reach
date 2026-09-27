@@ -23,6 +23,9 @@ declare global {
   /** A setting the user controls. */
   const settings: ObservableValue<{ allowAnyNetwork: boolean }>;
 
+  /** Starts the application's uploads. */
+  const startUploads: () => void;
+
   /** The application's Reach, created once at bootstrap. */
   const network: Reach<unknown, "api">;
 }
