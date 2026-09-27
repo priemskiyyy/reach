@@ -582,7 +582,6 @@ export class EndpointRecord {
     }
 
     this.#finish(flight);
-    flight.controller.abort();
     transaction.set(
       this.#record,
       Object.freeze({
@@ -602,12 +601,14 @@ export class EndpointRecord {
       check: flight.id,
       reason,
     });
+
+    // The abort's listeners may start the next check, so they run once this change is committed.
+    transaction.after(() => flight.controller.abort());
   }
 
   // Cancellation is no evidence: it ends the check without an observation.
   #abort(flight: ProbeFlight) {
     this.#finish(flight);
-    flight.controller.abort();
     this.#record.update(
       Object.freeze({
         ...this.#record.get(),
@@ -619,6 +620,7 @@ export class EndpointRecord {
       endpoint: this.#definition.name,
       check: flight.id,
     });
+    flight.controller.abort();
   }
 
   #createAttempt(

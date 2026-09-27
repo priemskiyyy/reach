@@ -655,3 +655,45 @@ test("a check whose abort listener calls back at its timeout commits only the ti
     detached: 0,
   });
 });
+
+test("a check started from an abort listener keeps its running state", async () => {
+  const holder: { check: () => Promise<unknown> } = {
+    check: () => Promise.resolve(),
+  };
+
+  let calls = 0;
+
+  const reach = new Reach({
+    adapter: createMockNetwork({ initial: CONNECTED_WIFI }).adapter,
+    clock: createTestClock({ now: 1_000 }),
+    endpoints: {
+      api: {
+        staleAfter: 30_000,
+        check: ({ signal }) => {
+          calls += 1;
+
+          if (calls === 1) {
+            signal.addEventListener("abort", () => {
+              holder.check().catch(() => {});
+            });
+          }
+
+          return new Promise<ProbeResult>(() => {});
+        },
+      },
+    },
+  });
+
+  const api = reach.endpoint("api");
+
+  holder.check = api.check;
+  reach.start();
+  api.check().catch(() => {});
+  api.invalidate();
+
+  expect(calls).toBe(2);
+  expect(api.state.get()).toMatchObject({
+    checking: true,
+    lastAttempt: { check: 2, status: "running" },
+  });
+});
