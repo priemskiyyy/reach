@@ -25,7 +25,7 @@ export function useNetwork(network?: ReachNetwork): NetworkState;
 export function useNetwork<TSelected>(
   network: ReachNetwork,
   selector: (state: NetworkState) => TSelected,
-  options?: SelectorOptions<TSelected>,
+  options?: SelectorOptions<NoInfer<TSelected>>,
 ): TSelected;
 
 export function useNetwork(

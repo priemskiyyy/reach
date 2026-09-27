@@ -21,7 +21,7 @@ export function useCondition(condition: Condition): ConditionState;
 export function useCondition<TSelected>(
   condition: Condition,
   selector: (state: ConditionState) => TSelected,
-  options?: SelectorOptions<TSelected>,
+  options?: SelectorOptions<NoInfer<TSelected>>,
 ): TSelected;
 
 export function useCondition(

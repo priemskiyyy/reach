@@ -22,7 +22,7 @@ export function useEndpoint(endpoint: EndpointHandle): EndpointState;
 export function useEndpoint<TSelected>(
   endpoint: EndpointHandle,
   selector: (state: EndpointState) => TSelected,
-  options?: SelectorOptions<TSelected>,
+  options?: SelectorOptions<NoInfer<TSelected>>,
 ): TSelected;
 
 export function useEndpoint(
