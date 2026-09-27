@@ -11,7 +11,6 @@ const getMissingEvidence = (
     status,
     basis: "none",
     receivedAt: null,
-    verifiedAt: null,
     reason,
   });
 
@@ -28,7 +27,6 @@ export const readFieldObservation = <TValue, TUnknown extends "unknown" | null>(
         status: "current",
         basis: observation.basis,
         receivedAt,
-        verifiedAt: observation.verifiedAt ?? null,
         reason: null,
       }),
     };

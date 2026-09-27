@@ -430,7 +430,7 @@ test("a refresh overtaken by a newer event is superseded", async () => {
   expect(reach.state.get().connection.type).toBe("cellular");
 });
 
-test("T015 a refresh that repeats the same facts changes nothing and invents no verification", async () => {
+test("T015 a refresh that repeats the same facts changes nothing", async () => {
   const { reach, mock } = createReach({
     refresh: "held",
     initial: CONNECTED_WIFI,
@@ -445,7 +445,6 @@ test("T015 a refresh that repeats the same facts changes nothing and invents no 
 
   await expect(refreshing).resolves.toEqual({ status: "unchanged", state });
   expect(reach.state.get()).toBe(state);
-  expect(reach.state.get().evidence["internet.status"].verifiedAt).toBeNull();
 });
 
 test("T147 two instances share no network, session or runtime state", () => {

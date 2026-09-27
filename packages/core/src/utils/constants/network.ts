@@ -8,7 +8,6 @@ export const UNOBSERVED_EVIDENCE: Evidence = Object.freeze({
   status: "unknown",
   basis: "none",
   receivedAt: null,
-  verifiedAt: null,
   reason: "unobserved",
 });
 
@@ -17,7 +16,6 @@ export const UNSUPPORTED_EVIDENCE: Evidence = Object.freeze({
   status: "unsupported",
   basis: "none",
   receivedAt: null,
-  verifiedAt: null,
   reason: "unsupported",
 });
 

@@ -32,10 +32,6 @@ const isSameEvidence = (first: Evidence, second: Evidence) => {
     return false;
   }
 
-  if (first.verifiedAt !== second.verifiedAt) {
-    return false;
-  }
-
   return first.reason === second.reason;
 };
 

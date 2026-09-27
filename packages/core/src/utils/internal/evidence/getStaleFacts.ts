@@ -12,7 +12,6 @@ export const getStaleFacts = (facts: NetworkFacts, reason: string) =>
       status: "stale",
       basis: evidence.basis,
       receivedAt: evidence.receivedAt,
-      verifiedAt: null,
       reason,
     });
   });

@@ -55,10 +55,9 @@ test("a connected, reachable Wi-Fi report on Android", async () => {
     internet: { status: "online" },
     cost: { metered: false, expensive: null },
   });
-  expect(reach.state.get().evidence["internet.status"]).toMatchObject({
-    basis: "provider-report",
-    verifiedAt: null,
-  });
+  expect(reach.state.get().evidence["internet.status"].basis).toBe(
+    "provider-report",
+  );
   expect(reach.state.get().evidence["cost.metered"].basis).toBe(
     "native-metering",
   );

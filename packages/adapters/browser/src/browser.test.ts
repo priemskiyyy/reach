@@ -38,7 +38,6 @@ test("T010 an online browser is a connected hint, never verified internet", () =
     status: "current",
     basis: "browser-hint",
     receivedAt: 1_000,
-    verifiedAt: null,
     reason: null,
   });
   expect(reach.state.get().evidence["internet.status"].status).toBe(

@@ -12,7 +12,6 @@ export const getFailedFacts = (facts: NetworkFacts, reason: string) =>
       status: "error",
       basis: evidence.basis,
       receivedAt: evidence.receivedAt,
-      verifiedAt: null,
       reason,
     });
   });

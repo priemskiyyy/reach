@@ -21,8 +21,6 @@ export type FieldObservation<TValue> =
       status: "current";
       value: TValue;
       basis: Exclude<EvidenceBasis, "none">;
-      /** Epoch milliseconds when the source verified the value, only when it says so. */
-      verifiedAt?: number;
     }
   | { status: "unknown"; reason?: string }
   | { status: "unsupported" }

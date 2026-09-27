@@ -37,7 +37,6 @@ test("a current report carries its value, basis and receipt, but no invented ver
     status: "current",
     basis: "native-path",
     receivedAt: 1_000,
-    verifiedAt: null,
     reason: null,
   });
 });
@@ -159,7 +158,6 @@ test("stale facts drop every value and keep the history of current evidence", ()
     status: "stale",
     basis: "native-path",
     receivedAt: 1_000,
-    verifiedAt: null,
     reason: "runtime-idle",
   });
   expect(stale.evidence["cost.expensive"].status).toBe("unsupported");
