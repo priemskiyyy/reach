@@ -167,3 +167,38 @@ test("a derived value that reads itself fails instead of recursing", () => {
     expect.objectContaining({ code: "EVALUATION_ERROR" }),
   );
 });
+
+test("a source whose subscribe throws leaves no other subscription behind", () => {
+  const store = new ValueStore(1);
+  const good = countSubscriptions(store.observable);
+  const failure = new Error("subscribe");
+  let broken = true;
+
+  const bad: ObservableValue<number> = {
+    get: () => 2,
+    subscribe: (listener) => {
+      if (broken) {
+        throw failure;
+      }
+
+      return store.subscribe(listener);
+    },
+  };
+
+  const derived = new DerivedValue({
+    sources: [good.observable, bad],
+    compute: () => store.get() + bad.get(),
+  });
+
+  const listener = vi.fn();
+
+  expect(() => derived.subscribe(listener)).toThrow(failure);
+  expect(good.counter.active).toBe(0);
+
+  broken = false;
+  derived.subscribe(listener);
+  store.update(5);
+
+  expect(good.counter.active).toBe(1);
+  expect(listener).toHaveBeenCalledTimes(1);
+});

@@ -73,11 +73,12 @@ export class DerivedValue<TValue> {
   };
 
   subscribe = (listener: () => void) => {
-    const remove = this.#listeners.add(listener);
-
-    if (this.#listeners.size() === 1) {
+    // Attached before the listener is registered, so a source that refuses leaves nothing behind.
+    if (this.#listeners.size() === 0) {
       this.#attach();
     }
+
+    const remove = this.#listeners.add(listener);
 
     return () => {
       remove();
@@ -114,10 +115,23 @@ export class DerivedValue<TValue> {
   }
 
   #attach() {
-    this.#unsubscribes = this.#sources.map((source) =>
-      source.subscribe(this.#handleSourceChange),
-    );
-    this.#announced = { value: this.get() };
+    const unsubscribes: Array<() => void> = [];
+
+    try {
+      for (const source of this.#sources) {
+        unsubscribes.push(source.subscribe(this.#handleSourceChange));
+      }
+
+      this.#announced = { value: this.get() };
+    } catch (error) {
+      for (const unsubscribe of unsubscribes) {
+        unsubscribe();
+      }
+
+      throw error;
+    }
+
+    this.#unsubscribes = unsubscribes;
   }
 
   #detach() {
