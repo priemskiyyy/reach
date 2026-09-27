@@ -72,8 +72,9 @@ export const createTestClock = ({
 
       let next = getNextDue(target);
 
+      // An overdue timer runs now, never back at the time it fell due.
       while (next !== null) {
-        move(next.at - monotonic);
+        move(Math.max(next.at - monotonic, 0));
         run(next);
         next = getNextDue(target);
       }

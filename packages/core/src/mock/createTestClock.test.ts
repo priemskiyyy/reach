@@ -74,3 +74,14 @@ test("random answers the value a test set", () => {
 
   expect(clock.random()).toBe(0.5);
 });
+
+test("an overdue timer runs at the time it runs, never back at its due time", () => {
+  const clock = createTestClock();
+  const seen: number[] = [];
+
+  clock.setTimer(() => seen.push(clock.monotonic()), 500);
+  clock.skip(1_000);
+  clock.advance(0);
+
+  expect(seen).toEqual([1_000]);
+});
