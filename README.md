@@ -64,9 +64,19 @@ Reach does not make requests on your behalf, retry them or queue them offline. I
 
 Every package is ESM only, side-effect free and typed. The core has no dependencies.
 
+## Examples
+
+[Darkroom](examples) is a photo app that backs up to its own API, built on Reach. The [React tour](examples/react) runs a simulated phone and API inside the page, with a lab to break them, and can read your real browser instead. The [Expo app](examples/expo) reads NetInfo and checks a [fixture server](examples/server) over real HTTP.
+
+```sh
+pnpm install
+pnpm build
+pnpm dev
+```
+
 ## Status
 
-Everything is tested in process, against fakes modeled on each SDK's source and against each SDK's real types. Nothing has run on a device or in a real browser yet. [The decision record](docs/decisions.md) lists what that leaves unverified, and where the implementation departs from its specification.
+Everything is tested in process, against fakes modeled on each SDK's source and against each SDK's real types. Nothing has run on a device yet, and in a real browser only the example tour has: it takes Chromium offline and back through the browser adapter. [The decision record](docs/decisions.md) lists what that leaves unverified, and where the implementation departs from its specification.
 
 ## Documentation
 

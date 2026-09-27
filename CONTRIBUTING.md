@@ -8,6 +8,7 @@ Use Node 22.18 or newer and the pnpm version in `package.json`. Run `pnpm instal
 - `packages/adapters/*`: one package per source, published as `@priemskiyyy/reach-<name>`: `browser`, `netinfo` and `expo-network` observe the network, and `http` defines endpoint checks over the application's own client.
 - `packages/react`: the React binding, a provider and hooks.
 - `packages/tanstack-query`: the bridge to TanStack Query's online manager.
+- `examples/`: Darkroom, the example app. `shared` holds its domain, the simulated phone and API and the Tailwind recipes; `react` is the web tour, `expo` the React Native app, and `server` the fixture API the Expo app checks. `pnpm dev` starts the tour, and `pnpm test:examples` drives it in Chromium.
 - `docs/`: the decision record and the internals.
 - `scripts/`: the checks beyond the tests. `verify-lint-rules.mjs` proves each lint rule still rejects what it was written for, `verify-snippets.mjs` typechecks every `ts` and `tsx` example in the READMEs and docs against the built packages, and `verify-packages.mjs` installs the packed tarballs into a consumer without native peers. Each has been probed with a deliberately broken input, so keep that habit when changing one.
 
