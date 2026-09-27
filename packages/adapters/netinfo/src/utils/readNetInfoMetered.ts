@@ -10,9 +10,9 @@ import type { NetInfoProfile } from "src/types/internal/NetInfoProfile";
  */
 export const readNetInfoMetered = (
   { details }: NetInfoStateLike,
-  { platform }: NetInfoProfile,
+  { metering }: NetInfoProfile,
 ): FieldObservation<boolean> => {
-  if (platform === "ios") {
+  if (!metering) {
     return { status: "unsupported" };
   }
 

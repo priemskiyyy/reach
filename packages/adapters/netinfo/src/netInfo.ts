@@ -2,8 +2,8 @@ import type { NetworkAdapter } from "@priemskiyyy/reach";
 
 import type { NetInfoAdapterOptions } from "src/types/NetInfoAdapterOptions";
 import type { NetInfoLike } from "src/types/NetInfoLike";
+import type { NetInfoProfile } from "src/types/internal/NetInfoProfile";
 import { getNetInfoCapabilities } from "src/utils/getNetInfoCapabilities";
-import { getNetInfoProfile } from "src/utils/getNetInfoProfile";
 import { isNativePlatform } from "src/utils/isNativePlatform";
 import { readNetInfoObservation } from "src/utils/readNetInfoObservation";
 
@@ -21,14 +21,19 @@ import { readNetInfoObservation } from "src/utils/readNetInfoObservation";
  * const reach = new Reach({ adapter: netInfo({ sdk: NetInfo, platform: Platform.OS }) });
  * ```
  */
-export const netInfo = (
-  options: NetInfoAdapterOptions,
-): NetworkAdapter<NetInfoLike> => ({
+export const netInfo = ({
+  sdk,
+  platform,
+  internet = "reported",
+}: NetInfoAdapterOptions): NetworkAdapter<NetInfoLike> => ({
   name: "netinfo",
-  available: () => isNativePlatform(options.platform),
+  available: () => isNativePlatform(platform),
   open: (context) => {
-    const profile = getNetInfoProfile(options);
-    const { sdk } = options;
+    // Android reads the system's metering answer; iOS derives its flag from the cellular transport.
+    const profile: NetInfoProfile = {
+      metering: platform === "android",
+      internet,
+    };
 
     // Subscribed before the first read, so a change during that read wins over it.
     context.onDispose(

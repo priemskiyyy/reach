@@ -11,7 +11,7 @@ import type { NetInfoLike } from "src/types/NetInfoLike";
  */
 export type NetInfoAdapterOptions = {
   sdk: NetInfoLike;
-  /** Only `ios` and `android` are mapped; the web belongs to the browser adapter. */
+  /** `Platform.OS`. Only `ios` and `android` are mapped; anywhere else, the web included, the adapter is unavailable. */
   platform: string;
   /**
    * `reported`, the default, maps NetInfo's reachability into the internet

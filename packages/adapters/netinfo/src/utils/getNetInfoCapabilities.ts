@@ -10,7 +10,7 @@ import {
 
 /** What NetInfo reports on this platform, with the options the application chose. */
 export const getNetInfoCapabilities = ({
-  platform,
+  metering,
   internet,
 }: NetInfoProfile): NetworkCapabilities => ({
   "connection.status": NATIVE_PATH_FIELD,
@@ -18,7 +18,7 @@ export const getNetInfoCapabilities = ({
   "connection.transports": UNSUPPORTED_FIELD,
   "internet.status":
     internet === "reported" ? REACHABILITY_FIELD : UNSUPPORTED_FIELD,
-  "cost.metered": platform === "android" ? METERING_FIELD : UNSUPPORTED_FIELD,
+  "cost.metered": metering ? METERING_FIELD : UNSUPPORTED_FIELD,
   "cost.expensive": UNSUPPORTED_FIELD,
   "preferences.constrained": UNSUPPORTED_FIELD,
   "preferences.saveData": UNSUPPORTED_FIELD,
