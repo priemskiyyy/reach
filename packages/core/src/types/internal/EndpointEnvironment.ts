@@ -22,5 +22,7 @@ export type EndpointEnvironment = {
   capacity: { outstanding: number; detached: number; max: number };
   nextCheckId: () => number;
   record: (type: ReachDiagnosticEventType, details?: DiagnosticDetails) => void;
+  /** Marks the diagnostic snapshot outdated after a change no event records. */
+  changed: () => void;
   createListeners: () => Listeners;
 };

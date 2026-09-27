@@ -185,6 +185,7 @@ export class Reach<
           return checks;
         },
         record: this.#diagnostics.record,
+        changed: this.#diagnostics.changed,
         createListeners,
       },
       activity ?? null,

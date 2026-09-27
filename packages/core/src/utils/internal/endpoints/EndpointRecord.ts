@@ -307,6 +307,8 @@ export class EndpointRecord {
       return;
     }
 
+    this.#environment.changed();
+
     if (flight.waiters.size > 0) {
       return;
     }
@@ -422,6 +424,8 @@ export class EndpointRecord {
     if (flight.settled) {
       capacity.detached -= 1;
     }
+
+    this.#environment.changed();
   }
 
   // Reach stops waiting; a check that still runs keeps its slot as detached work.
@@ -501,7 +505,10 @@ export class EndpointRecord {
     this.#cancelExpiry();
     this.#cancelExpiry = scheduler.schedule(
       clock.monotonic() + this.#definition.staleAfter,
-      () => this.#expiry.notify(),
+      () => {
+        this.#expiry.notify();
+        this.#environment.changed();
+      },
     );
 
     // The linearization point: every surviving waiter gets the state this result was accepted into.
