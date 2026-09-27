@@ -8,6 +8,8 @@
   },
   "scripts": {
     "build": "pnpm -r --filter './packages/*' --filter './packages/adapters/*' build",
+    "dev": "pnpm --filter example-react dev",
+    "dev:server": "pnpm --filter example-server dev",
     "format": "prettier --write .",
     "lint:prettier": "prettier --check .",
     "lint:typescript": "tsc --noEmit && pnpm -r lint:typescript",
@@ -18,8 +20,9 @@
     "verify:release": "node scripts/verify-release.mjs",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
+    "test:examples": "pnpm build && playwright test -c examples/playwright.config.ts",
     "check": "pnpm build && pnpm lint:typescript && pnpm lint:eslint && pnpm test:lint && pnpm verify:snippets && pnpm lint:prettier && pnpm test:unit",
-    "check:release": "pnpm check && pnpm verify:release && pnpm verify:packages"
+    "check:release": "pnpm check && pnpm verify:release && pnpm verify:packages && pnpm -r --if-present --filter './examples/*' build"
   },
   "devDependencies": {
     "@eslint/js": "9.39.4",
