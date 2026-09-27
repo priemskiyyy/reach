@@ -33,7 +33,7 @@ const startNetInfo = async (
   return { reach, fake };
 };
 
-test("T032 NetInfo on the web is refused, never mapped through its web module", async () => {
+test("T032 NetInfo on the web is unavailable, never mapped through its web module", async () => {
   const fake = createFakeNetInfo();
 
   const reach = new Reach({
@@ -41,10 +41,11 @@ test("T032 NetInfo on the web is refused, never mapped through its web module", 
     clock: createTestClock(),
   });
 
-  await expect(reach.start().ready).rejects.toMatchObject({
-    cause: expect.objectContaining({ code: "UNSUPPORTED_ENVIRONMENT" }),
-  });
+  await expect(reach.start().ready).resolves.toBeUndefined();
   expect(fake.listenerCount()).toBe(0);
+  expect(reach.state.get().evidence["internet.status"].reason).toBe(
+    "source-unavailable",
+  );
 });
 
 test("a connected, reachable Wi-Fi report on Android", async () => {

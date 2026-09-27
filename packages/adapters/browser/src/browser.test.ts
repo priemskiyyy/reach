@@ -16,15 +16,16 @@ const startBrowser = (page: ReturnType<typeof createFakeWindow>) => {
   return reach;
 };
 
-test("T145 creating the adapter reads nothing, and starting without a window is unsupported", async () => {
+test("T145 creating the adapter reads nothing, and a host without a window is unavailable", async () => {
   const adapter = browser();
   const reach = new Reach({ adapter, clock: createTestClock() });
 
-  await expect(reach.start().ready).rejects.toMatchObject({
-    code: "SOURCE_ERROR",
-    cause: expect.objectContaining({ code: "UNSUPPORTED_ENVIRONMENT" }),
-  });
+  expect(adapter.available()).toBe(false);
+  await expect(reach.start().ready).resolves.toBeUndefined();
   expect(reach.state.get().connection.status).toBe("unknown");
+  expect(reach.state.get().evidence["connection.status"].reason).toBe(
+    "source-unavailable",
+  );
 });
 
 test("T010 an online browser is a connected hint, never verified internet", () => {

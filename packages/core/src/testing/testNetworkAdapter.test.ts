@@ -9,9 +9,11 @@ import type { NetworkCapabilities } from "src/types/NetworkCapabilities";
 
 // A host that toggles between Wi-Fi and cellular and counts its listeners.
 const createHarness = ({
+  available = true,
   capabilities = MOCK_CAPABILITIES,
   keepListener = false,
 }: {
+  available?: boolean;
   capabilities?: NetworkCapabilities;
   keepListener?: boolean;
 } = {}): NetworkAdapterHarness => {
@@ -30,6 +32,7 @@ const createHarness = ({
   return {
     adapter: {
       name: "host",
+      available: () => available,
       open: (context) => {
         const listener = () => context.emit(report());
 
@@ -64,7 +67,7 @@ test("a well-behaved adapter passes every check", async () => {
   const { passed } = await testNetworkAdapter(() => createHarness());
 
   expect(passed).toEqual([
-    "creating the adapter subscribes to nothing",
+    "creating and probing the adapter subscribes to nothing",
     "opening declares a capability for every fact",
     "every report is complete and within the declared capabilities",
     "a change of the host is reported",
@@ -72,6 +75,14 @@ test("a well-behaved adapter passes every check", async () => {
     "a second session after a release observes again",
     "a refresh settles and reports within its capabilities",
   ]);
+});
+
+test("an adapter unavailable on the host under test fails", async () => {
+  await expect(
+    testNetworkAdapter(() => createHarness({ available: false })),
+  ).rejects.toThrow(
+    "Network adapter conformance: creating and probing the adapter subscribes to nothing.",
+  );
 });
 
 test("an adapter that reports a fact it declared unsupported fails", async () => {

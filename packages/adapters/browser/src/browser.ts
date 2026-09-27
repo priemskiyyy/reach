@@ -43,6 +43,14 @@ export const browser = ({
   target,
 }: BrowserOptions = {}): NetworkAdapter<BrowserNative> => ({
   name: "browser",
+  available: () => {
+    if (target !== undefined) {
+      return true;
+    }
+
+    // A server render has no window.
+    return typeof window !== "undefined";
+  },
   open: (context) => {
     const targetWindow = resolveWindow(target);
     const connection = targetWindow.navigator.connection ?? null;

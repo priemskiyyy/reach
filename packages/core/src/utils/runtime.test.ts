@@ -4,6 +4,7 @@ import { createMockNetwork } from "src/mock/createMockNetwork";
 import { createTestClock } from "src/mock/createTestClock";
 import { observed } from "src/mock/observed";
 import { MOCK_CAPABILITIES } from "src/mock/utils/constants/capabilities";
+import type { ReachDiagnosticEvent } from "src/types/ReachDiagnosticEvent";
 import { UNKNOWN_NETWORK_STATE } from "src/utils/constants/network";
 import {
   CONNECTED_CELLULAR,
@@ -62,6 +63,47 @@ test("starting adopts the source and publishes what it reported while opening", 
   expect(reach.native.get()).toEqual({ session: 1 });
   expect(reach.capabilities.get()).toEqual(MOCK_CAPABILITIES);
   expect(mock.stats().activeSessions).toBe(1);
+});
+
+test("an unavailable host runs with every fact unsupported, and never fails", async () => {
+  const { reach, mock } = createReach({
+    available: false,
+    initial: CONNECTED_WIFI,
+  });
+
+  const internet = reach.condition({ internet: "online" });
+  const events: ReachDiagnosticEvent[] = [];
+
+  reach.diagnostics.events.subscribe((event) => events.push(event));
+
+  const lease = reach.start();
+
+  await expect(lease.ready).resolves.toBeUndefined();
+  expect(mock.stats().opens).toBe(0);
+  expect(reach.status.get()).toEqual({ state: "running", refreshing: false });
+  expect(reach.state.get().evidence["internet.status"]).toEqual({
+    status: "unsupported",
+    basis: "none",
+    receivedAt: null,
+    reason: "source-unavailable",
+  });
+  expect(reach.capabilities.get()?.["connection.status"]).toEqual({
+    support: "unsupported",
+  });
+  expect(reach.native.get()).toBeNull();
+  expect(internet.get()).toEqual({
+    status: "unknown",
+    reasons: [
+      { code: "source-unavailable", field: "internet.status", endpoint: null },
+    ],
+  });
+  expect(events.map((event) => event.type)).toContain("source-unavailable");
+  await expect(reach.refresh()).resolves.toMatchObject({
+    status: "unsupported",
+  });
+
+  lease.release();
+  expect(reach.status.get().state).toBe("idle");
 });
 
 test("T033 concurrent owners share one opening and both become ready", async () => {
@@ -612,6 +654,7 @@ test("T158 a throwing cleanup is reported, and the rest of disposal still runs",
     clock,
     adapter: {
       name: "throwing",
+      available: () => true,
       open: (context) => {
         context.onDispose(after);
         context.onDispose(() => {

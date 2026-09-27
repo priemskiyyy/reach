@@ -4,6 +4,7 @@ import type { ExpoNetworkAdapterOptions } from "src/types/ExpoNetworkAdapterOpti
 import type { ExpoNetworkLike } from "src/types/ExpoNetworkLike";
 import { getExpoCapabilities } from "src/utils/getExpoCapabilities";
 import { getExpoPlatform } from "src/utils/getExpoPlatform";
+import { isNativePlatform } from "src/utils/isNativePlatform";
 import { readExpoObservation } from "src/utils/readExpoObservation";
 
 /**
@@ -23,6 +24,7 @@ export const expoNetwork = (
   options: ExpoNetworkAdapterOptions,
 ): NetworkAdapter<ExpoNetworkLike> => ({
   name: "expo-network",
+  available: () => isNativePlatform(options.platform),
   open: (context) => {
     const platform = getExpoPlatform(options.platform);
     const { sdk } = options;

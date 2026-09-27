@@ -37,7 +37,7 @@ const startExpoNetwork = async (
   return { reach, fake };
 };
 
-test("T032 Expo Network on the web is refused, never mapped through its web module", async () => {
+test("T032 Expo Network on the web is unavailable, never mapped through its web module", async () => {
   const fake = createFakeExpoNetwork();
 
   const reach = new Reach({
@@ -45,11 +45,12 @@ test("T032 Expo Network on the web is refused, never mapped through its web modu
     clock: createTestClock(),
   });
 
-  await expect(reach.start().ready).rejects.toMatchObject({
-    cause: expect.objectContaining({ code: "UNSUPPORTED_ENVIRONMENT" }),
-  });
+  await expect(reach.start().ready).resolves.toBeUndefined();
   expect(fake.listenerCount()).toBe(0);
   expect(fake.calls.reads).toBe(0);
+  expect(reach.state.get().evidence["internet.status"].reason).toBe(
+    "source-unavailable",
+  );
 });
 
 test("T026 a satisfied iOS path is connected, and the internet stays unknown", async () => {

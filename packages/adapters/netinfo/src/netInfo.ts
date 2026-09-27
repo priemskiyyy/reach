@@ -4,6 +4,7 @@ import type { NetInfoAdapterOptions } from "src/types/NetInfoAdapterOptions";
 import type { NetInfoLike } from "src/types/NetInfoLike";
 import { getNetInfoCapabilities } from "src/utils/getNetInfoCapabilities";
 import { getNetInfoProfile } from "src/utils/getNetInfoProfile";
+import { isNativePlatform } from "src/utils/isNativePlatform";
 import { readNetInfoObservation } from "src/utils/readNetInfoObservation";
 
 /**
@@ -24,6 +25,7 @@ export const netInfo = (
   options: NetInfoAdapterOptions,
 ): NetworkAdapter<NetInfoLike> => ({
   name: "netinfo",
+  available: () => isNativePlatform(options.platform),
   open: (context) => {
     const profile = getNetInfoProfile(options);
     const { sdk } = options;

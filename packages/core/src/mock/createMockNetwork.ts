@@ -39,6 +39,7 @@ type HeldRefresh = {
  * ```
  */
 export const createMockNetwork = ({
+  available = true,
   initial,
   capabilities = MOCK_CAPABILITIES,
   open = "sync",
@@ -88,6 +89,7 @@ export const createMockNetwork = ({
   return Object.freeze({
     adapter: Object.freeze({
       name: "mock",
+      available: () => available,
       open: (context: NetworkAdapterContext) => {
         opens += 1;
         latest = context;

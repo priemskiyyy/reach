@@ -136,7 +136,12 @@ const { browser } = await import("@priemskiyyy/reach-browser");
 const network = new Reach({ adapter: browser() });
 
 assert.equal(network.state.get().connection.status, "unknown");
-await assert.rejects(network.start().ready, { code: "SOURCE_ERROR" });
+// Node has no window, so the browser source is unavailable, never a failure.
+await network.start().ready;
+assert.equal(
+  network.state.get().evidence["connection.status"].reason,
+  "source-unavailable",
+);
 network.dispose();
 `,
 );

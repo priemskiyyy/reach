@@ -18,7 +18,11 @@ import type { RefreshRequest } from "src/types/RefreshRequest";
 import type { RefreshResult } from "src/types/RefreshResult";
 import type { RuntimeLease } from "src/types/RuntimeLease";
 import type { RuntimeStatus } from "src/types/RuntimeStatus";
-import { UNKNOWN_NETWORK_STATE } from "src/utils/constants/network";
+import { UNAVAILABLE_CAPABILITIES } from "src/utils/constants/capabilities";
+import {
+  UNAVAILABLE_EVIDENCE,
+  UNKNOWN_NETWORK_STATE,
+} from "src/utils/constants/network";
 import {
   DISPOSED_STATUS,
   IDLE_STATUS,
@@ -37,6 +41,7 @@ import { getFailedFacts } from "src/utils/internal/evidence/getFailedFacts";
 import { getStaleFacts } from "src/utils/internal/evidence/getStaleFacts";
 import { isConnectionChange } from "src/utils/internal/evidence/isConnectionChange";
 import { isSameFacts } from "src/utils/internal/evidence/isSameFacts";
+import { mapEvidence } from "src/utils/internal/evidence/mapEvidence";
 import { readObservation } from "src/utils/internal/evidence/readObservation";
 import type { Listeners } from "src/utils/internal/observable/Listeners";
 import { Transaction } from "src/utils/internal/observable/Transaction";
@@ -56,9 +61,21 @@ type NetworkRuntimeOptions<TNative> = {
   createListeners: () => Listeners;
 };
 
-const IDLE: RuntimeOwnership<never> = Object.freeze({ state: "IDLE" });
+type RunningSource<TNative> = {
+  facts: NetworkFacts;
+  capabilities: NetworkCapabilities;
+  native: TNative | null;
+  refresh: Extract<RuntimeOwnership, { state: "RUNNING" }>["refresh"];
+};
 
-const DISPOSED: RuntimeOwnership<never> = Object.freeze({ state: "DISPOSED" });
+const IDLE: RuntimeOwnership = Object.freeze({ state: "IDLE" });
+
+const DISPOSED: RuntimeOwnership = Object.freeze({ state: "DISPOSED" });
+
+const UNAVAILABLE_FACTS = mapEvidence(
+  UNKNOWN_NETWORK_STATE,
+  () => UNAVAILABLE_EVIDENCE,
+);
 
 const getErrorStatus = (error: ReachError): RuntimeStatus =>
   Object.freeze({
@@ -73,7 +90,7 @@ export class NetworkRuntime<TNative> {
   #clock: ReachClock;
   #timeouts: { open: number; refresh: number };
   #hooks: RuntimeHooks;
-  #ownership: RuntimeOwnership<TNative> = IDLE;
+  #ownership: RuntimeOwnership = IDLE;
   #leases = new Set<Lease>();
   #waiters = new Set<Waiter>();
   #sessions = 0;
@@ -280,20 +297,16 @@ export class NetworkRuntime<TNative> {
   };
 
   #joinRefresh(
-    {
-      session,
-      source,
-    }: Extract<RuntimeOwnership<TNative>, { state: "RUNNING" }>,
+    { session, refresh }: Extract<RuntimeOwnership, { state: "RUNNING" }>,
     signal: AbortSignal | undefined,
   ): Promise<RefreshResult> {
-    if (source.refresh === undefined) {
+    if (refresh === null) {
       return Promise.resolve(
         Object.freeze({ status: "unsupported", state: this.state.get() }),
       );
     }
 
-    const flight =
-      session.refresh ?? this.#startRefresh(session, source.refresh);
+    const flight = session.refresh ?? this.#startRefresh(session, refresh);
 
     return waitWithSignal(flight.promise, signal);
   }
@@ -412,6 +425,22 @@ export class NetworkRuntime<TNative> {
       refresh: null,
     };
 
+    // A host without the source, such as a server render, runs with every fact unsupported instead of failing.
+    if (!this.#adapter.available()) {
+      this.#run(
+        session,
+        {
+          facts: UNAVAILABLE_FACTS,
+          capabilities: UNAVAILABLE_CAPABILITIES,
+          native: null,
+          refresh: null,
+        },
+        "source-unavailable",
+      );
+
+      return;
+    }
+
     this.#ownership = { state: "STARTING", session };
     session.cancelOpening = this.#clock.setTimer(() => {
       this.#fail(
@@ -463,7 +492,6 @@ export class NetworkRuntime<TNative> {
     }
 
     session.cancelOpening();
-    this.#ownership = { state: "RUNNING", session, source };
 
     const { pending } = session;
 
@@ -473,20 +501,34 @@ export class NetworkRuntime<TNative> {
       session.committed = pending.sequence;
     }
 
-    const state = this.state.get();
+    this.#run(
+      session,
+      {
+        facts: this.#getAdoptedFacts(pending),
+        capabilities: copyCapabilities(source.capabilities),
+        native: source.native,
+        refresh: source.refresh ?? null,
+      },
+      "session-opened",
+    );
+  }
+
+  #run(
+    session: RuntimeSession,
+    { facts, capabilities, native, refresh }: RunningSource<TNative>,
+    event: "session-opened" | "source-unavailable",
+  ) {
+    this.#ownership = { state: "RUNNING", session, refresh };
+
     const transaction = new Transaction();
 
-    // Adoption starts one generation, however many reports arrived while it opened.
-    this.#install(
-      transaction,
-      this.#getAdoptedFacts(pending),
-      state.generation + 1,
-    );
-    transaction.set(this.capabilities, copyCapabilities(source.capabilities));
-    transaction.set(this.native, source.native);
+    // Running starts one generation, however many reports arrived while the session opened.
+    this.#install(transaction, facts, this.state.get().generation + 1);
+    transaction.set(this.capabilities, capabilities);
+    transaction.set(this.native, native);
     transaction.set(this.status, RUNNING_STATUS);
     transaction.commit();
-    this.#hooks.record("session-opened");
+    this.#hooks.record(event);
     this.#resolveWaiters();
     this.#hooks.onAdopt();
   }

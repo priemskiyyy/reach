@@ -19,6 +19,7 @@ declare const settings: ObservableValue<{ allowAnyNetwork: boolean }>;
 
 const adapter: NetworkAdapter<{ sourceMethod: (value: number) => number }> = {
   name: "contract",
+  available: () => true,
   open: (context) => {
     context.onDispose(() => {});
 
@@ -100,6 +101,7 @@ export const withoutBasis: FieldObservation<boolean> = {
 
 export const asynchronousOpen: NetworkAdapter<null> = {
   name: "async",
+  available: () => true,
   open: async () => ({ native: null, capabilities: MOCK_CAPABILITIES }),
 };
 

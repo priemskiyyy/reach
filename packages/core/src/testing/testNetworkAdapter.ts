@@ -73,6 +73,7 @@ const inspect = (adapter: NetworkAdapter<unknown>) => {
 
   const inspected: NetworkAdapter<unknown> = {
     name: adapter.name,
+    available: adapter.available,
     open: async (context) => {
       const record = (observation: NetworkObservation) => {
         observations.push(observation);
@@ -154,8 +155,12 @@ const startReach = async (harness: NetworkAdapterHarness) => {
 
 const CHECKS: Check[] = [
   {
-    name: "creating the adapter subscribes to nothing",
+    name: "creating and probing the adapter subscribes to nothing",
     run: async (harness) => {
+      assert(
+        harness.adapter.available(),
+        "The adapter is unavailable on the host under test.",
+      );
       assert(
         harness.subscriptionCount() === 0,
         "The adapter subscribed before it was opened.",

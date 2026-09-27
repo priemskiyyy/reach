@@ -13,6 +13,7 @@ export type ReachDiagnosticEventType =
   | "lease-released"
   | "session-opening"
   | "session-opened"
+  | "source-unavailable"
   | "session-failed"
   | "session-stopped"
   | "disposed"

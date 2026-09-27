@@ -11,6 +11,15 @@ export const UNOBSERVED_EVIDENCE: Evidence = Object.freeze({
   reason: "unobserved",
 });
 
+/** Evidence for every fact on a host without the source, such as a server render. */
+export const UNAVAILABLE_EVIDENCE: Exclude<Evidence, { status: "current" }> =
+  Object.freeze({
+    status: "unsupported",
+    basis: "none",
+    receivedAt: null,
+    reason: "source-unavailable",
+  });
+
 /** Evidence for a fact the source cannot observe at all. */
 export const UNSUPPORTED_EVIDENCE: Evidence = Object.freeze({
   status: "unsupported",
