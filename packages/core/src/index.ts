@@ -17,6 +17,7 @@ export type { NetworkAdapterContext } from "src/types/NetworkAdapterContext";
 export type { NetworkCapabilities } from "src/types/NetworkCapabilities";
 export type { NetworkField } from "src/types/NetworkField";
 export type { NetworkObservation } from "src/types/NetworkObservation";
+export type { NetworkRequirements } from "src/types/NetworkRequirements";
 export type { NetworkSession } from "src/types/NetworkSession";
 export type { NetworkState } from "src/types/NetworkState";
 export type { ObservableValue } from "src/types/ObservableValue";
