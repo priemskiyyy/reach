@@ -10,7 +10,7 @@ import { deriveCondition } from "src/utils/internal/conditions/deriveCondition";
  *
  * @example
  * ```ts
- * const cellular = not(reach.condition({ type: "wifi" }));
+ * const offWifi = not(reach.condition({ type: "wifi" }));
  * ```
  */
 export const not = (condition: Condition): Condition =>
