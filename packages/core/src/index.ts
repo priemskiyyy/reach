@@ -40,6 +40,7 @@ export type { ProbeContext } from "src/types/ProbeContext";
 export type { ProbeResponse } from "src/types/ProbeResponse";
 export type { ProbeResult } from "src/types/ProbeResult";
 export type { ProbeVerdict } from "src/types/ProbeVerdict";
+export type { ReachClock } from "src/types/ReachClock";
 export type { ReachErrorCode } from "src/types/ReachErrorCode";
 export type { ReachErrorInfo } from "src/types/ReachErrorInfo";
 export type { RefreshRequest } from "src/types/RefreshRequest";
