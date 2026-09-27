@@ -2,7 +2,6 @@ import type {
   ConditionStatus,
   EndpointState,
   EvidenceStatus,
-  RefreshResult,
   RuntimeStatus,
 } from "@priemskiyyy/reach";
 
@@ -10,6 +9,7 @@ import type { RequestOutcome } from "example-shared/backend/types/RequestOutcome
 import type { AutomaticDecision } from "example-shared/darkroom/backup/types/AutomaticDecision";
 import type { BackupResult } from "example-shared/darkroom/backup/types/BackupResult";
 import type { ManualDecision } from "example-shared/darkroom/backup/types/ManualDecision";
+import type { RefreshOutcome } from "example-shared/darkroom/network/types/RefreshOutcome";
 import type { PhotoBackup } from "example-shared/darkroom/photos/types/PhotoBackup";
 import type { Tone } from "example-shared/ui/types/Tone";
 
@@ -47,11 +47,12 @@ export const RUNTIME_TONES: Record<RuntimeStatus["state"], Tone> = {
   disposed: "neutral",
 };
 
-export const REFRESH_TONES: Record<RefreshResult["status"], Tone> = {
+export const REFRESH_TONES: Record<RefreshOutcome["status"], Tone> = {
   updated: "positive",
   unchanged: "neutral",
   superseded: "warning",
   unsupported: "neutral",
+  failed: "danger",
 };
 
 export const REQUEST_TONES: Record<RequestOutcome, Tone> = {

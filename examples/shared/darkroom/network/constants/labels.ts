@@ -10,12 +10,12 @@ import type {
   NetworkField,
   ProbeResponse,
   ProbeVerdict,
-  RefreshResult,
   RuntimeStatus,
 } from "@priemskiyyy/reach";
 
 import type { ConditionId } from "example-shared/darkroom/network/types/ConditionId";
 import type { NetworkSource } from "example-shared/darkroom/network/types/NetworkSource";
+import type { RefreshOutcome } from "example-shared/darkroom/network/types/RefreshOutcome";
 
 /** Every fact, in the order the evidence table lists them. */
 export const FIELD_ORDER: NetworkField[] = [
@@ -187,11 +187,19 @@ export const RUNTIME_LABELS: Record<RuntimeStatus["state"], string> = {
   disposed: "Disposed",
 };
 
-export const REFRESH_LABELS: Record<RefreshResult["status"], string> = {
+export const REFRESH_LABELS: Record<RefreshOutcome["status"], string> = {
   updated: "Updated",
   unchanged: "Unchanged",
   superseded: "Superseded",
   unsupported: "Unsupported",
+  failed: "Failed",
+};
+
+/** What a check's verdict says, to follow "Check #7". */
+export const VERDICT_PHRASES: Record<ProbeVerdict, string> = {
+  pass: "passed",
+  fail: "failed",
+  inconclusive: "was inconclusive",
 };
 
 export const SOURCE_LABELS: Record<NetworkSource, string> = {
