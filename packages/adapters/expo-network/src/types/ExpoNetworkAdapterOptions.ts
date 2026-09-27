@@ -11,6 +11,6 @@ import type { ExpoNetworkLike } from "src/types/ExpoNetworkLike";
  */
 export type ExpoNetworkAdapterOptions = {
   sdk: ExpoNetworkLike;
-  /** Only `ios` and `android` are mapped; the web belongs to the browser adapter. */
+  /** `Platform.OS`. Only `ios` and `android` are mapped; anywhere else, the web included, the adapter is unavailable. */
   platform: string;
 };

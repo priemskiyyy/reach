@@ -1,19 +1,10 @@
-import { ReachError } from "@priemskiyyy/reach";
-
 import type { ExpoPlatform } from "src/types/internal/ExpoPlatform";
 
-// Expo's web module reads the browser under other names, so the web belongs to the browser adapter.
+/** The platform to map; `available()` admitted only iOS and Android. */
 export const getExpoPlatform = (platform: string): ExpoPlatform => {
-  if (platform === "ios") {
-    return platform;
-  }
-
   if (platform === "android") {
-    return platform;
+    return "android";
   }
 
-  throw new ReachError({
-    code: "UNSUPPORTED_ENVIRONMENT",
-    message: `The expo-network adapter maps iOS and Android, not ${platform}. Use the browser adapter on the web.`,
-  });
+  return "ios";
 };
