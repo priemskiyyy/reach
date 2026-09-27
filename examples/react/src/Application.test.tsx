@@ -138,7 +138,7 @@ test("behind a hotel's sign-in page internet is unknown, not offline, and the AP
   );
   expect(readFact("Internet")).toContain("Unknown");
   expect(readFact("Internet")).toContain(
-    "the source could not tell whether the internet is reachable",
+    "The source could not tell whether the internet is reachable.",
   );
   expect(readCondition("Online")).toContain("Unknown");
   expect(readLatestCheck()).toContain(
@@ -240,7 +240,7 @@ test("reading this browser, metering cannot be told, so automatic backup waits",
     expect(readFact("Metered")).toContain("Unsupported");
   });
   expect(readFact("Metered")).toContain(
-    "this source cannot tell whether the connection is metered",
+    "This source cannot tell whether the connection is metered.",
   );
   expect(readStrip()).toContain(
     "Waiting, because nothing can tell yet: this source cannot tell whether the connection is metered",

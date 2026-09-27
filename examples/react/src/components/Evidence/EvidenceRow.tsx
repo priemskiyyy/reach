@@ -43,7 +43,7 @@ export const EvidenceRow: React.FunctionComponent<EvidenceRowProps> = ({
         <Badge tone={EVIDENCE_TONES[evidence.status]}>
           {EVIDENCE_LABELS[evidence.status]}
         </Badge>
-        <span className="min-w-0 text-sm text-slate-600 first-letter:uppercase dark:text-slate-400">
+        <span className="min-w-0 text-sm text-slate-600 dark:text-slate-400">
           {formatEvidence(evidence, field)}
         </span>
       </div>

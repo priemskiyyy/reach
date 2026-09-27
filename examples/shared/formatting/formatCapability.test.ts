@@ -50,5 +50,5 @@ test("evidence names its basis when current, and why not otherwise", () => {
       },
       "cost.metered",
     ),
-  ).toBe("this source cannot tell whether the connection is metered");
+  ).toBe("This source cannot tell whether the connection is metered.");
 });

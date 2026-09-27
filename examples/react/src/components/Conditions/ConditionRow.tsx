@@ -8,6 +8,7 @@ import {
 } from "example-shared/darkroom/network/constants/labels";
 import type { ConditionId } from "example-shared/darkroom/network/types/ConditionId";
 import { formatReasons } from "example-shared/formatting/formatReasons";
+import { formatSentence } from "example-shared/formatting/formatSentence";
 import { CONDITION_TONES } from "example-shared/ui/constants/tones";
 import { Badge } from "src/components/Badge/Badge";
 
@@ -30,8 +31,8 @@ export const ConditionRow: React.FunctionComponent<ConditionRowProps> = ({
         {code}
       </code>
       {reasons.length === 0 ? null : (
-        <p className="text-sm text-slate-700 first-letter:uppercase dark:text-slate-300">
-          {formatReasons(reasons)}.
+        <p className="text-sm text-slate-700 dark:text-slate-300">
+          {formatSentence(formatReasons(reasons))}
         </p>
       )}
     </li>
