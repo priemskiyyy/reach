@@ -110,6 +110,34 @@ test("T127 T131 switching accounts ends the old account's check and clears its h
   expect(api.state.get().freshness).toBe("never");
 });
 
+test("T129 a new token inside the same account is not observed until the application invalidates or changes the key", async () => {
+  const { reach, probe, scope, api } = createScopedReach("account-a");
+
+  reach.start();
+
+  const first = api.check();
+
+  probe.pass();
+  await first;
+
+  // The application refreshed the account's token, which Reach cannot see.
+  expect(api.state.get().status).toBe("available");
+
+  api.invalidate();
+  expect(api.state.get()).toMatchObject({
+    status: "unknown",
+    freshness: "stale",
+  });
+
+  // A key with an epoch in it is a new scope, and the old account's history goes with it.
+  scope.update("account-a#2");
+  expect(api.state.get()).toMatchObject({
+    status: "unknown",
+    freshness: "never",
+    lastObservation: null,
+  });
+});
+
 test("T128 T130 losing the scope during a check makes it obsolete at once", () => {
   const { reach, probe, scope, api } = createScopedReach("account-a");
 
