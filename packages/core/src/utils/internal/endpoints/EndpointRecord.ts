@@ -121,6 +121,8 @@ export class EndpointRecord {
   /** Joins or starts a check on behalf of monitoring, or says why it cannot. */
   startAutomatic = ():
     "started" | "joined" | "scope-unavailable" | "capacity" => {
+    // A new key's listeners may start a check of their own, which this joins.
+    const { reading } = this.reconcileScope();
     const flight = this.#flight;
 
     if (flight !== null) {
@@ -128,8 +130,6 @@ export class EndpointRecord {
 
       return "joined";
     }
-
-    const { reading } = this.reconcileScope();
 
     if (reading.scope === "unavailable") {
       return "scope-unavailable";

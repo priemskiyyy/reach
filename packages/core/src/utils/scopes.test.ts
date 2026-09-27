@@ -253,3 +253,60 @@ test("T134 diagnostic events never carry a scope key", async () => {
   expect(JSON.stringify(events)).not.toContain("secret");
   expect(JSON.stringify(reach.diagnostics.get())).not.toContain("secret");
 });
+
+test("a scope change never runs two checks at once for one endpoint", async () => {
+  const scope = new ValueStore<string | null>("account-a");
+
+  const probe = createMockEndpoint({
+    staleAfter: 30_000,
+    scope: scope.observable,
+  });
+
+  const clock = createTestClock();
+
+  const reach = new Reach({
+    adapter: createMockNetwork({ initial: CONNECTED_WIFI }).adapter,
+    clock,
+    endpoints: { api: probe.definition },
+  });
+
+  const api = reach.endpoint("api");
+
+  // Subscribed before the Reach, so it hears the new key first and starts monitoring.
+  scope.observable.subscribe(() => {
+    if (scope.get() === "account-b") {
+      api.monitor();
+    }
+  });
+
+  let asked = false;
+
+  // Asks once when the endpoint has nothing for the new key.
+  api.state.subscribe(() => {
+    const state = api.state.get();
+
+    if (asked || state.freshness !== "never" || state.checking) {
+      return;
+    }
+
+    if (scope.get() !== "account-b") {
+      return;
+    }
+
+    asked = true;
+    api.check().catch(() => {});
+  });
+
+  reach.start();
+
+  const first = api.check();
+
+  probe.pass();
+  await first;
+  clock.advance(5_000);
+
+  scope.update("account-b");
+
+  expect(reach.diagnostics.get().checks.outstanding).toBe(1);
+  expect(probe.calls).toHaveLength(2);
+});
