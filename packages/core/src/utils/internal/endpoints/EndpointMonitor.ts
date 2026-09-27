@@ -133,7 +133,13 @@ export class EndpointMonitor {
       return false;
     }
 
-    return this.#environment.network.getState().internet.status === "offline";
+    const { internet, evidence } = this.#environment.network.getState();
+
+    if (internet.status !== "offline") {
+      return false;
+    }
+
+    return evidence["internet.status"].basis === "native-path";
   }
 
   #release() {

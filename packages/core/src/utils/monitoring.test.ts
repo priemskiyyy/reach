@@ -463,3 +463,16 @@ test("an interval goes on after a check it started is superseded", () => {
 
   expect(probe.calls).toHaveLength(2);
 });
+
+test("only a native report of no path skips a monitored check, never a hint of offline", () => {
+  const { reach, mock, probe, api } = createEndpointReach();
+
+  reach.start();
+  mock.emit({
+    connection: { status: observed("connected", "browser-hint") },
+    internet: { status: observed("offline", "browser-hint") },
+  });
+  api.monitor();
+
+  expect(probe.calls).toHaveLength(1);
+});
