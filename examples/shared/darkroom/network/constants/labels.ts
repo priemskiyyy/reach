@@ -168,9 +168,9 @@ export const VERDICT_LABELS: Record<ProbeVerdict, string> = {
 };
 
 export const RESPONSE_LABELS: Record<ProbeResponse, string> = {
-  received: "An answer arrived",
-  "not-observed": "No answer arrived",
-  unknown: "Unknown whether an answer arrived",
+  received: "Received",
+  "not-observed": "None arrived",
+  unknown: "Unknown",
 };
 
 export const ATTEMPT_LABELS: Record<EndpointAttempt["status"], string> = {

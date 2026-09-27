@@ -11,7 +11,7 @@ export const AUTOMATIC_DECISION_LABELS: Record<AutomaticDecision, string> = {
 
 export const MANUAL_DECISION_LABELS: Record<ManualDecision, string> = {
   upload: "Uploads",
-  try: "Tries anyway",
+  try: "Tries",
   refuse: "Refuses",
 };
 
