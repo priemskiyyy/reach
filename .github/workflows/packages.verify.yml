@@ -27,6 +27,9 @@ jobs:
       - name: Setup workspace
         uses: ./.github/actions/setup
 
+      - name: Release metadata
+        run: pnpm verify:release
+
       - name: Build packages
         run: pnpm build
 
@@ -34,3 +37,11 @@ jobs:
       # native SDK, React or Query, imports each entry in Node and typechecks it.
       - name: Packed consumer
         run: pnpm verify:packages
+
+      - name: Upload verified packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: .artifacts/release/
+          if-no-files-found: error
+          retention-days: 14
