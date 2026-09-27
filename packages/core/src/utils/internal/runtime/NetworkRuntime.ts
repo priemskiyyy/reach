@@ -763,7 +763,7 @@ export class NetworkRuntime<TNative> {
   #buffer(session: RuntimeSession, intake: SourceIntake) {
     const { pending } = session;
 
-    if (pending !== null && pending.sequence > intake.sequence) {
+    if (pending !== null && pending.sequence >= intake.sequence) {
       this.#hooks.record("observation-discarded", { reason: "obsolete" });
 
       return false;

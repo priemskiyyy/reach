@@ -827,3 +827,16 @@ test("an open and a refresh whose promises come from another realm are awaited",
   await expect(reach.refresh()).resolves.toMatchObject({ status: "updated" });
   expect(reach.state.get().connection.type).toBe("cellular");
 });
+
+test("a slot that reports twice keeps its first report while the source opens, as it does while it runs", async () => {
+  const { reach, mock } = createReach({ open: "held" });
+  const lease = reach.start();
+  const slot = mock.reserve();
+
+  slot.emit(CONNECTED_WIFI);
+  slot.reportError(new Error("again"));
+  mock.resolveOpen();
+  await lease.ready;
+
+  expect(reach.state.get().evidence["connection.type"].status).toBe("current");
+});
