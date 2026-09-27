@@ -180,6 +180,7 @@ export class Reach<TNative, TName extends string = never> {
         record: this.#diagnostics.record,
         changed: this.#diagnostics.changed,
         createListeners,
+        reportListenerError,
       },
       activity ?? null,
     );

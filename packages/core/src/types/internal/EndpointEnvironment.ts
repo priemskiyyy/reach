@@ -25,4 +25,6 @@ export type EndpointEnvironment = {
   /** Marks the diagnostic snapshot outdated after a change no event records. */
   changed: () => void;
   createListeners: () => Listeners;
+  /** Counts and rethrows an application listener's or subscription's error outside the caller. */
+  reportListenerError: (error: unknown) => void;
 };

@@ -166,22 +166,20 @@ export class EndpointRegistry {
         continue;
       }
 
-      this.#subscriptions.push(
-        scope.subscribe(() => {
-          const { reading, changed } = record.reconcileScope();
+      this.#subscribe(scope, () => {
+        const { reading, changed } = record.reconcileScope();
 
-          if (!changed) {
-            return;
-          }
+        if (!changed) {
+          return;
+        }
 
-          // Losing the key ends checks; only a new key is something to check.
-          if (reading.key === null) {
-            return;
-          }
+        // Losing the key ends checks; only a new key is something to check.
+        if (reading.key === null) {
+          return;
+        }
 
-          monitor.offer("scope-change");
-        }),
-      );
+        monitor.offer("scope-change");
+      });
     }
 
     const activity = this.#activity;
@@ -192,9 +190,16 @@ export class EndpointRegistry {
 
     // The value at adoption is its baseline, never a trigger of its own.
     this.#lastActivity = readActivity(activity);
-    this.#subscriptions.push(
-      activity.subscribe(() => this.#handleActivity(activity)),
-    );
+    this.#subscribe(activity, () => this.#handleActivity(activity));
+  }
+
+  // The application's own observable: one whose subscribe throws is reported, and every read still reconciles.
+  #subscribe(source: ObservableValue<unknown>, listener: () => void) {
+    try {
+      this.#subscriptions.push(source.subscribe(listener));
+    } catch (error) {
+      this.#environment.reportListenerError(error);
+    }
   }
 
   #unsubscribe() {

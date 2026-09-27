@@ -1,5 +1,6 @@
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 
+import { createMockEndpoint } from "src/mock/createMockEndpoint";
 import { createMockNetwork } from "src/mock/createMockNetwork";
 import { createTestClock } from "src/mock/createTestClock";
 import { observed } from "src/mock/observed";
@@ -475,4 +476,40 @@ test("only a native report of no path skips a monitored check, never a hint of o
   api.monitor();
 
   expect(probe.calls).toHaveLength(1);
+});
+
+test("a scope whose subscribe throws is reported, and the runtime still starts and monitors", () => {
+  const reported: unknown[] = [];
+
+  vi.spyOn(globalThis, "queueMicrotask").mockImplementation((task) => {
+    try {
+      task();
+    } catch (error) {
+      reported.push(error);
+    }
+  });
+
+  const failure = new Error("session store broke");
+
+  const failing = {
+    get: (): string | null => "account",
+    subscribe: (): (() => void) => {
+      throw failure;
+    },
+  };
+
+  const probe = createMockEndpoint({ staleAfter: 30_000, scope: failing });
+
+  const reach = new Reach({
+    adapter: createMockNetwork({ initial: CONNECTED_WIFI }).adapter,
+    clock: createTestClock(),
+    endpoints: { api: probe.definition },
+  });
+
+  reach.endpoint("api").monitor();
+
+  expect(() => reach.start()).not.toThrow();
+  expect(probe.calls).toHaveLength(1);
+  expect(reported).toEqual([failure]);
+  expect(reach.diagnostics.get().counters.listenerErrors).toBe(1);
 });
