@@ -1,4 +1,4 @@
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 
 import { createObservation } from "src/mock/createObservation";
 import { observed } from "src/mock/observed";
@@ -13,11 +13,13 @@ const createHarness = ({
   capabilities = MOCK_CAPABILITIES,
   keepListener = false,
   refreshReports = true,
+  cleanupThrows = false,
 }: {
   available?: boolean;
   capabilities?: NetworkCapabilities;
   keepListener?: boolean;
   refreshReports?: boolean;
+  cleanupThrows?: boolean;
 } = {}): NetworkAdapterHarness => {
   const listeners = new Set<() => void>();
   const host: { type: "wifi" | "cellular" } = { type: "wifi" };
@@ -42,6 +44,12 @@ const createHarness = ({
 
         if (!keepListener) {
           context.onDispose(() => listeners.delete(listener));
+        }
+
+        if (cleanupThrows) {
+          context.onDispose(() => {
+            throw new Error("cleanup");
+          });
         }
 
         context.emit(report());
@@ -117,6 +125,22 @@ test("an adapter whose refresh reports nothing fails", async () => {
     testNetworkAdapter(() => createHarness({ refreshReports: false })),
   ).rejects.toThrow(
     "Network adapter conformance: a refresh settles and reports within its capabilities.",
+  );
+});
+
+test("an adapter whose cleanup throws fails", async () => {
+  vi.spyOn(globalThis, "queueMicrotask").mockImplementation((task) => {
+    try {
+      task();
+    } catch {
+      // The rethrown cleanup error is what the check reports.
+    }
+  });
+
+  await expect(
+    testNetworkAdapter(() => createHarness({ cleanupThrows: true })),
+  ).rejects.toThrow(
+    "Network adapter conformance: releasing removes every subscription and nothing reports afterwards.",
   );
 });
 

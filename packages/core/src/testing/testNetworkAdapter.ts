@@ -239,6 +239,10 @@ const CHECKS: Check[] = [
           harness.subscriptionCount() === 0,
           "The adapter kept a subscription after its session ended.",
         );
+        assert(
+          reach.diagnostics.get().counters.cleanupErrors === 0,
+          "A cleanup of the adapter threw.",
+        );
 
         await harness.change();
         await harness.settle();
