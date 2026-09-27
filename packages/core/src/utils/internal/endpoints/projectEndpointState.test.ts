@@ -5,7 +5,7 @@ import type { ProbeVerdict } from "src/types/ProbeVerdict";
 import { EMPTY_RECORD_STATE, SCOPE_ERROR } from "src/utils/constants/endpoints";
 import { evaluateAvailability } from "src/utils/internal/conditions/evaluateAvailability";
 import { projectEndpointState } from "src/utils/internal/endpoints/projectEndpointState";
-import type { ScopeReading } from "src/utils/internal/endpoints/readScope";
+import type { ScopeReading } from "src/types/internal/ScopeReading";
 
 const UNSCOPED: ScopeReading = { scope: "unscoped", key: null, error: null };
 

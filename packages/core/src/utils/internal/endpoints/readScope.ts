@@ -1,12 +1,6 @@
 import type { ObservableValue } from "src/types/ObservableValue";
-import type { ReachErrorInfo } from "src/types/ReachErrorInfo";
+import type { ScopeReading } from "src/types/internal/ScopeReading";
 import { SCOPE_ERROR } from "src/utils/constants/endpoints";
-
-export type ScopeReading = {
-  scope: "unscoped" | "available" | "unavailable";
-  key: string | null;
-  error: ReachErrorInfo | null;
-};
 
 /** The current scope key; a throwing scope makes the endpoint ineligible, never another account's. */
 export const readScope = (

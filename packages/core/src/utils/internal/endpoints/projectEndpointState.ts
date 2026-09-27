@@ -1,7 +1,7 @@
 import type { EndpointState } from "src/types/EndpointState";
 import type { EndpointRecordState } from "src/types/internal/EndpointRecordState";
 import type { ProbeVerdict } from "src/types/ProbeVerdict";
-import type { ScopeReading } from "src/utils/internal/endpoints/readScope";
+import type { ScopeReading } from "src/types/internal/ScopeReading";
 
 const VERDICT_STATUSES = Object.freeze({
   pass: "available",
