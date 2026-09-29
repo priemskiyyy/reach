@@ -9,6 +9,7 @@ const MOCK = "packages/core/src/mock/lint-probe.ts";
 const ADAPTER = "packages/adapters/browser/src/lint-probe.ts";
 const NATIVE_ADAPTER = "packages/adapters/netinfo/src/lint-probe.ts";
 const REACT = "packages/react/src/lint-probe.ts";
+const SOLID = "packages/solid/src/lint-probe.ts";
 const QUERY = "packages/tanstack-query/src/lint-probe.ts";
 const TEST = "packages/core/src/utils/lint-probe.test.ts";
 
@@ -109,6 +110,11 @@ const boundaries = [
     CORE,
   ],
   ['import { useState } from "react";', "no-restricted-imports", ADAPTER],
+  ['import { createSignal } from "solid-js";', "no-restricted-imports", CORE],
+  ['import { createSignal } from "solid-js";', "no-restricted-imports", REACT],
+  ['import { createSignal } from "solid-js";', "no-restricted-imports", QUERY],
+  ['import { useState } from "react";', "no-restricted-imports", SOLID],
+  ["setTimeout(() => {}, 0);", "no-restricted-globals", SOLID],
   ['import { useState } from "react";', "no-restricted-imports", QUERY],
   [
     'import { onlineManager } from "@tanstack/query-core";',
@@ -156,6 +162,7 @@ const entryPoints = [
   "packages/adapters/expo-network/src/index.ts",
   "packages/adapters/http/src/index.ts",
   "packages/react/src/index.ts",
+  "packages/solid/src/index.ts",
   "packages/tanstack-query/src/index.ts",
 ];
 
@@ -179,6 +186,10 @@ const allowed = [
   [
     'import { useState } from "react";\n\nexport const useValue = () => useState(0);',
     REACT,
+  ],
+  [
+    'import { createSignal } from "solid-js";\n\nexport const signal = createSignal;',
+    SOLID,
   ],
   [
     'import { vi } from "vitest";\n\nexport const spy = vi.fn();',

@@ -109,6 +109,12 @@ const react = {
   message: "Only the React binding imports React.",
 };
 
+const solid = {
+  names: ["solid-js"],
+  groups: ["solid-js/*"],
+  message: "Only the Solid binding imports Solid.",
+};
+
 const sdks = {
   names: [
     "react-native",
@@ -233,7 +239,7 @@ export default tseslint.config(
     files: ["packages/core/src/**/*.ts"],
     ignores: tests,
     rules: {
-      ...restrictImports([react, sdks, testRunners]),
+      ...restrictImports([react, solid, sdks, testRunners]),
       "no-restricted-globals": ["error", ...hostTimers, ...hostGlobals],
       "no-restricted-properties": ["error", ...clockReads],
     },
@@ -250,7 +256,7 @@ export default tseslint.config(
     files: ["packages/adapters/*/src/**/*.ts"],
     ignores: tests,
     rules: {
-      ...restrictImports([react, sdks, testRunners]),
+      ...restrictImports([react, solid, sdks, testRunners]),
       "no-restricted-globals": ["error", ...hostTimers],
       "no-restricted-properties": ["error", ...clockReads],
     },
@@ -259,6 +265,7 @@ export default tseslint.config(
     // Bindings read Reach's observables and never a provider SDK or the host's timers.
     files: [
       "packages/react/src/**/*.{ts,tsx}",
+      "packages/solid/src/**/*.ts",
       "packages/tanstack-query/src/**/*.ts",
     ],
     ignores: tests,
@@ -269,10 +276,21 @@ export default tseslint.config(
     },
   },
   {
+    // Each framework binding imports only its own framework.
+    files: ["packages/react/src/**/*.{ts,tsx}"],
+    ignores: tests,
+    rules: restrictImports([solid, sdks, testRunners]),
+  },
+  {
+    files: ["packages/solid/src/**/*.ts"],
+    ignores: tests,
+    rules: restrictImports([react, sdks, testRunners]),
+  },
+  {
     // Only the React binding imports React.
     files: ["packages/tanstack-query/src/**/*.ts"],
     ignores: tests,
-    rules: restrictImports([react, sdks, testRunners]),
+    rules: restrictImports([react, solid, sdks, testRunners]),
   },
   {
     // React rules only where React runs.

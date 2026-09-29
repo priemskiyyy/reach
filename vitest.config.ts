@@ -6,11 +6,20 @@ import type { TestProjectConfiguration } from "vitest/config";
 type ProjectOptions = {
   environment: "node" | "jsdom";
   dedupe: string[];
+  conditions: string[];
+  inline: RegExp[];
 };
 
 const PROJECT_OPTIONS: Record<string, Partial<ProjectOptions>> = {
   // A binding must render against the same React instance as the renderer under test.
   react: { environment: "jsdom", dedupe: ["react", "react-dom"] },
+  // Node would resolve Solid's server build, which never runs effects.
+  solid: {
+    environment: "jsdom",
+    dedupe: ["solid-js"],
+    conditions: ["development", "browser"],
+    inline: [/solid-js/],
+  },
 };
 
 const project = (directory: string, name: string) => {
@@ -25,11 +34,15 @@ const project = (directory: string, name: string) => {
         ),
       },
       dedupe: options.dedupe ?? [],
+      ...(options.conditions === undefined
+        ? {}
+        : { conditions: options.conditions }),
     },
     test: {
       name,
       include: [`${directory}/${name}/src/**/*.test.{ts,tsx}`],
       environment: options.environment ?? "node",
+      server: { deps: { inline: options.inline ?? [] } },
     },
   } satisfies TestProjectConfiguration;
 };

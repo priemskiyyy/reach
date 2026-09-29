@@ -1,0 +1,13 @@
+import { expect, test } from "vitest";
+
+import * as api from "src/index";
+
+test("the entry exports the provider and the primitives, and nothing else", () => {
+  expect(Object.keys(api).sort()).toEqual([
+    "ReachProvider",
+    "useCondition",
+    "useEndpoint",
+    "useNetwork",
+    "useReach",
+  ]);
+});

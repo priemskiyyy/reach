@@ -23,6 +23,7 @@ const PACKAGES = [
   "packages/adapters/expo-network",
   "packages/adapters/http",
   "packages/react",
+  "packages/solid",
   "packages/tanstack-query",
 ];
 

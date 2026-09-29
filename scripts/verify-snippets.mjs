@@ -23,6 +23,7 @@ const ENTRIES = {
     "packages/adapters/expo-network/dist/index.d.ts",
   "@priemskiyyy/reach-http": "packages/adapters/http/dist/index.d.ts",
   "@priemskiyyy/reach-react": "packages/react/dist/index.d.ts",
+  "@priemskiyyy/reach-solid": "packages/solid/dist/index.d.ts",
   "@priemskiyyy/reach-tanstack-query":
     "packages/tanstack-query/dist/index.d.ts",
 };
