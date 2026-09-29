@@ -147,6 +147,7 @@ export default defineConfig({
         items: [
           { text: "React", link: "/react" },
           { text: "Solid", link: "/solid" },
+          { text: "Vue", link: "/vue" },
           { text: "React Native and Expo", link: "/react-native" },
           { text: "TanStack Query", link: "/tanstack-query" },
         ],
@@ -202,6 +203,7 @@ export default defineConfig({
         items: [
           { text: "React", link: "/react" },
           { text: "Solid", link: "/solid" },
+          { text: "Vue", link: "/vue" },
           { text: "React Native and Expo", link: "/react-native" },
           { text: "TanStack Query", link: "/tanstack-query" },
           { text: "Sibling libraries", link: "/integrations" },

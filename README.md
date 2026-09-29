@@ -65,6 +65,7 @@ Every source has a way to say `false` that does not mean offline, so there is no
 | [`@priemskiyyy/reach-http`](packages/adapters/http)                 | Endpoint checks through your own HTTP client             |
 | [`@priemskiyyy/reach-react`](packages/react)                        | A provider and hooks, with server rendering              |
 | [`@priemskiyyy/reach-solid`](packages/solid)                        | A provider and primitives, with server rendering         |
+| [`@priemskiyyy/reach-vue`](packages/vue)                            | A provider and composables, with server rendering        |
 | [`@priemskiyyy/reach-tanstack-query`](packages/tanstack-query)      | A condition as TanStack Query's online manager           |
 
 Every package is ESM only, side-effect free and typed. The core has no dependencies.
