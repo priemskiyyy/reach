@@ -45,6 +45,13 @@
 - The server and the hydrating render read deterministic unknown snapshots.
 - Requires `@priemskiyyy/reach` 0.1 and React 19.2.
 
+## @priemskiyyy/reach-solid 0.1.0 - Unreleased
+
+- First release. `ReachProvider`, `useReach`, `useNetwork`, `useCondition` and `useEndpoint` as accessors, with inferred selectors and typed equality.
+- The primitives observe only. The provider holds a runtime lease only with `start`, and never disposes the Reach.
+- The server and the render before mount read deterministic unknown snapshots.
+- Requires `@priemskiyyy/reach` 0.1 and Solid 1.9.
+
 ## @priemskiyyy/reach-tanstack-query 0.1.0 - Unreleased
 
 - First release. `toOnlineEventListener(condition, { unknown })` turns a condition into the setup function TanStack Query's online manager installs, with `online`, `offline` or `preserve` for unknown.

@@ -64,6 +64,7 @@ Every source has a way to say `false` that does not mean offline, so there is no
 | [`@priemskiyyy/reach-expo-network`](packages/adapters/expo-network) | Expo Network, iOS and Android                            |
 | [`@priemskiyyy/reach-http`](packages/adapters/http)                 | Endpoint checks through your own HTTP client             |
 | [`@priemskiyyy/reach-react`](packages/react)                        | A provider and hooks, with server rendering              |
+| [`@priemskiyyy/reach-solid`](packages/solid)                        | A provider and primitives, with server rendering         |
 | [`@priemskiyyy/reach-tanstack-query`](packages/tanstack-query)      | A condition as TanStack Query's online manager           |
 
 Every package is ESM only, side-effect free and typed. The core has no dependencies.
