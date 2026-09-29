@@ -115,6 +115,12 @@ const solid = {
   message: "Only the Solid binding imports Solid.",
 };
 
+const vue = {
+  names: ["vue"],
+  groups: ["vue/*", "@vue/*"],
+  message: "Only the Vue binding imports Vue.",
+};
+
 const sdks = {
   names: [
     "react-native",
@@ -239,7 +245,7 @@ export default tseslint.config(
     files: ["packages/core/src/**/*.ts"],
     ignores: tests,
     rules: {
-      ...restrictImports([react, solid, sdks, testRunners]),
+      ...restrictImports([react, solid, vue, sdks, testRunners]),
       "no-restricted-globals": ["error", ...hostTimers, ...hostGlobals],
       "no-restricted-properties": ["error", ...clockReads],
     },
@@ -256,7 +262,7 @@ export default tseslint.config(
     files: ["packages/adapters/*/src/**/*.ts"],
     ignores: tests,
     rules: {
-      ...restrictImports([react, solid, sdks, testRunners]),
+      ...restrictImports([react, solid, vue, sdks, testRunners]),
       "no-restricted-globals": ["error", ...hostTimers],
       "no-restricted-properties": ["error", ...clockReads],
     },
@@ -266,6 +272,7 @@ export default tseslint.config(
     files: [
       "packages/react/src/**/*.{ts,tsx}",
       "packages/solid/src/**/*.ts",
+      "packages/vue/src/**/*.ts",
       "packages/tanstack-query/src/**/*.ts",
     ],
     ignores: tests,
@@ -279,18 +286,23 @@ export default tseslint.config(
     // Each framework binding imports only its own framework.
     files: ["packages/react/src/**/*.{ts,tsx}"],
     ignores: tests,
-    rules: restrictImports([solid, sdks, testRunners]),
+    rules: restrictImports([solid, vue, sdks, testRunners]),
   },
   {
     files: ["packages/solid/src/**/*.ts"],
     ignores: tests,
-    rules: restrictImports([react, sdks, testRunners]),
+    rules: restrictImports([react, vue, sdks, testRunners]),
+  },
+  {
+    files: ["packages/vue/src/**/*.ts"],
+    ignores: tests,
+    rules: restrictImports([react, solid, sdks, testRunners]),
   },
   {
     // Only the React binding imports React.
     files: ["packages/tanstack-query/src/**/*.ts"],
     ignores: tests,
-    rules: restrictImports([react, solid, sdks, testRunners]),
+    rules: restrictImports([react, solid, vue, sdks, testRunners]),
   },
   {
     // React rules only where React runs.

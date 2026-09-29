@@ -46,6 +46,12 @@ const ENTRIES = [
     external: ["@priemskiyyy/reach"],
   },
   {
+    name: "vue",
+    files: [`${packages}vue/dist/index.js`],
+    budget: 1024,
+    external: ["@priemskiyyy/reach"],
+  },
+  {
     name: "tanstack-query",
     files: [`${packages}tanstack-query/dist/index.js`],
     budget: 512,
@@ -55,7 +61,7 @@ const ENTRIES = [
   { name: "testing", files: [`${packages}core/dist/testing.js`], budget: null },
 ];
 
-const PEERS = ["react", "react-dom", "react/jsx-runtime", "solid-js"];
+const PEERS = ["react", "react-dom", "react/jsx-runtime", "solid-js", "vue"];
 
 const measure = async (files, external) => {
   const bundle = await rolldown({

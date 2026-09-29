@@ -24,6 +24,7 @@ const PACKAGES = [
   "packages/adapters/http",
   "packages/react",
   "packages/solid",
+  "packages/vue",
   "packages/tanstack-query",
 ];
 

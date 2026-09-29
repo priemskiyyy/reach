@@ -20,6 +20,7 @@ const PROJECT_OPTIONS: Record<string, Partial<ProjectOptions>> = {
     conditions: ["development", "browser"],
     inline: [/solid-js/],
   },
+  vue: { environment: "jsdom", dedupe: ["vue"] },
 };
 
 const project = (directory: string, name: string) => {

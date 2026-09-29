@@ -37,7 +37,7 @@ from the specification, and the tests beside the file you touch.
 - Style carve-outs, each with a comment saying why, and nothing wider than
   these: an overload pair where a mapped type erases which value belongs to
   which key, as in `readConditionSources`, and the overloaded hooks of the
-  React and Solid bindings, whose selector overloads need function
+  React, Solid and Vue bindings, whose selector overloads need function
   declarations. There
   are no ESLint disables; inline configuration is switched off.
 - Tests are named after the specification case they prove, such as `T041`. A

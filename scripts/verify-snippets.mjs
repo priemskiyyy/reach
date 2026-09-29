@@ -24,6 +24,7 @@ const ENTRIES = {
   "@priemskiyyy/reach-http": "packages/adapters/http/dist/index.d.ts",
   "@priemskiyyy/reach-react": "packages/react/dist/index.d.ts",
   "@priemskiyyy/reach-solid": "packages/solid/dist/index.d.ts",
+  "@priemskiyyy/reach-vue": "packages/vue/dist/index.d.ts",
   "@priemskiyyy/reach-tanstack-query":
     "packages/tanstack-query/dist/index.d.ts",
 };
