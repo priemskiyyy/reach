@@ -11,6 +11,7 @@ const NATIVE_ADAPTER = "packages/adapters/netinfo/src/lint-probe.ts";
 const REACT = "packages/react/src/lint-probe.ts";
 const SOLID = "packages/solid/src/lint-probe.ts";
 const VUE = "packages/vue/src/lint-probe.ts";
+const SVELTE = "packages/svelte/src/lint-probe.ts";
 const QUERY = "packages/tanstack-query/src/lint-probe.ts";
 const TEST = "packages/core/src/utils/lint-probe.test.ts";
 
@@ -122,6 +123,12 @@ const boundaries = [
   ['import { useState } from "react";', "no-restricted-imports", VUE],
   ['import { createSignal } from "solid-js";', "no-restricted-imports", VUE],
   ["setTimeout(() => {}, 0);", "no-restricted-globals", VUE],
+  ['import { onMount } from "svelte";', "no-restricted-imports", CORE],
+  ['import { onMount } from "svelte";', "no-restricted-imports", REACT],
+  ['import { writable } from "svelte/store";', "no-restricted-imports", VUE],
+  ['import { useState } from "react";', "no-restricted-imports", SVELTE],
+  ['import { ref } from "vue";', "no-restricted-imports", SVELTE],
+  ["setTimeout(() => {}, 0);", "no-restricted-globals", SVELTE],
   ['import { useState } from "react";', "no-restricted-imports", QUERY],
   [
     'import { onlineManager } from "@tanstack/query-core";',
@@ -171,6 +178,7 @@ const entryPoints = [
   "packages/react/src/index.ts",
   "packages/solid/src/index.ts",
   "packages/vue/src/index.ts",
+  "packages/svelte/src/index.ts",
   "packages/tanstack-query/src/index.ts",
 ];
 
@@ -200,6 +208,10 @@ const allowed = [
     SOLID,
   ],
   ['import { ref } from "vue";\n\nexport const value = ref;', VUE],
+  [
+    'import { REACH_CONTEXT } from "../context/ReachContext.js";\n\nexport const key = REACH_CONTEXT;',
+    SVELTE,
+  ],
   [
     'import { vi } from "vitest";\n\nexport const spy = vi.fn();',
     "packages/adapters/browser/src/fakeWindow.fixture.ts",

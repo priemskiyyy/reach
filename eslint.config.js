@@ -1,5 +1,6 @@
 import eslint from "@eslint/js";
 import reactHooks from "eslint-plugin-react-hooks";
+import sveltePlugin from "eslint-plugin-svelte";
 import tseslint from "typescript-eslint";
 
 const toRestrictions = (entries) =>
@@ -121,6 +122,12 @@ const vue = {
   message: "Only the Vue binding imports Vue.",
 };
 
+const svelte = {
+  names: ["svelte"],
+  groups: ["svelte/*"],
+  message: "Only the Svelte binding imports Svelte.",
+};
+
 const sdks = {
   names: [
     "react-native",
@@ -182,6 +189,7 @@ export default tseslint.config(
     ignores: [
       "**/dist/**",
       "**/node_modules/**",
+      "**/.svelte-kit/**",
       ".artifacts/**",
       "tasks/**",
       "docs/.vitepress/cache/**",
@@ -196,8 +204,14 @@ export default tseslint.config(
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
+  ...sveltePlugin.configs.recommended,
   {
-    files: ["**/*.{js,mjs,ts,tsx}"],
+    // Template comments disable rules through this plugin rule, which noInlineConfig does not reach.
+    files: ["**/*.svelte"],
+    rules: { "svelte/comment-directive": "off" },
+  },
+  {
+    files: ["**/*.{js,mjs,ts,tsx,svelte}"],
     rules: {
       "padding-line-between-statements": [
         "error",
@@ -215,7 +229,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ["**/*.{ts,tsx}"],
+    files: ["**/*.{ts,tsx,svelte}"],
     rules: {
       curly: ["error", "all"],
       "no-else-return": ["error", { allowElseIf: false }],
@@ -230,7 +244,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ["packages/**/src/**/*.{ts,tsx}"],
+    files: ["packages/**/src/**/*.{ts,tsx,svelte}"],
     ignores: entryPoints,
     rules: {
       "no-restricted-syntax": [
@@ -242,10 +256,20 @@ export default tseslint.config(
     },
   },
   {
+    // svelte-package rewrites no aliases, so the Svelte binding imports by relative path.
+    files: ["packages/svelte/**/*.{ts,svelte}"],
+    rules: { "no-restricted-syntax": ["error", ...bannedSyntax] },
+  },
+  {
+    files: ["packages/svelte/src/**/*.{ts,svelte}"],
+    ignores: entryPoints,
+    rules: { "no-restricted-syntax": ["error", ...bannedSyntax, ...reexports] },
+  },
+  {
     files: ["packages/core/src/**/*.ts"],
     ignores: tests,
     rules: {
-      ...restrictImports([react, solid, vue, sdks, testRunners]),
+      ...restrictImports([react, solid, vue, svelte, sdks, testRunners]),
       "no-restricted-globals": ["error", ...hostTimers, ...hostGlobals],
       "no-restricted-properties": ["error", ...clockReads],
     },
@@ -262,7 +286,7 @@ export default tseslint.config(
     files: ["packages/adapters/*/src/**/*.ts"],
     ignores: tests,
     rules: {
-      ...restrictImports([react, solid, vue, sdks, testRunners]),
+      ...restrictImports([react, solid, vue, svelte, sdks, testRunners]),
       "no-restricted-globals": ["error", ...hostTimers],
       "no-restricted-properties": ["error", ...clockReads],
     },
@@ -273,6 +297,7 @@ export default tseslint.config(
       "packages/react/src/**/*.{ts,tsx}",
       "packages/solid/src/**/*.ts",
       "packages/vue/src/**/*.ts",
+      "packages/svelte/src/**/*.{ts,svelte}",
       "packages/tanstack-query/src/**/*.ts",
     ],
     ignores: tests,
@@ -286,23 +311,28 @@ export default tseslint.config(
     // Each framework binding imports only its own framework.
     files: ["packages/react/src/**/*.{ts,tsx}"],
     ignores: tests,
-    rules: restrictImports([solid, vue, sdks, testRunners]),
+    rules: restrictImports([solid, vue, svelte, sdks, testRunners]),
   },
   {
     files: ["packages/solid/src/**/*.ts"],
     ignores: tests,
-    rules: restrictImports([react, vue, sdks, testRunners]),
+    rules: restrictImports([react, vue, svelte, sdks, testRunners]),
   },
   {
     files: ["packages/vue/src/**/*.ts"],
     ignores: tests,
-    rules: restrictImports([react, solid, sdks, testRunners]),
+    rules: restrictImports([react, solid, svelte, sdks, testRunners]),
+  },
+  {
+    files: ["packages/svelte/src/**/*.{ts,svelte}"],
+    ignores: tests,
+    rules: restrictImports([react, solid, vue, sdks, testRunners]),
   },
   {
     // Only the React binding imports React.
     files: ["packages/tanstack-query/src/**/*.ts"],
     ignores: tests,
-    rules: restrictImports([react, solid, vue, sdks, testRunners]),
+    rules: restrictImports([react, solid, vue, svelte, sdks, testRunners]),
   },
   {
     // React rules only where React runs.
@@ -313,6 +343,16 @@ export default tseslint.config(
     ],
     plugins: { "react-hooks": reactHooks },
     rules: reactHooks.configs.recommended.rules,
+  },
+  {
+    files: ["**/*.svelte", "**/*.svelte.ts"],
+    languageOptions: {
+      parserOptions: {
+        parser: tseslint.parser,
+        extraFileExtensions: [".svelte"],
+      },
+    },
+    rules: { "no-undef": "off" },
   },
   {
     files: ["**/*.{js,mjs}"],

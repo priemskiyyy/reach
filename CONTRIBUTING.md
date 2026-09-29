@@ -9,6 +9,7 @@ Use Node 22.18 or newer and the pnpm version in `package.json`. Run `pnpm instal
 - `packages/react`: the React binding, a provider and hooks.
 - `packages/solid`: the Solid binding, a provider and primitives.
 - `packages/vue`: the Vue binding, a provider and composables.
+- `packages/svelte`: the Svelte binding, a provider and utilities, built with `svelte-package` and checked with `svelte-check`.
 - `packages/tanstack-query`: the bridge to TanStack Query's online manager.
 - `examples/`: Darkroom, the example app. `shared` holds its domain, the simulated phone and API and the Tailwind recipes; `react` is the web tour, `expo` the React Native app, and `server` the fixture API the Expo app checks. `pnpm dev` starts the tour, and `pnpm test:examples` drives it in Chromium.
 - `docs/`: the documentation site, built with VitePress: the guides, the decision record and the internals. `pnpm dev:docs` serves it, and `pnpm build:docs` then `pnpm verify:docs` checks every page, link, anchor and description. A new page goes in the sidebar in `docs/.vitepress/config.ts`.

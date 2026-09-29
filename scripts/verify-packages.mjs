@@ -25,6 +25,7 @@ const PACKAGES = [
   "packages/react",
   "packages/solid",
   "packages/vue",
+  "packages/svelte",
   "packages/tanstack-query",
 ];
 

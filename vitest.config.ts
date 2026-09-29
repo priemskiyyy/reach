@@ -1,13 +1,15 @@
+import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { existsSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
-import type { TestProjectConfiguration } from "vitest/config";
+import type { TestProjectConfiguration, ViteUserConfig } from "vitest/config";
 
 type ProjectOptions = {
   environment: "node" | "jsdom";
   dedupe: string[];
   conditions: string[];
   inline: RegExp[];
+  plugins: NonNullable<ViteUserConfig["plugins"]>;
 };
 
 const PROJECT_OPTIONS: Record<string, Partial<ProjectOptions>> = {
@@ -21,6 +23,12 @@ const PROJECT_OPTIONS: Record<string, Partial<ProjectOptions>> = {
     inline: [/solid-js/],
   },
   vue: { environment: "jsdom", dedupe: ["vue"] },
+  // The client build, where effects run.
+  svelte: {
+    environment: "jsdom",
+    conditions: ["browser"],
+    plugins: [svelte({ configFile: false })],
+  },
 };
 
 const project = (directory: string, name: string) => {
@@ -28,6 +36,7 @@ const project = (directory: string, name: string) => {
 
   return {
     extends: true,
+    plugins: options.plugins ?? [],
     resolve: {
       alias: {
         src: fileURLToPath(
