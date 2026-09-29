@@ -1,7 +1,8 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { existsSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { defineConfig } from "vitest/config";
+import solid from "vite-plugin-solid";
+import { configDefaults, defineConfig } from "vitest/config";
 import type { TestProjectConfiguration, ViteUserConfig } from "vitest/config";
 
 type ProjectOptions = {
@@ -10,6 +11,8 @@ type ProjectOptions = {
   conditions: string[];
   inline: RegExp[];
   plugins: NonNullable<ViteUserConfig["plugins"]>;
+  include: string[];
+  exclude: string[];
 };
 
 const PROJECT_OPTIONS: Record<string, Partial<ProjectOptions>> = {
@@ -21,19 +24,71 @@ const PROJECT_OPTIONS: Record<string, Partial<ProjectOptions>> = {
     dedupe: ["solid-js"],
     conditions: ["development", "browser"],
     inline: [/solid-js/],
+    exclude: ["**/*.server.test.tsx", "**/hydration.test.tsx"],
   },
-  vue: { environment: "jsdom", dedupe: ["vue"] },
+  vue: {
+    environment: "jsdom",
+    dedupe: ["vue"],
+    exclude: ["**/*.server.test.ts"],
+  },
   // The client build, where effects run.
   svelte: {
     environment: "jsdom",
     conditions: ["browser"],
     plugins: [svelte({ configFile: false })],
+    exclude: ["**/*.server.test.ts"],
   },
 };
 
-const project = (directory: string, name: string) => {
-  const options = PROJECT_OPTIONS[name] ?? {};
+// A binding's server render and its hydration each need their own build of
+// the framework, so they run as projects of their own.
+const VARIANTS: Array<{
+  name: string;
+  binding: string;
+  options: Partial<ProjectOptions>;
+}> = [
+  {
+    name: "solid-ssr",
+    binding: "solid",
+    options: {
+      plugins: [solid({ ssr: true })],
+      include: ["**/*.server.test.tsx"],
+    },
+  },
+  {
+    // In jsdom this compiles hydratable DOM output, which claims the markup the server test pins.
+    name: "solid-hydration",
+    binding: "solid",
+    options: {
+      environment: "jsdom",
+      dedupe: ["solid-js"],
+      conditions: ["development", "browser"],
+      inline: [/solid-js/],
+      plugins: [solid({ ssr: true })],
+      include: ["**/hydration.test.tsx"],
+    },
+  },
+  {
+    name: "vue-ssr",
+    binding: "vue",
+    options: { dedupe: ["vue"], include: ["**/*.server.test.ts"] },
+  },
+  {
+    name: "svelte-ssr",
+    binding: "svelte",
+    options: {
+      plugins: [svelte({ configFile: false })],
+      include: ["**/*.server.test.ts"],
+    },
+  },
+];
 
+const project = (
+  directory: string,
+  name: string,
+  options: Partial<ProjectOptions> = PROJECT_OPTIONS[name] ?? {},
+  testName = name,
+) => {
   return {
     extends: true,
     plugins: options.plugins ?? [],
@@ -49,8 +104,11 @@ const project = (directory: string, name: string) => {
         : { conditions: options.conditions }),
     },
     test: {
-      name,
-      include: [`${directory}/${name}/src/**/*.test.{ts,tsx}`],
+      name: testName,
+      include: (options.include ?? ["**/*.test.{ts,tsx}"]).map(
+        (pattern) => `${directory}/${name}/src/${pattern}`,
+      ),
+      exclude: [...configDefaults.exclude, ...(options.exclude ?? [])],
       environment: options.environment ?? "node",
       server: { deps: { inline: options.inline ?? [] } },
     },
@@ -142,6 +200,9 @@ export default defineConfig({
     restoreMocks: true,
     projects: [
       ...discover("packages"),
+      ...VARIANTS.map(({ name, binding, options }) =>
+        project("packages", binding, options, name),
+      ),
       ...discover("packages/adapters"),
       ...exampleProjects,
     ],
