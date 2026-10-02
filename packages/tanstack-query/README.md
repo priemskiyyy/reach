@@ -1,6 +1,6 @@
 # @priemskiyyy/reach-tanstack-query
 
-Feed a [Reach](../core) condition to TanStack Query's online manager. `toOnlineEventListener()` returns the setup function the manager installs, so Query pauses and resumes on the evidence you choose.
+Feed a [Reach](https://github.com/priemskiyyy/reach/tree/main/packages/core) condition to TanStack Query's online manager. `toOnlineEventListener()` returns the setup function the manager installs, so Query pauses and resumes on the evidence you choose.
 
 ## Installation
 

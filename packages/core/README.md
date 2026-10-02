@@ -10,7 +10,7 @@ It never turns a missing fact into `false`. A browser's `onLine` is a hint, not 
 pnpm add @priemskiyyy/reach @priemskiyyy/reach-browser
 ```
 
-Pick the adapter for your platform: [browser](../adapters/browser), [NetInfo](../adapters/netinfo) or [Expo Network](../adapters/expo-network). Add [HTTP](../adapters/http) for endpoint checks, [React](../react) for hooks and [TanStack Query](../tanstack-query) for Query's online manager.
+Pick the adapter for your platform: [browser](https://github.com/priemskiyyy/reach/tree/main/packages/adapters/browser), [NetInfo](https://github.com/priemskiyyy/reach/tree/main/packages/adapters/netinfo) or [Expo Network](https://github.com/priemskiyyy/reach/tree/main/packages/adapters/expo-network). Add [HTTP](https://github.com/priemskiyyy/reach/tree/main/packages/adapters/http) for endpoint checks, [React](https://github.com/priemskiyyy/reach/tree/main/packages/react) for hooks and [TanStack Query](https://github.com/priemskiyyy/reach/tree/main/packages/tanstack-query) for Query's online manager.
 
 ## Create a Reach
 
@@ -118,7 +118,7 @@ Conditions are derived on read and never glitch: a listener sees every condition
 
 ## Endpoints
 
-An endpoint is a named check: a function that answers `pass`, `fail` or `inconclusive`. [`http()`](../adapters/http) builds one over your own HTTP client.
+An endpoint is a named check: a function that answers `pass`, `fail` or `inconclusive`. [`http()`](https://github.com/priemskiyyy/reach/tree/main/packages/adapters/http) builds one over your own HTTP client.
 
 ```ts
 const api = network.endpoint("api");

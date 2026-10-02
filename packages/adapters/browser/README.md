@@ -1,6 +1,6 @@
 # @priemskiyyy/reach-browser
 
-The browser source for [Reach](../../core): `navigator.onLine` as a connection hint, and the Network Information API's connection type and data saver preference where the browser has them.
+The browser source for [Reach](https://github.com/priemskiyyy/reach/tree/main/packages/core): `navigator.onLine` as a connection hint, and the Network Information API's connection type and data saver preference where the browser has them.
 
 ## Installation
 

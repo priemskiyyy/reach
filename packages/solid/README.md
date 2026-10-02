@@ -1,6 +1,6 @@
 # @priemskiyyy/reach-solid
 
-Solid bindings for [Reach](../core): primitives that read network state, conditions and endpoints as accessors, and a provider that can hold a runtime lease. The primitives observe only. They never start the runtime, check an endpoint or subscribe to diagnostics.
+Solid bindings for [Reach](https://github.com/priemskiyyy/reach/tree/main/packages/core): primitives that read network state, conditions and endpoints as accessors, and a provider that can hold a runtime lease. The primitives observe only. They never start the runtime, check an endpoint or subscribe to diagnostics.
 
 ## Installation
 

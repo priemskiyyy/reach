@@ -1,6 +1,6 @@
 # @priemskiyyy/reach-http
 
-HTTP endpoint checks for [Reach](../../core), through your own client. You give `http()` one function that asks your service whether it is ready and resolves with the parsed answer, and a test that reads that answer with its type. Your client keeps everything it already owns: the address, authentication, headers, caching and parsing.
+HTTP endpoint checks for [Reach](https://github.com/priemskiyyy/reach/tree/main/packages/core), through your own client. You give `http()` one function that asks your service whether it is ready and resolves with the parsed answer, and a test that reads that answer with its type. Your client keeps everything it already owns: the address, authentication, headers, caching and parsing.
 
 ## Installation
 

@@ -1,6 +1,6 @@
 # @priemskiyyy/reach-react
 
-React bindings for [Reach](../core): hooks that read network state, conditions and endpoints, and a provider that can hold a runtime lease. The hooks observe only. They never start the runtime, check an endpoint or subscribe to diagnostics.
+React bindings for [Reach](https://github.com/priemskiyyy/reach/tree/main/packages/core): hooks that read network state, conditions and endpoints, and a provider that can hold a runtime lease. The hooks observe only. They never start the runtime, check an endpoint or subscribe to diagnostics.
 
 ## Installation
 

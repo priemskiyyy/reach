@@ -1,6 +1,6 @@
 # @priemskiyyy/reach-expo-network
 
-The [Expo Network](https://docs.expo.dev/versions/latest/sdk/network/) source for [Reach](../../core), on iOS and Android. Each platform reports different things through the same fields, so the mapping is per platform.
+The [Expo Network](https://docs.expo.dev/versions/latest/sdk/network/) source for [Reach](https://github.com/priemskiyyy/reach/tree/main/packages/core), on iOS and Android. Each platform reports different things through the same fields, so the mapping is per platform.
 
 ## Installation
 
@@ -43,7 +43,7 @@ Why Android's `UNKNOWN` is not trusted: Android answers `UNKNOWN` with every fla
 
 Android's reachability is a validated network: internet capability, validation and a usable connection. A false one cannot tell which of those failed, so it is never offline.
 
-No cost, expense or data preference is reported, and no transport set. A condition on `metered` stays `unknown`: use [NetInfo](../netinfo) on Android if you need metering.
+No cost, expense or data preference is reported, and no transport set. A condition on `metered` stays `unknown`: use [NetInfo](https://github.com/priemskiyyy/reach/tree/main/packages/adapters/netinfo) on Android if you need metering.
 
 ## Options
 
@@ -54,7 +54,7 @@ No cost, expense or data preference is reported, and no transport set. A conditi
 
 ## Behavior
 
-- Anywhere but iOS and Android, the web included, the adapter is unavailable: the runtime starts with every fact `unsupported`, for the reason `source-unavailable`. Use [the browser adapter](../browser) on the web.
+- Anywhere but iOS and Android, the web included, the adapter is unavailable: the runtime starts with every fact `unsupported`, for the reason `source-unavailable`. Use [the browser adapter](https://github.com/priemskiyyy/reach/tree/main/packages/adapters/browser) on the web.
 - The adapter subscribes before its first read, so a change that arrives during that read wins over it.
 - It never calls the IP address or airplane mode helpers.
 - Releasing removes only the adapter's own subscription.

@@ -1,6 +1,6 @@
 # @priemskiyyy/reach-vue
 
-Vue bindings for [Reach](../core): composables that read network state, conditions and endpoints as read-only computed refs, and a provider that can hold a runtime lease. The composables observe only. They never start the runtime, check an endpoint or subscribe to diagnostics.
+Vue bindings for [Reach](https://github.com/priemskiyyy/reach/tree/main/packages/core): composables that read network state, conditions and endpoints as read-only computed refs, and a provider that can hold a runtime lease. The composables observe only. They never start the runtime, check an endpoint or subscribe to diagnostics.
 
 ## Installation
 

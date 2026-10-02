@@ -1,6 +1,6 @@
 # @priemskiyyy/reach-svelte
 
-Svelte bindings for [Reach](../core): utilities that read network state, conditions and endpoints through `current`, and a provider that can hold a runtime lease. The utilities observe only. They never start the runtime, check an endpoint or subscribe to diagnostics.
+Svelte bindings for [Reach](https://github.com/priemskiyyy/reach/tree/main/packages/core): utilities that read network state, conditions and endpoints through `current`, and a provider that can hold a runtime lease. The utilities observe only. They never start the runtime, check an endpoint or subscribe to diagnostics.
 
 ## Installation
 
