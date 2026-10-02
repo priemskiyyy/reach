@@ -62,6 +62,8 @@ console.info(status, state.generation);
 
 `refresh()` asks the source to read again. It resolves with `updated`, `unchanged`, `superseded` when a newer report won, or `unsupported` for a source that cannot refresh. It waits `timeouts.refresh`, 10,000 ms by default, and a caller can abort its own wait with `refresh({ signal })`.
 
+A `refresh()` that fails or times out marks every fact the source supports as `error`, even when the subscription held a good value and nothing newer arrived, and an answer that comes late is dropped. Refresh again, or wait for the next event, to recover them.
+
 ## Errors from the source
 
 A source that reports an error turns its facts into `error`, never offline, and its next good report recovers them. A throwing listener, cleanup, scope or evaluator is isolated: it is counted in diagnostics and never interrupts delivery to the others. Reach never throws into your application from a callback.
