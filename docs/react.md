@@ -52,6 +52,7 @@ export const Application = () => (
 
 - A component renders again only when what it reads changes. With a selector, that is when the selection changes; `options.isEqual`, `Object.is` by default, decides, and it takes only the type the selector returns.
 - Hooks read through `useSyncExternalStore`, subscribe while mounted, and unsubscribe on unmount.
+- Expiry is evaluated on read and pushed by a timer on the monotonic clock. After a sleep that paused that clock, a mounted view can show `available` for a result the wall clock has already expired, until the timer runs or something renders it again. Pass `activity` to the Reach, so that a return to the foreground ends older results and renders them again.
 - An endpoint is read through its typed handle, `network.endpoint("api")`, never a name looked up in context.
 - A hook that needs the provider throws a `ReachError` with `INVALID_CONFIGURATION` outside one.
 
