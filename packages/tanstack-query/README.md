@@ -59,3 +59,7 @@ onlineManager.setEventListener(
 - Query's retries, caching, focus handling and network modes stay Query's.
 
 For a browser application with no other use for Reach, Query's own online manager may be all you need.
+
+## License
+
+MIT

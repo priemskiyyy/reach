@@ -70,3 +70,7 @@ Create the Reach on the client, or one per request on the server: a started Reac
 ## Tests
 
 The tests render with React Testing Library in jsdom, over the mock network and mock endpoint from `@priemskiyyy/reach/mock`, and hydrate a server rendered string.
+
+## License
+
+MIT

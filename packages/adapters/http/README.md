@@ -102,3 +102,7 @@ Anything `request` throws is a failed check, because nothing tells a preparation
 ## Tests
 
 The tests run against an in-process fake client. No request is sent over a network from this repository.
+
+## License
+
+MIT

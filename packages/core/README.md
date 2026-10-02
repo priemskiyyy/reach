@@ -218,3 +218,7 @@ An adapter is a plain object with a `name`, `available()` and `open(context)`. `
 ## Errors
 
 Reach's errors are `ReachError`s with a `code`, such as `SOURCE_ERROR`, `SOURCE_TIMEOUT`, `PROBE_ERROR`, `SUPERSEDED` or `CAPACITY_EXHAUSTED`. Only misconfiguration and use after disposal throw synchronously.
+
+## License
+
+MIT

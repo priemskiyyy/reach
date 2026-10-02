@@ -64,3 +64,7 @@ No cost, expense or data preference is reported, and no transport set. A conditi
 ## Tests
 
 The mapping was read from the iOS and Android sources of `expo-network` 58.0.1. The tests run against an in-process fake modeled on them, through the shared adapter conformance suite on both platforms, and a type contract proves the real module and state fit. Nothing has run on a device yet: on iOS, the module cancels its path monitor when the last listener goes, and whether a later listener hears it again is unverified.
+
+## License
+
+MIT

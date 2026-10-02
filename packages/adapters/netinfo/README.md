@@ -62,3 +62,7 @@ A false reachability while connected can be a failed check or one NetInfo skippe
 ## Tests
 
 The tests run against an in-process fake modeled on NetInfo 12.0.1, through the shared adapter conformance suite on both platforms, and a type contract proves NetInfo's real module and state fit. Nothing has run on a device yet: start, stop and start again in particular is unverified.
+
+## License
+
+MIT
