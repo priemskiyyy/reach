@@ -70,6 +70,16 @@ test("a new session reads the host as it is now, not as it began", async () => {
   expect(reach.state.get().connection.type).toBe("cellular");
 });
 
+test("a host change before the first session is read by that session", async () => {
+  const mock = createMockNetwork();
+  const reach = new Reach({ adapter: mock.adapter, clock: createTestClock() });
+
+  mock.emit(CONNECTED_CELLULAR);
+  await reach.start().ready;
+
+  expect(reach.state.get().connection.type).toBe("cellular");
+});
+
 test("the mock network keeps the adapter contract", async () => {
   const { passed } = await testNetworkAdapter(() => {
     const mock = createMockNetwork({ initial: CONNECTED_WIFI });

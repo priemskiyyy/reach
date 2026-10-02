@@ -131,7 +131,9 @@ export const createMockNetwork = ({
     }),
     // The source changes whether or not a session is open; only an open one hears it.
     emit: (input?: ObservationInput) => {
-      active?.emit(report(input));
+      const observation = report(input);
+
+      active?.emit(observation);
     },
     // A read reaches the session it began in, and only while that session is open.
     reserve: () => {
