@@ -4,6 +4,7 @@ import { createMockEndpoint } from "src/mock/createMockEndpoint";
 import { createMockNetwork } from "src/mock/createMockNetwork";
 import { createTestClock } from "src/mock/createTestClock";
 import { observed } from "src/mock/observed";
+import type { ObservationInput } from "src/mock/types/ObservationInput";
 import {
   CONNECTED_CELLULAR,
   CONNECTED_WIFI,
@@ -671,4 +672,117 @@ test("an owner that leaves while another arrives never starts monitoring again",
   api.monitor();
 
   expect(probe.calls).toHaveLength(1);
+});
+
+const OFFLINE: ObservationInput = {
+  connection: { status: observed("disconnected", "native-path") },
+  internet: { status: observed("offline", "native-path") },
+};
+
+test("a path that came back while the app was suspended starts the foreground check once the resume read answers", async () => {
+  const { reach, mock, probe, api, setActivity } = createEndpointReach({
+    activity: "foreground",
+    endpoint: { monitoring: { on: ["foreground"] } },
+    network: { initial: OFFLINE, refresh: "held" },
+  });
+
+  reach.start();
+  api.monitor();
+  setActivity("background");
+  setActivity("foreground");
+
+  // The cached offline is not trusted: the trigger is skipped, then offered again.
+  expect(reach.diagnostics.get().counters.skippedChecks).toBe(1);
+  expect(probe.calls).toHaveLength(0);
+
+  mock.resolveRefresh(CONNECTED_WIFI);
+  await settle();
+
+  expect(reach.state.get().internet.status).toBe("online");
+  expect(probe.calls).toHaveLength(1);
+});
+
+test("a resume read that still says offline keeps the foreground check skipped", async () => {
+  const { reach, mock, probe, api, setActivity } = createEndpointReach({
+    activity: "foreground",
+    endpoint: { monitoring: { on: ["foreground"] } },
+    network: { initial: OFFLINE, refresh: "held" },
+  });
+
+  reach.start();
+  api.monitor();
+  setActivity("background");
+  setActivity("foreground");
+  mock.resolveRefresh(OFFLINE);
+  await settle();
+
+  expect(reach.state.get().internet.status).toBe("offline");
+  expect(probe.calls).toHaveLength(0);
+});
+
+test("a recovery the resume read reports starts one check when network-change is a trigger too", async () => {
+  const { reach, mock, probe, api, setActivity } = createEndpointReach({
+    activity: "foreground",
+    endpoint: { monitoring: { on: ["network-change", "foreground"] } },
+    network: { initial: OFFLINE, refresh: "held" },
+  });
+
+  reach.start();
+  api.monitor();
+  setActivity("background");
+  setActivity("foreground");
+  mock.resolveRefresh(CONNECTED_WIFI);
+  await settle();
+
+  expect(probe.calls).toHaveLength(1);
+});
+
+test("an interval tick on a cached offline reads the source and checks once the path is back", async () => {
+  const { reach, mock, probe, api, clock } = createEndpointReach({
+    endpoint: {
+      monitoring: {
+        on: ["start"],
+        interval: 5_000,
+        allowWithoutActivity: true,
+      },
+    },
+    network: { initial: OFFLINE, refresh: "held" },
+  });
+
+  reach.start();
+  api.monitor();
+  await settle();
+  mock.resolveRefresh();
+  await settle();
+
+  clock.advance(5_000);
+  await settle();
+  expect(reach.diagnostics.get().counters.skippedChecks).toBe(2);
+  expect(probe.calls).toHaveLength(0);
+
+  mock.resolveRefresh(CONNECTED_WIFI);
+  await settle();
+
+  expect(probe.calls).toHaveLength(1);
+});
+
+test("a monitor that skips offline asks the source once while a read is pending", async () => {
+  const { reach, mock, api, clock } = createEndpointReach({
+    endpoint: {
+      monitoring: {
+        on: ["start"],
+        interval: 5_000,
+        allowWithoutActivity: true,
+      },
+    },
+    network: { initial: OFFLINE, refresh: "held" },
+  });
+
+  reach.start();
+  api.monitor();
+  await settle();
+  clock.advance(5_000);
+  await settle();
+
+  expect(mock.stats().refreshes).toBe(1);
 });

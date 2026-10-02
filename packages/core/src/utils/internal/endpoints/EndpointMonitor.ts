@@ -14,6 +14,7 @@ export class EndpointMonitor {
   #owners = 0;
   #cancelPending: (() => void) | null = null;
   #cancelInterval: (() => void) | null = null;
+  #isConfirming = false;
 
   constructor(
     record: EndpointRecord,
@@ -85,7 +86,7 @@ export class EndpointMonitor {
     // The first start is never held back, and a start now satisfies a later one.
     if (lastStart === null || clock.monotonic() >= lastStart + minInterval) {
       this.#cancelPendingStart();
-      this.#run();
+      this.#run(trigger);
 
       return;
     }
@@ -168,7 +169,7 @@ export class EndpointMonitor {
   }
 
   // Admitted by `offer`: entering the background cancels a pending start, so it never runs there.
-  #run() {
+  #run(trigger: MonitorTrigger | "interval") {
     if (!this.#isEligible()) {
       return;
     }
@@ -176,6 +177,7 @@ export class EndpointMonitor {
     if (this.#isSkippedOffline()) {
       this.#skip("offline");
       this.#scheduleInterval();
+      this.#confirmOffline(trigger);
 
       return;
     }
@@ -199,6 +201,38 @@ export class EndpointMonitor {
 
     this.#skip(outcome);
     this.#scheduleInterval();
+  }
+
+  // A no-path report is only as new as the last event: a path that returned while
+  // the app was suspended reached no listener. One read of the source, never an
+  // event, decides whether the skipped trigger is offered again.
+  #confirmOffline(trigger: MonitorTrigger | "interval") {
+    if (this.#isConfirming) {
+      return;
+    }
+
+    this.#isConfirming = true;
+
+    const settled = () => {
+      this.#isConfirming = false;
+
+      if (!this.#isEligible() || !this.#isForeground()) {
+        return;
+      }
+
+      if (this.#isSkippedOffline()) {
+        return;
+      }
+
+      this.offer(trigger);
+    };
+
+    // A turn later, so a read never starts inside the listener that offered the trigger.
+    Promise.resolve()
+      .then(() =>
+        this.#isEligible() ? this.#environment.network.refresh() : null,
+      )
+      .then(settled, settled);
   }
 
   #skip(reason: string) {
