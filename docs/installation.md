@@ -33,6 +33,14 @@ Each adapter and binding requires `@priemskiyyy/reach` 0.1 as a peer. A peer flo
 - Any browser with `EventTarget` and `AbortController`. The Network Information API is optional and detected per property.
 - React Native on iOS and Android. On React Native for the web, the native adapters are unavailable; use the browser adapter there.
 
+## Module resolution
+
+The types of every package's main entry resolve under any TypeScript `moduleResolution`. `@priemskiyyy/reach/mock` and `@priemskiyyy/reach/testing` are subpath exports, which TypeScript finds only under `node16`, `nodenext` or `bundler`. Under the older `node` resolution they fail with `TS2307`, and the fix is the setting, not the import.
+
+## Jest
+
+Every package is ESM only, and Jest does not transform `node_modules` by default. A Jest setup that imports them needs the `@priemskiyyy` scope left out of `transformIgnorePatterns`, so that it is transformed. This is untested with jest-expo and the React Native Jest preset.
+
 ## Size
 
 `pnpm test:size` bundles every built entry as a consumer gets it, minified and gzipped with peers external. It prints the measured sizes and fails when an entry is over its budget, and the budgets are in `scripts/measure-size.mjs`.
