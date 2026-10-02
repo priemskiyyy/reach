@@ -1,8 +1,8 @@
 # Agent guide
 
 Reach is an application-owned model of network evidence, with source adapters
-and optional endpoint checks. Its siblings are Flare, Pulse, Silo, Simulcast,
-Switchboard and Trace, and it follows their conventions. Before changing code,
+and optional endpoint checks. It follows the conventions of the author's other
+libraries, and nothing here depends on them. Before changing code,
 read `CONTRIBUTING.md` for layout and style, `docs/internals/architecture.md`
 for the invariants, `docs/decisions.md` for where the implementation departs
 from the specification, and the tests beside the file you touch.

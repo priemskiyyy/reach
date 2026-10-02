@@ -47,4 +47,4 @@ Write examples that compile as they stand: `pnpm verify:snippets` typechecks the
 
 ## Commits
 
-Commit in small, atomic steps with short conventional messages, such as `feat(netinfo): map netinfo states conservatively`. No em dashes, no agent names and no generated-by footers anywhere in the repository, including commit messages and changelog entries.
+Commit in small, atomic steps with short conventional messages, such as `feat(netinfo): map netinfo states conservatively`. No em dashes anywhere in the repository, including commit messages and changelog entries.
