@@ -4,7 +4,7 @@ description: "Where the implementation departs from the Reach specification, and
 
 # Decisions
 
-The specification describes behavior and a declaration fixture. The behavior is implemented as written. The places below differ in shape or packaging, to match the sibling libraries or to let the types carry what the fixture checked at runtime.
+The specification is a private design document, and the `T` numbers in these docs and in test names refer to its cases and are kept for traceability. It describes behavior and a declaration fixture. The behavior is implemented as written. The places below differ in shape or packaging, to match the sibling libraries or to let the types carry what the fixture checked at runtime.
 
 ## Types before runtime checks
 

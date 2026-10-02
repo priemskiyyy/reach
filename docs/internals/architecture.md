@@ -4,7 +4,7 @@ description: "How the Reach core is put together: its owners, how a report and a
 
 # Runtime architecture
 
-Reach keeps a model of network evidence: what a source reported, on what basis, and how long ago. It never turns a missing fact into `false`, and it never reads one kind of evidence as another. This page describes the parts that keep those promises and names the tests that guard them.
+Reach keeps a model of network evidence: what a source reported, on what basis, and how long ago. It never turns a missing fact into `false`, and it never reads one kind of evidence as another. This page describes the parts that keep those promises and names the tests that guard them. A `T` number is a case in the project's private specification, kept for traceability.
 
 ## Owners
 
