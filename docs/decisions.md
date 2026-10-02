@@ -73,7 +73,7 @@ The adapters are tested against fakes modeled on the SDK sources and against the
 
 - Native start, stop and start again for NetInfo and Expo Network.
 - Real NetInfo and Expo Network reports on iOS and Android.
-- Real browser `pagehide`, `freeze` and Network Information events. Chromium's `offline` and `online` are verified: the example tour, `pnpm test:examples`, takes Chromium offline and back, and the browser adapter reports each change.
+- Real browser `pagehide`, `freeze` and Network Information events. Chromium's `offline` and `online` pass in a local Playwright check that no workflow runs: the example tour, `pnpm test:examples`, takes Chromium offline and back, and the browser adapter reports each change.
 - React Native fetch clients honoring abort through the HTTP endpoint. Node's own `fetch` is verified: the HTTP tests abandon a real loopback connection on a timeout and on a network change.
 
 The packed packages are verified: `pnpm verify:packages` installs every tarball into a consumer without any native SDK, React or Query, imports each entry in Node without browser globals, and typechecks it.

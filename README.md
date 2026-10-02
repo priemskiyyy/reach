@@ -83,7 +83,7 @@ pnpm dev
 
 ## Status
 
-Everything is tested in process, against fakes modeled on each SDK's source and against each SDK's real types. Nothing has run on a device yet, and in a real browser only the example tour has: it takes Chromium offline and back through the browser adapter. [The decision record](docs/decisions.md) lists what that leaves unverified, and where the implementation departs from its specification.
+Everything is tested in process, against fakes modeled on each SDK's source and against each SDK's real types. Nothing has run on a device yet. In a real browser only the example tour has run the browser adapter, in `pnpm test:examples`, a local Playwright check that takes Chromium offline and back and that no workflow runs. [The decision record](docs/decisions.md) lists what that leaves unverified, and where the implementation departs from its specification.
 
 ## Documentation
 

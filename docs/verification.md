@@ -1,5 +1,5 @@
 ---
-description: "What is verified for Reach and how: the specification's cases in tests, the adapters against fakes and in Chromium, and the device and browser checks still to run."
+description: "What is verified for Reach and how: the specification's cases in tests, the adapters against fakes and a local Chromium check, and the device and browser checks still to run."
 ---
 
 # Verification matrix
@@ -15,7 +15,7 @@ Reach claims only what has been verified, and says how. Most of it is verified i
 | Types and contracts | `*.contracts.ts` files prove what must fail to compile, such as an empty requirement or an undefined endpoint |
 | Adapters            | Fakes modeled on each SDK's source, the shared conformance suite, and contracts against each SDK's real types |
 | HTTP abort          | Node's `fetch` over a loopback server abandons the connection on a timeout and on a network change            |
-| Browser adapter     | The example tour takes Chromium offline and back, and the adapter reports each change                         |
+| Browser adapter     | A local Playwright check, not run in CI: the tour takes Chromium offline and back                             |
 | React               | React Testing Library in jsdom, and a hydrated server render                                                  |
 | Packed packages     | Every tarball installs into a consumer without native SDKs, imports in Node and typechecks                    |
 | Documentation       | Every TypeScript snippet here typechecks against the built packages                                           |
