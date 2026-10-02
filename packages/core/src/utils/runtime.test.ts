@@ -563,6 +563,29 @@ test("a refresh that never answers times out", async () => {
   );
 });
 
+test("a timed-out refresh marks good facts error, and its late answer is dropped", async () => {
+  const { reach, mock, clock } = createReach({
+    refresh: "held",
+    initial: CONNECTED_WIFI,
+  });
+
+  reach.start();
+  expect(reach.state.get().evidence["connection.status"].status).toBe(
+    "current",
+  );
+
+  const refreshing = reach.refresh();
+
+  clock.advance(10_000);
+  await expect(refreshing).rejects.toMatchObject({ code: "SOURCE_TIMEOUT" });
+  expect(reach.state.get().evidence["connection.status"].status).toBe("error");
+
+  mock.resolveRefresh(CONNECTED_WIFI);
+
+  expect(reach.state.get().evidence["connection.status"].status).toBe("error");
+  expect(reach.diagnostics.get().counters.discardedObservations).toBe(1);
+});
+
 test("a refresh during opening waits for it", async () => {
   const { reach, mock } = createReach({ open: "held" });
 
