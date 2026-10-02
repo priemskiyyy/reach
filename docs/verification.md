@@ -11,6 +11,7 @@ Reach claims only what has been verified, and says how. Most of it is verified i
 | Area                | How                                                                                                           |
 | ------------------- | ------------------------------------------------------------------------------------------------------------- |
 | Core runtime        | Unit tests named after the specification's cases, on a test clock, with the mock network and mock endpoint    |
+| Changing world      | A seeded fuzz of a fake operating system that changes between steps, judged by what it reported: not a device |
 | Types and contracts | `*.contracts.ts` files prove what must fail to compile, such as an empty requirement or an undefined endpoint |
 | Adapters            | Fakes modeled on each SDK's source, the shared conformance suite, and contracts against each SDK's real types |
 | HTTP abort          | Node's `fetch` over a loopback server abandons the connection on a timeout and on a network change            |
