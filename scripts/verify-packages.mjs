@@ -11,6 +11,7 @@ import {
 import { join, relative, resolve } from "node:path";
 
 const OUTPUT = resolve(".artifacts/packages");
+const ROOT_MANIFEST = JSON.parse(readFileSync("package.json", "utf8"));
 const CONSUMER = join(OUTPUT, "consumer");
 
 // The publish workflow uploads this directory and publishes these exact tarballs.
@@ -29,7 +30,21 @@ const PACKAGES = [
   "packages/tanstack-query",
 ];
 
-// What each published entry exports at runtime, and nothing more.
+// The framework a binding reads, at the version the repository tests. Native
+// SDKs and Query are still left out: only a binding needs its framework to load.
+const FRAMEWORKS = ["react", "solid-js", "vue", "svelte"];
+
+const BINDING_EXPORTS = [
+  "ReachProvider",
+  "useCondition",
+  "useEndpoint",
+  "useNetwork",
+  "useReach",
+];
+
+// What each published entry exports at runtime, and nothing more. Svelte's
+// entry is a source package that only a Svelte compiler loads, so it is
+// checked by its types below.
 const RUNTIME_EXPORTS = {
   "@priemskiyyy/reach": [
     "Reach",
@@ -51,6 +66,9 @@ const RUNTIME_EXPORTS = {
   "@priemskiyyy/reach-netinfo": ["netInfo"],
   "@priemskiyyy/reach-expo-network": ["expoNetwork"],
   "@priemskiyyy/reach-http": ["http"],
+  "@priemskiyyy/reach-react": BINDING_EXPORTS,
+  "@priemskiyyy/reach-solid": BINDING_EXPORTS,
+  "@priemskiyyy/reach-vue": BINDING_EXPORTS,
   "@priemskiyyy/reach-tanstack-query": ["toOnlineEventListener"],
 };
 
@@ -84,7 +102,7 @@ const tarballs = PACKAGES.map((directory) => {
   return { name, path: join(destination, file) };
 });
 
-// No native SDK, React or Query is installed: each package must stand on its own.
+// No native SDK or Query is installed: each package must stand on its own.
 writeFileSync(
   join(CONSUMER, "package.json"),
   JSON.stringify(
@@ -92,12 +110,17 @@ writeFileSync(
       name: "reach-packed-consumer",
       private: true,
       type: "module",
-      dependencies: Object.fromEntries(
-        tarballs.map(({ name, path }) => [
-          name,
-          `file:${relative(CONSUMER, path)}`,
-        ]),
-      ),
+      dependencies: {
+        ...Object.fromEntries(
+          tarballs.map(({ name, path }) => [
+            name,
+            `file:${relative(CONSUMER, path)}`,
+          ]),
+        ),
+        ...Object.fromEntries(
+          FRAMEWORKS.map((name) => [name, ROOT_MANIFEST.devDependencies[name]]),
+        ),
+      },
     },
     null,
     2,
@@ -117,7 +140,7 @@ run(
   CONSUMER,
 );
 
-// T145 T156: every entry imports in Node without browser globals or native peers.
+// Every entry imports in Node without browser globals or native peers.
 writeFileSync(
   join(CONSUMER, "imports.mjs"),
   `import assert from "node:assert/strict";
@@ -163,6 +186,9 @@ import { expoNetwork } from "@priemskiyyy/reach-expo-network";
 import { http } from "@priemskiyyy/reach-http";
 import { netInfo } from "@priemskiyyy/reach-netinfo";
 import type { ReachNetwork } from "@priemskiyyy/reach-react";
+import type { ReachNetwork as SolidNetwork } from "@priemskiyyy/reach-solid";
+import type { ReachNetwork as SvelteNetwork } from "@priemskiyyy/reach-svelte";
+import type { ReachNetwork as VueNetwork } from "@priemskiyyy/reach-vue";
 import { toOnlineEventListener } from "@priemskiyyy/reach-tanstack-query";
 
 const network = new Reach({
@@ -175,6 +201,9 @@ const network = new Reach({
 export const available = all(network.endpoint("api").available);
 export const state: NetworkState = network.state.get();
 export const provided: ReachNetwork = network;
+export const providedToSolid: SolidNetwork = network;
+export const providedToSvelte: SvelteNetwork = network;
+export const providedToVue: VueNetwork = network;
 export const listener = toOnlineEventListener(network.condition({ internet: "online" }));
 export const adapters = [browser(), netInfo, expoNetwork, testNetworkAdapter];
 
