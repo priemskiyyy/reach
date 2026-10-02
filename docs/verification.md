@@ -1,47 +1,53 @@
 ---
-description: "What is verified for Reach and how: the specification's cases in tests, the adapters against fakes and a local Chromium check, and the device and browser checks still to run."
+description: "What is verified for Reach and how: the specification's cases in tests, the adapters against fakes, a local Chromium check, one run on an Android emulator and an iOS simulator, and the physical device and browser checks still to run."
 ---
 
 # Verification matrix
 
-Reach claims only what has been verified, and says how. Most of it is verified in process; some of it needs a device or a real browser, and is listed here until someone runs it.
+Reach claims only what has been verified, and says how. Most of it is verified in process. One run by hand on an Android emulator and an iOS simulator, on 2026-10-02, is recorded below, and no physical device has been used. What still needs a device or a real browser is listed here until someone runs it.
 
 ## Verified in the repository
 
-| Area                | How                                                                                                           |
-| ------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Core runtime        | Unit tests named after the specification's cases, on a test clock, with the mock network and mock endpoint    |
-| Changing world      | A seeded fuzz of a fake operating system that changes between steps, judged by what it reported: not a device |
-| Types and contracts | `*.contracts.ts` files prove what must fail to compile, such as an empty requirement or an undefined endpoint |
-| Adapters            | Fakes modeled on each SDK's source, the shared conformance suite, and contracts against each SDK's real types |
-| HTTP abort          | Node's `fetch` over a loopback server abandons the connection on a timeout and on a network change            |
-| Browser adapter     | A local Playwright check, not run in CI: the tour takes Chromium offline and back                             |
-| React               | React Testing Library in jsdom, and a hydrated server render                                                  |
-| Packed packages     | Every tarball installs into a consumer without native SDKs, imports in Node and typechecks                    |
-| Documentation       | Every TypeScript snippet here typechecks against the built packages                                           |
+| Area                | How                                                                                                                                                    |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Core runtime        | Unit tests named after the specification's cases, on a test clock, with the mock network and mock endpoint                                             |
+| Changing world      | A seeded fuzz of a fake operating system that changes between steps, judged by what it reported: not a device                                          |
+| Types and contracts | `*.contracts.ts` files prove what must fail to compile, such as an empty requirement or an undefined endpoint                                          |
+| Adapters            | Fakes modeled on each SDK's source, the shared conformance suite, and contracts against each SDK's real types                                          |
+| HTTP abort          | Node's `fetch` over a loopback server abandons the connection on a timeout and on a network change                                                     |
+| Browser adapter     | A local Playwright check, not run in CI: the tour takes Chromium offline and back                                                                      |
+| React               | React Testing Library in jsdom, and a hydrated server render                                                                                           |
+| Packed packages     | Every tarball installs into a consumer without native SDKs, imports in Node and typechecks                                                             |
+| Documentation       | Every TypeScript snippet here typechecks against the built packages                                                                                    |
+| Emulator, simulator | By hand on 2026-10-02, not in CI: the Expo example over NetInfo and the HTTP endpoint, see [the run](#run-on-an-android-emulator-and-an-ios-simulator) |
 
 ## Not yet verified
 
-- Native start, stop and start again for NetInfo and Expo Network, and their real reports on iOS and Android.
-- Real browser `pagehide`, `freeze` and Network Information events.
-- React Native fetch clients honoring abort.
+The [run on an emulator and a simulator](#run-on-an-android-emulator-and-an-ios-simulator) observed some of this once, on one emulator and one simulator. Nothing here has been run on a physical device.
+
+- Any physical device, real cellular, captive portals, a VPN and OEM battery managers.
+- Network transitions on iOS, Low Data Mode, and whether events still arrive after a restart on iOS.
+- `@priemskiyyy/reach-expo-network`, on either platform.
+- Real browser `pagehide`, `freeze` and Network Information events, and the browser adapter on a device.
+- React Native HTTP clients other than `fetch` honoring abort. `fetch` aborted a request at the deadline in the run.
+- The Solid, Vue and Svelte bindings on a device.
 
 ## Scenarios that need a device or a browser
 
 The specification's cases T135 to T144 cannot be proved in process. Where they stand:
 
-| Case | Scenario                                           | Status                                                                                     |
-| ---- | -------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| T135 | A captive portal answers with a redirect or HTML   | Simulated in the example: the client fails to parse, the check fails, nothing says portal  |
-| T136 | Wi-Fi is associated but the internet fails         | Simulated in the example: connected, internet unknown, the endpoint unavailable            |
-| T137 | Airplane mode with Wi-Fi turned back on            | Needs a device                                                                             |
-| T138 | A private API reachable only through a VPN         | Needs a device; a manual check never requires public internet evidence                     |
-| T139 | A VPN toggles while the type stays Wi-Fi           | Needs a device; undetectable switches are a documented limit                               |
-| T140 | A same-type Wi-Fi switch the SDK does not show     | Needs a device; simulated in the example through `invalidate()`                            |
-| T141 | A service worker answers the health request        | Needs a browser; excluding the route is documented, `no-store` is not claimed to bypass it |
-| T142 | CORS or CSP blocks the endpoint                    | Needs a browser; a blocked request is a failed check, never a server outage                |
-| T143 | A native HTTP option differs from browser behavior | Needs a device                                                                             |
-| T144 | A native source stopped and started repeatedly     | Needs a device                                                                             |
+| Case | Scenario                                           | Status                                                                                                              |
+| ---- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| T135 | A captive portal answers with a redirect or HTML   | Simulated in the example: the client fails to parse, the check fails, nothing says portal                           |
+| T136 | Wi-Fi is associated but the internet fails         | Simulated in the example. Seen on an Android emulator with an unreachable Private DNS, see the run. Not on a device |
+| T137 | Airplane mode with Wi-Fi turned back on            | Seen on an Android emulator: Wi-Fi stayed up. Not on a physical device                                              |
+| T138 | A private API reachable only through a VPN         | Needs a device; a manual check never requires public internet evidence                                              |
+| T139 | A VPN toggles while the type stays Wi-Fi           | Needs a device; undetectable switches are a documented limit                                                        |
+| T140 | A same-type Wi-Fi switch the SDK does not show     | Needs a device; simulated in the example through `invalidate()`                                                     |
+| T141 | A service worker answers the health request        | Needs a browser; excluding the route is documented, `no-store` is not claimed to bypass it                          |
+| T142 | CORS or CSP blocks the endpoint                    | Needs a browser; a blocked request is a failed check, never a server outage                                         |
+| T143 | A native HTTP option differs from browser behavior | Needs a device                                                                                                      |
+| T144 | A native source stopped and started repeatedly     | Five lease cycles on an emulator and a simulator, see the run. Not on a physical device                             |
 
 ## Run on an Android emulator and an iOS simulator
 
@@ -108,15 +114,15 @@ One emulator, one simulator and one build do not make a timing guarantee. A time
 
 ## The native checklist
 
-A device verification records the OS and its version, the device model, the provider and its release, and the build configuration, then the result of each of these:
+A device verification records the OS and its version, the device model, the provider and its release, and the build configuration, then the result of each of these. The [run on an emulator and a simulator](#run-on-an-android-emulator-and-an-ios-simulator) covers part of it, noted beside each item. Nothing is marked for a physical device.
 
-- Wi-Fi without internet.
-- Cellular fallback while Wi-Fi fails.
-- Airplane mode, and airplane mode with Wi-Fi turned back on.
-- Recovery on returning to the foreground.
-- Attaching and detaching the listener repeatedly, and a Reach started, released and started again.
-- A switch between two Wi-Fi networks of the same type.
-- On Android, a change of metering alone. On iOS, whether expense is reported at all. Each is marked supported, partially observable, unsupported or unverified.
+- Wi-Fi without internet. Seen on an Android emulator through an unreachable Private DNS.
+- Cellular fallback while Wi-Fi fails. Seen on an Android emulator: Wi-Fi off with mobile data on gave Cellular within 1 s. Real cellular was not run.
+- Airplane mode, and airplane mode with Wi-Fi turned back on. Seen on an Android emulator.
+- Recovery on returning to the foreground. Seen on an Android emulator after a network change, and on an iOS simulator with no network change.
+- Attaching and detaching the listener repeatedly, and a Reach started, released and started again. Five lease cycles on an Android emulator and on an iOS simulator. On iOS, whether events still arrive after a restart was not checked.
+- A switch between two Wi-Fi networks of the same type. Not run.
+- On Android, a change of metering alone. On iOS, whether expense is reported at all. Each is marked supported, partially observable, unsupported or unverified. A change of metering alone was not tested on the emulator, and on the simulator expense read as unsupported. Neither was run on a physical device.
 
 ## The browser checklist
 
