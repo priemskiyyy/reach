@@ -83,7 +83,7 @@ pnpm dev
 
 ## Status
 
-Everything is tested in process, against fakes modeled on each SDK's source and against each SDK's real types. Nothing has run on a device yet. In a real browser only the example tour has run the browser adapter, in `pnpm test:examples`, a local Playwright check that takes Chromium offline and back and that no workflow runs. [The decision record](docs/decisions.md) lists what that leaves unverified, and where the implementation departs from its specification.
+Everything is tested in process, against fakes modeled on each SDK's source and against each SDK's real types. On 2026-10-02 the Expo example also ran by hand, as Release builds, on an Android emulator and an iOS simulator over `@priemskiyyy/reach-netinfo` and `@priemskiyyy/reach-http`: [the verification matrix](docs/verification.md#run-on-an-android-emulator-and-an-ios-simulator) says what was seen. No physical device has been used, and `@priemskiyyy/reach-expo-network` has not been run. In a real browser only the example tour has run the browser adapter, in `pnpm test:examples`, a local Playwright check that takes Chromium offline and back and that no workflow runs. [The decision record](docs/decisions.md) lists what that leaves unverified, and where the implementation departs from its specification.
 
 ## Documentation
 

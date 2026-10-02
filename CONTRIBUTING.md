@@ -39,7 +39,7 @@ A network adapter maps one source's reports onto field observations and nothing 
 
 `pnpm test:unit` runs one vitest project per package, each with a `src` alias onto its own source. Tests sit beside their sources and are named after the specification case they prove, such as `T041`. The specification is a private design document, so a `T` number refers to a case in it that you cannot open, and it is kept for traceability: the test's name still says what it proves. A new test is watched failing once before it is trusted: when the implementation came first, break it on purpose and confirm the test goes red. Time is the test clock's, never a sleep; interleaving is tested with held reads and held checks.
 
-Every check in CI runs against fakes. The one real browser run is the example tour in Chromium, a local Playwright check that no workflow runs. What a device or a real browser still has to verify is listed in [the verification matrix](docs/verification.md) and [the decision record](docs/decisions.md).
+Every check in CI runs against fakes. The one real browser run is the example tour in Chromium, a local Playwright check that no workflow runs, and the one native run was by hand, on an Android emulator and an iOS simulator. What a device or a real browser still has to verify is listed in [the verification matrix](docs/verification.md) and [the decision record](docs/decisions.md).
 
 ## Documentation
 
