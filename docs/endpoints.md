@@ -87,6 +87,8 @@ api.invalidate();
 console.info(api.state.get().freshness);
 ```
 
+A change of `internet.status` alone does neither. It does not revoke a fresh result and it is not a `network-change`, because only a change of the connection's status or type starts a new generation. Set an `interval` where a monitor must notice it.
+
 A recheck never hides the result it may replace: while it runs, `status` stays what the last fresh result said.
 
 ## Scopes
