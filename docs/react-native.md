@@ -83,4 +83,4 @@ Pass the check's `signal` to your client. Some React Native clients keep a reque
 
 ## What is verified
 
-The adapters are tested against fakes modeled on each SDK's source, and the Expo example runs on the web against a fixture server. Nothing has run on a device yet. The [verification matrix](verification.md) lists what a device check has to establish.
+The adapters are tested against fakes modeled on each SDK's source, and the Expo example runs on the web against a fixture server. On 2026-10-02 it also ran by hand, as Release builds, on an Android emulator and an iOS simulator, over NetInfo. No physical device has been used, and Expo Network has not been run. The [verification matrix](verification.md#run-on-an-android-emulator-and-an-ios-simulator) says what was seen and lists what a device check has still to establish.
