@@ -11,11 +11,11 @@ export const DOCUMENTED_LIMITS: Array<{ kind: string; citation: string }> = [
   {
     kind: "condition.online",
     citation:
-      "docs/lifecycle.md: the facts a timed-out refresh marked error read unknown, so a condition over them is unknown.",
+      "docs/lifecycle.md marks the facts error, and docs/conditions.md makes a condition over a fact that is not current unknown.",
   },
   {
     kind: "condition.offline",
     citation:
-      "docs/lifecycle.md: the facts a timed-out refresh marked error read unknown, so a condition over them is unknown.",
+      "docs/lifecycle.md marks the facts error, and docs/conditions.md makes a condition over a fact that is not current unknown.",
   },
 ];
