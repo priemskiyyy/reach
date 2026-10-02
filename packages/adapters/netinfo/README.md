@@ -39,7 +39,7 @@ The adapter borrows the NetInfo module you pass. It never calls `configure`: Net
 | Android `details.isConnectionExpensive`                        | `metered` on `native-metering`; `expensive` stays unsupported        |
 | iOS `details.isConnectionExpensive`                            | nothing: iOS derives it from the cellular transport                  |
 
-A false reachability while connected can be a failed check or one NetInfo skipped, so it is never offline. The transport set, expense and data preferences are unsupported.
+A false reachability while connected can be a failed check or one NetInfo skipped, so it is never offline. The transport set, expense and data preferences are unsupported, so a condition that requires `constrained: false` cannot be met with NetInfo.
 
 ## Options
 

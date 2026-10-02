@@ -20,6 +20,7 @@ How it fits together:
 - `src/network/appActivity.ts` turns `AppState` into Reach's activity, so the API is checked on its own only while the app is active.
 - `index.tsx` starts the Reach once, holds one monitor for the life of the app, and wraps it in `ReachProvider`.
 - The cards read `useNetwork`, `useCondition` and `useEndpoint`: the facts with their evidence, the conditions with their reasons, what each backup would decide, and the API's last answer against whether it still counts.
+- The Unmetered condition asks for `metered: false` and `constrained: false`. NetInfo reports no data preference on either platform, so `constrained` is unsupported and the condition is Unknown on unmetered Wi-Fi. It is Unmet only when Android reports the connection as metered.
 
 On the web NetInfo is not a native source, so the adapter is unavailable and Reach runs with every fact unsupported for the reason `source-unavailable`, instead of failing. Automatic backup waits, and says why.
 
