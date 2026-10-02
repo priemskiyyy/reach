@@ -15,7 +15,7 @@ export const FactList: React.FunctionComponent = () => {
   return (
     <Card
       title="Facts from NetInfo"
-      description="Each fact with the evidence it rests on. On the web NetInfo is not a native source, so every fact is unsupported."
+      description="Each fact with the evidence it rests on. A fact NetInfo cannot report is unsupported, and on the web every fact is, because NetInfo is not a native source there."
     >
       <View>
         {FIELD_ORDER.map((field) => (
