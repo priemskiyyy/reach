@@ -10,10 +10,11 @@ Every package is ESM only, side-effect free and typed. The core has no dependenc
 pnpm add @priemskiyyy/reach
 ```
 
-Then add one adapter for your platform, and the optional packages you need.
+Then add one adapter for your platform, and the optional packages you need. The table lists the packages in the order they are published.
 
 | Package                                                                                                            | Install when                                  | Requires                                  |
 | ------------------------------------------------------------------------------------------------------------------ | --------------------------------------------- | ----------------------------------------- |
+| [`@priemskiyyy/reach`](https://github.com/priemskiyyy/reach/tree/main/packages/core)                               | always                                        | nothing                                   |
 | [`@priemskiyyy/reach-browser`](https://github.com/priemskiyyy/reach/tree/main/packages/adapters/browser)           | on the web                                    | a browser at run time                     |
 | [`@priemskiyyy/reach-netinfo`](https://github.com/priemskiyyy/reach/tree/main/packages/adapters/netinfo)           | in React Native, including Expo               | `@react-native-community/netinfo` 12.0.1+ |
 | [`@priemskiyyy/reach-expo-network`](https://github.com/priemskiyyy/reach/tree/main/packages/adapters/expo-network) | in Expo SDK 58 and later                      | `expo-network` 58.0.1+                    |
@@ -34,17 +35,7 @@ Each adapter and binding requires `@priemskiyyy/reach` 0.1 as a peer. A peer flo
 
 ## Size
 
-Measured by `pnpm test:size` from the built packages, bundled as a consumer gets them, minified and gzipped, with peers external:
-
-| Entry                     | Gzipped        | Budget   |
-| ------------------------- | -------------- | -------- |
-| the core                  | 10.3 KiB       | 12 KiB   |
-| the core with an adapter  | 10.9 to 11 KiB | 13 KiB   |
-| the core with `http()`    | 10.5 KiB       | 12.5 KiB |
-| the React binding         | 0.8 KiB        | 1 KiB    |
-| the TanStack Query bridge | 0.2 KiB        | 0.5 KiB  |
-
-A change that goes over a budget fails CI.
+`pnpm test:size` bundles every built entry as a consumer gets it, minified and gzipped with peers external. It prints the measured sizes and fails when an entry is over its budget, and the budgets are in `scripts/measure-size.mjs`.
 
 ## Subpaths
 
