@@ -29,7 +29,18 @@ Do not reuse a published version. Prepare a new patch version and changelog entr
 
 ## What the release checks do not cover
 
-No release check runs an adapter on a device. The example tour drives Chromium offline and back with `pnpm test:examples`, a local Playwright check that no workflow runs, so run it by hand before a release. [The decision record](docs/decisions.md) lists what that leaves unverified. Before a stable release of an adapter, run it once by hand in a real application on each platform it maps, and say in the release notes what you ran.
+No release check runs an adapter on a device, an emulator or a simulator. The example tour drives Chromium offline and back with `pnpm test:examples`, a local Playwright check that no workflow runs, so run it by hand before a release. [The decision record](docs/decisions.md) lists what that leaves unverified. Before a stable release of an adapter, run it once by hand in a real application on each platform it maps, and say in the release notes what you ran.
+
+### What was run for 0.1.0
+
+Paste this into the GitHub release notes. [The verification matrix](docs/verification.md#run-on-an-android-emulator-and-an-ios-simulator) has the detail.
+
+> On 2026-10-02 the Expo example app (Expo SDK 57, React Native 0.86.3) was run as Release builds on an Android emulator (Pixel_10, API 36) and an iOS 26.5 simulator (iPhone 17e), against the local fixture server, with `@priemskiyyy/reach-netinfo` over `@react-native-community/netinfo` 12.0.1 and `@priemskiyyy/reach-http`. On Android, airplane mode, Wi-Fi and mobile data were toggled, the app was sent to the background with the network changed, the endpoint was made to fail, and the runtime lease was cycled five times. On iOS the launch evidence, background and foreground, a request timeout and five lease cycles were checked. No physical device was used. Real cellular, captive portals, VPN, iOS network transitions and `@priemskiyyy/reach-expo-network` were not run.
+
+Against the rule above, as of 2026-10-02:
+
+- `@priemskiyyy/reach-netinfo` meets it on an Android emulator and an iOS simulator only. It has not been run on a physical device.
+- `@priemskiyyy/reach-expo-network` does not meet it. It was not run on any platform. The example is on Expo SDK 57, the adapter's peer is `expo-network` 58.0.1 or later, and `npm view expo-network dist-tags` showed 58.x on the `next` tag only, with `latest` at 57.0.2.
 
 ## npm trusted publishers
 
