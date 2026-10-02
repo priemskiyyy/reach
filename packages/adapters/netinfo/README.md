@@ -61,7 +61,7 @@ A false reachability while connected can be a failed check or one NetInfo skippe
 
 ## Tests
 
-The tests run against an in-process fake modeled on NetInfo 12.0.1, through the shared adapter conformance suite on both platforms, and a type contract proves NetInfo's real module and state fit. Nothing has run on a device yet: start, stop and start again in particular is unverified.
+The tests run against an in-process fake modeled on NetInfo 12.0.1, through the shared adapter conformance suite on both platforms, and a type contract proves NetInfo's real module and state fit. On 2026-10-02 the adapter ran by hand in the Expo example's Release builds, over NetInfo 12.0.1, on an Android emulator (API 36) and an iOS 26.5 simulator, with Expo SDK 57 and React Native 0.86.3. On Android, airplane mode, Wi-Fi and mobile data were toggled and the app was sent to the background with the network changed; on both, the runtime lease was cycled five times. No physical device has been used. On iOS no network change was made, and whether events still arrive after a restart was not checked. [The verification matrix](https://priemskiyyy.github.io/reach/verification#run-on-an-android-emulator-and-an-ios-simulator) says what was seen.
 
 ## License
 
