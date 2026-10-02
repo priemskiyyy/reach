@@ -19,7 +19,11 @@ export type Evidence =
   | {
       status: "current";
       basis: Exclude<EvidenceBasis, "none">;
-      /** Epoch milliseconds when Reach accepted the report. */
+      /**
+       * Epoch milliseconds when Reach accepted the report. A repeated identical
+       * report, a `refresh()` that confirms the fact included, does not move
+       * it: it bounds the age of the fact, not the time it was last confirmed.
+       */
       receivedAt: number;
       reason: null;
     }
