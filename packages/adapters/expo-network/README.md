@@ -63,7 +63,7 @@ No cost, expense or data preference is reported, and no transport set. A conditi
 
 ## Tests
 
-The mapping was read from the iOS and Android sources of `expo-network` 58.0.1. The tests run against an in-process fake modeled on them, through the shared adapter conformance suite on both platforms, and a type contract proves the real module and state fit. Nothing has run on a device yet: on iOS, the module cancels its path monitor when the last listener goes, and whether a later listener hears it again is unverified.
+The mapping was read from the iOS and Android sources of `expo-network` 58.0.1. The tests run against an in-process fake modeled on them, through the shared adapter conformance suite on both platforms, and a type contract proves the real module and state fit. This adapter has not been run on any device, emulator or simulator. The Expo example that ran on an Android emulator and an iOS simulator on 2026-10-02 is on Expo SDK 57 and uses the NetInfo adapter, and this adapter's peer is `expo-network` 58.0.1 or later; on 2026-10-02 npm's `latest` for `expo-network` was 57.0.2, and 58.x was on the `next` tag only. On iOS, the module cancels its path monitor when the last listener goes, and whether a later listener hears it again is unverified.
 
 ## License
 
