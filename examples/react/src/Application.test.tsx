@@ -142,7 +142,7 @@ test("behind a hotel's sign-in page internet is unknown, not offline, and the AP
   );
   expect(readCondition("Online")).toContain("Unknown");
   expect(readLatestCheck()).toContain(
-    "failed: the request failed before any answer arrived",
+    "failed: the request failed, or answered with an error status",
   );
 
   press("Take photo");

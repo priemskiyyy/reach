@@ -4,7 +4,7 @@ import { formatSeconds } from "example-shared/formatting/formatSeconds";
 /** Why a check failed or was inconclusive, in Darkroom's words. */
 export const formatCheckReason = (reason: string) => {
   if (reason === "request-failed") {
-    return "the request failed before any answer arrived";
+    return "the request failed, or answered with an error status";
   }
 
   if (reason === "test-failed") {
