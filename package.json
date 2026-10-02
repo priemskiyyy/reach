@@ -24,6 +24,7 @@
     "test:size": "node scripts/measure-size.mjs",
     "verify:release": "node scripts/verify-release.mjs",
     "test:unit": "vitest run",
+    "test:world": "WORLD_RUNS=100000 vitest run --project core packages/core/src/world/world.fuzz.test.ts && WORLD_RUNS=100000 WORLD_STRICT=1 vitest run --project core packages/core/src/world/world.fuzz.test.ts",
     "test:unit:watch": "vitest",
     "test:examples": "pnpm build && playwright test -c examples/playwright.config.ts",
     "check": "pnpm build && pnpm lint:typescript && pnpm lint:eslint && pnpm test:lint && pnpm verify:snippets && pnpm lint:prettier && pnpm test:unit",
