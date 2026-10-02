@@ -109,6 +109,26 @@ test("T086 a sleep that paused the monotonic clock still expires a result", asyn
   expect(api.state.get().freshness).toBe("stale");
 });
 
+test("a sleep the wall clock alone saw expires a result on read, and notifies when its timer runs", async () => {
+  const { reach, probe, api, clock } = createEndpointReach();
+  const listener = vi.fn();
+
+  reach.start();
+
+  const checking = api.check();
+
+  probe.pass();
+  await checking;
+  api.state.subscribe(listener);
+  clock.setNow(clock.now() + 60_000);
+
+  expect(api.state.get().freshness).toBe("stale");
+  expect(listener).not.toHaveBeenCalled();
+
+  clock.advance(30_000);
+  expect(listener).toHaveBeenCalledTimes(1);
+});
+
 test("T089 results that expire together share one timer and one wake", async () => {
   const first = createMockEndpoint({ staleAfter: 30_000 });
   const second = createMockEndpoint({ staleAfter: 30_000 });

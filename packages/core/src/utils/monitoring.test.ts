@@ -786,3 +786,46 @@ test("a monitor that skips offline asks the source once while a read is pending"
 
   expect(mock.stats().refreshes).toBe(1);
 });
+
+test("on a return to the foreground facts stay current with their old values until the read answers", async () => {
+  const { reach, mock, setActivity } = createEndpointReach({
+    activity: "foreground",
+    network: { refresh: "held" },
+  });
+
+  reach.start();
+  setActivity("background");
+  mock.emit(OFFLINE);
+  setActivity("foreground");
+
+  expect(reach.state.get().internet.status).toBe("offline");
+  expect(reach.state.get().evidence["internet.status"].status).toBe("current");
+
+  mock.resolveRefresh(CONNECTED_WIFI);
+  await settle();
+
+  expect(reach.state.get().internet.status).toBe("online");
+});
+
+test("a change of internet status alone neither revokes a fresh result nor triggers a check", async () => {
+  const { reach, mock, probe, api } = createEndpointReach({
+    endpoint: { monitoring: { on: ["start", "network-change"] } },
+  });
+
+  reach.start();
+  api.monitor();
+  probe.pass();
+  await settle();
+
+  mock.emit({
+    ...CONNECTED_WIFI,
+    internet: { status: { status: "unknown", reason: "source-ambiguous" } },
+  });
+  mock.emit(CONNECTED_WIFI);
+
+  expect(api.state.get()).toMatchObject({
+    status: "available",
+    freshness: "fresh",
+  });
+  expect(probe.calls).toHaveLength(1);
+});
