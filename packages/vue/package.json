@@ -39,7 +39,7 @@
   },
   "peerDependencies": {
     "@priemskiyyy/reach": ">=0.1.0 <0.2",
-    "vue": ">=3.5.0 <4"
+    "vue": ">=3.5.42 <4"
   },
   "devDependencies": {
     "@priemskiyyy/reach": "workspace:*"

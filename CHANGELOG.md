@@ -24,13 +24,13 @@
 - First release. `netInfo({ sdk, platform })` maps React Native NetInfo on iOS and Android conservatively: false reachability while connected stays unknown, only an explicit `none` is offline, and metering is Android's only.
 - `internet: "ignore"` leaves NetInfo's reachability out of Reach, without claiming NetInfo stopped its own requests.
 - NetInfo is borrowed: never configured, and only the adapter's own listener is removed. Anywhere but iOS and Android the adapter is unavailable.
-- Requires `@priemskiyyy/reach` 0.1.
+- Requires `@priemskiyyy/reach` 0.1 and `@react-native-community/netinfo` 12.0.1.
 
 ## @priemskiyyy/reach-expo-network 0.1.0 - 2026-10-02
 
 - First release. `expoNetwork({ sdk, platform })` maps `expo-network` per platform: a live iOS no-path event is offline, a negative iOS read stays unknown because a timed-out read answers the same, and Android's validated network is online.
 - No cost field is reported, so a metering condition stays unknown. Anywhere but iOS and Android the adapter is unavailable.
-- Requires `@priemskiyyy/reach` 0.1 and `expo-network` 58.
+- Requires `@priemskiyyy/reach` 0.1 and `expo-network` 58.0.1.
 
 ## @priemskiyyy/reach-http 0.1.0 - 2026-10-02
 
@@ -50,21 +50,21 @@
 - First release. `ReachProvider`, `useReach`, `useNetwork`, `useCondition` and `useEndpoint` as accessors, with inferred selectors and typed equality.
 - The primitives observe only. The provider holds a runtime lease only with `start`, and never disposes the Reach.
 - The server and the render before mount read deterministic unknown snapshots.
-- Requires `@priemskiyyy/reach` 0.1 and Solid 1.9.
+- Requires `@priemskiyyy/reach` 0.1 and Solid 1.9.15.
 
 ## @priemskiyyy/reach-vue 0.1.0 - 2026-10-02
 
 - First release. `ReachProvider`, `useReach`, `useNetwork`, `useCondition` and `useEndpoint` as read-only computed refs, with inferred selectors and typed equality.
 - The composables observe only. The provider holds a runtime lease only with `start`, and never disposes the Reach.
 - The server and the render before mount read deterministic unknown snapshots.
-- Requires `@priemskiyyy/reach` 0.1 and Vue 3.5.
+- Requires `@priemskiyyy/reach` 0.1 and Vue 3.5.42.
 
 ## @priemskiyyy/reach-svelte 0.1.0 - 2026-10-02
 
 - First release. `ReachProvider`, `useReach`, `useNetwork`, `useCondition` and `useEndpoint`, read through `current`, with inferred selectors and typed equality.
 - The utilities observe only. The provider holds a runtime lease only with `start`, and never disposes the Reach.
 - The server and the render before mount read deterministic unknown snapshots.
-- Ships its sources for the application's Svelte compiler. Requires `@priemskiyyy/reach` 0.1 and Svelte 5.7.
+- Ships its sources for the application's Svelte compiler. Requires `@priemskiyyy/reach` 0.1 and Svelte 5.57.
 
 ## @priemskiyyy/reach-tanstack-query 0.1.0 - 2026-10-02
 

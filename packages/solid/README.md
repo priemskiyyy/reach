@@ -8,7 +8,7 @@ Solid bindings for [Reach](https://github.com/priemskiyyy/reach/tree/main/packag
 pnpm add @priemskiyyy/reach @priemskiyyy/reach-solid
 ```
 
-Requires Solid 1.9 or later.
+Requires Solid 1.9.15 or later.
 
 ## Read the network
 

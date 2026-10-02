@@ -8,7 +8,7 @@ Svelte bindings for [Reach](https://github.com/priemskiyyy/reach/tree/main/packa
 pnpm add @priemskiyyy/reach @priemskiyyy/reach-svelte
 ```
 
-Requires Svelte 5.7 or later. The package ships its sources for your Svelte compiler.
+Requires Svelte 5.57 or later. The package ships its sources for your Svelte compiler.
 
 ## Read the network
 

@@ -4,7 +4,7 @@ description: "@priemskiyyy/reach-solid: a provider and primitives that observe n
 
 # Solid
 
-`@priemskiyyy/reach-solid` reads a Reach in Solid 1.9 and later. It has the same provider and the same five names as [`@priemskiyyy/reach-react`](react.md), and every primitive returns an accessor. The primitives observe only: they never start the runtime, check an endpoint or monitor one.
+`@priemskiyyy/reach-solid` reads a Reach in Solid 1.9.15 and later. It has the same provider and the same five names as [`@priemskiyyy/reach-react`](react.md), and every primitive returns an accessor. The primitives observe only: they never start the runtime, check an endpoint or monitor one.
 
 ```sh
 pnpm add @priemskiyyy/reach-solid

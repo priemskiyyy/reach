@@ -4,7 +4,7 @@ description: "@priemskiyyy/reach-vue: a provider and composables that observe ne
 
 # Vue
 
-`@priemskiyyy/reach-vue` reads a Reach in Vue 3.5 and later. It has the same provider and the same five names as [`@priemskiyyy/reach-react`](react.md), and every composable returns a read-only computed ref. The composables observe only: they never start the runtime, check an endpoint or monitor one.
+`@priemskiyyy/reach-vue` reads a Reach in Vue 3.5.42 and later. It has the same provider and the same five names as [`@priemskiyyy/reach-react`](react.md), and every composable returns a read-only computed ref. The composables observe only: they never start the runtime, check an endpoint or monitor one.
 
 ```sh
 pnpm add @priemskiyyy/reach-vue

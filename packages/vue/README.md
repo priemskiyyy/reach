@@ -8,7 +8,7 @@ Vue bindings for [Reach](https://github.com/priemskiyyy/reach/tree/main/packages
 pnpm add @priemskiyyy/reach @priemskiyyy/reach-vue
 ```
 
-Requires Vue 3.5 or later.
+Requires Vue 3.5.42 or later.
 
 ## Read the network
 

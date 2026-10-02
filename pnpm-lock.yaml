@@ -245,7 +245,7 @@ importers:
   packages/adapters/expo-network:
     dependencies:
       expo-network:
-        specifier: '>=58.0.0'
+        specifier: '>=58.0.1'
         version: 58.0.1(expo@57.0.25)(react@19.2.8)
     devDependencies:
       '@priemskiyyy/reach':
@@ -261,7 +261,7 @@ importers:
   packages/adapters/netinfo:
     dependencies:
       '@react-native-community/netinfo':
-        specifier: '>=11.4.0'
+        specifier: '>=12.0.1'
         version: 12.0.1(react-native@0.87.1(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.2.8))(react@19.2.8)
     devDependencies:
       '@priemskiyyy/reach':
@@ -283,7 +283,7 @@ importers:
   packages/solid:
     dependencies:
       solid-js:
-        specifier: '>=1.9.0 <2'
+        specifier: '>=1.9.15 <2'
         version: 1.9.15
     devDependencies:
       '@priemskiyyy/reach':
@@ -293,7 +293,7 @@ importers:
   packages/svelte:
     dependencies:
       svelte:
-        specifier: '>=5.7.0 <6'
+        specifier: '>=5.57.0 <6'
         version: 5.57.0(@typescript-eslint/types@8.70.0)
     devDependencies:
       '@priemskiyyy/reach':
@@ -309,7 +309,7 @@ importers:
   packages/vue:
     dependencies:
       vue:
-        specifier: '>=3.5.0 <4'
+        specifier: '>=3.5.42 <4'
         version: 3.5.42(typescript@5.8.3)
     devDependencies:
       '@priemskiyyy/reach':

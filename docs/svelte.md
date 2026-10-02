@@ -4,7 +4,7 @@ description: "@priemskiyyy/reach-svelte: a provider and utilities that observe n
 
 # Svelte
 
-`@priemskiyyy/reach-svelte` reads a Reach in Svelte 5.7 and later. It has the same provider and the same five names as [`@priemskiyyy/reach-react`](react.md), and every utility returns a value read through `current`, the way Svelte's own reactive classes are. The utilities observe only: they never start the runtime, check an endpoint or monitor one. The package ships its sources for the application's Svelte compiler.
+`@priemskiyyy/reach-svelte` reads a Reach in Svelte 5.57 and later. It has the same provider and the same five names as [`@priemskiyyy/reach-react`](react.md), and every utility returns a value read through `current`, the way Svelte's own reactive classes are. The utilities observe only: they never start the runtime, check an endpoint or monitor one. The package ships its sources for the application's Svelte compiler.
 
 ```sh
 pnpm add @priemskiyyy/reach-svelte

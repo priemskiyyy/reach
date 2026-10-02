@@ -12,16 +12,19 @@ pnpm add @priemskiyyy/reach
 
 Then add one adapter for your platform, and the optional packages you need.
 
-| Package                                                                                                            | Install when                                  | Requires                                |
-| ------------------------------------------------------------------------------------------------------------------ | --------------------------------------------- | --------------------------------------- |
-| [`@priemskiyyy/reach-browser`](https://github.com/priemskiyyy/reach/tree/main/packages/adapters/browser)           | on the web                                    | a browser at run time                   |
-| [`@priemskiyyy/reach-netinfo`](https://github.com/priemskiyyy/reach/tree/main/packages/adapters/netinfo)           | in React Native, including Expo               | `@react-native-community/netinfo` 11.4+ |
-| [`@priemskiyyy/reach-expo-network`](https://github.com/priemskiyyy/reach/tree/main/packages/adapters/expo-network) | in Expo SDK 58 and later                      | `expo-network` 58+                      |
-| [`@priemskiyyy/reach-http`](https://github.com/priemskiyyy/reach/tree/main/packages/adapters/http)                 | to check your own API through your own client | nothing                                 |
-| [`@priemskiyyy/reach-react`](https://github.com/priemskiyyy/reach/tree/main/packages/react)                        | for hooks and a provider                      | React 19.2+                             |
-| [`@priemskiyyy/reach-tanstack-query`](https://github.com/priemskiyyy/reach/tree/main/packages/tanstack-query)      | to drive TanStack Query's online manager      | nothing; it imports nothing from Query  |
+| Package                                                                                                            | Install when                                  | Requires                                  |
+| ------------------------------------------------------------------------------------------------------------------ | --------------------------------------------- | ----------------------------------------- |
+| [`@priemskiyyy/reach-browser`](https://github.com/priemskiyyy/reach/tree/main/packages/adapters/browser)           | on the web                                    | a browser at run time                     |
+| [`@priemskiyyy/reach-netinfo`](https://github.com/priemskiyyy/reach/tree/main/packages/adapters/netinfo)           | in React Native, including Expo               | `@react-native-community/netinfo` 12.0.1+ |
+| [`@priemskiyyy/reach-expo-network`](https://github.com/priemskiyyy/reach/tree/main/packages/adapters/expo-network) | in Expo SDK 58 and later                      | `expo-network` 58.0.1+                    |
+| [`@priemskiyyy/reach-http`](https://github.com/priemskiyyy/reach/tree/main/packages/adapters/http)                 | to check your own API through your own client | nothing                                   |
+| [`@priemskiyyy/reach-react`](https://github.com/priemskiyyy/reach/tree/main/packages/react)                        | for React hooks and a provider                | React 19.2+                               |
+| [`@priemskiyyy/reach-solid`](https://github.com/priemskiyyy/reach/tree/main/packages/solid)                        | for Solid primitives and a provider           | Solid 1.9.15+                             |
+| [`@priemskiyyy/reach-vue`](https://github.com/priemskiyyy/reach/tree/main/packages/vue)                            | for Vue composables and a provider            | Vue 3.5.42+                               |
+| [`@priemskiyyy/reach-svelte`](https://github.com/priemskiyyy/reach/tree/main/packages/svelte)                      | for Svelte utilities and a provider           | Svelte 5.57+                              |
+| [`@priemskiyyy/reach-tanstack-query`](https://github.com/priemskiyyy/reach/tree/main/packages/tanstack-query)      | to drive TanStack Query's online manager      | nothing; it imports nothing from Query    |
 
-Each adapter and binding requires `@priemskiyyy/reach` 0.1 as a peer.
+Each adapter and binding requires `@priemskiyyy/reach` 0.1 as a peer. A peer floor is a version the repository's tests run against: React's oldest and newest in CI, and the lockfile's version of every other peer.
 
 ## Runtimes
 
