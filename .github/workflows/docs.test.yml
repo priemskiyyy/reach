@@ -27,6 +27,7 @@ concurrency:
 
 jobs:
   test:
+    name: docs
     env:
       DOCS_SITE_URL: https://priemskiyyy.github.io/reach/
       DOCS_BASE_PATH: /reach/

@@ -19,6 +19,8 @@ concurrency:
 
 jobs:
   test:
+    # Named here, because a required check is matched by this exact text.
+    name: test (node ${{ matrix.node }}, react ${{ matrix.react }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
