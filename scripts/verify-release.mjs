@@ -94,7 +94,10 @@ for (const name of names) {
   }
 
   if (process.env.GITHUB_OUTPUT !== undefined && tag !== undefined) {
-    appendFileSync(process.env.GITHUB_OUTPUT, `package=${name}\n`);
+    appendFileSync(
+      process.env.GITHUB_OUTPUT,
+      `package=${name}\nversion=${metadata.version}\n`,
+    );
   }
 
   console.log(`Release metadata is valid for ${name} ${metadata.version}.`);

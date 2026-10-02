@@ -13,6 +13,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       package: ${{ steps.verify.outputs.package }}
+      version: ${{ steps.verify.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
