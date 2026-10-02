@@ -67,13 +67,13 @@ A scope source is subscribed while the runtime runs, and every read and check re
 - The React binding supports React 19.2 and later, as the sibling bindings do.
 - `toOnlineEventListener()` returns the setup function Query's online manager installs. It imports nothing from Query.
 
-## Verified with fakes only
+## Verified with fakes, and by hand once
 
-The adapters are tested against fakes modeled on the SDK sources and against the real SDK types. None of the following has been run on a device or in a browser yet, and the documentation claims no more than that:
+The adapters are tested against fakes modeled on the SDK sources and against the real SDK types. On 2026-10-02 the Expo example also ran by hand, as Release builds, on an Android emulator and an iOS simulator, over NetInfo and the HTTP endpoint; [the verification matrix](verification.md#run-on-an-android-emulator-and-an-ios-simulator) says what was seen. No physical device has been used. The documentation claims no more than each of these items says:
 
-- Native start, stop and start again for NetInfo and Expo Network.
-- Real NetInfo and Expo Network reports on iOS and Android.
+- Real NetInfo and Expo Network reports on a physical iOS or Android device. NetInfo's were seen on an emulator and a simulator, and Expo Network's were not seen at all.
+- Native start, stop and start again for Expo Network, and for NetInfo on a physical device. Five lease cycles of NetInfo ran on an emulator and a simulator, and whether events still arrive after a restart on iOS was not checked.
 - Real browser `pagehide`, `freeze` and Network Information events. Chromium's `offline` and `online` pass in a local Playwright check that no workflow runs: the example tour, `pnpm test:examples`, takes Chromium offline and back, and the browser adapter reports each change.
-- React Native fetch clients honoring abort through the HTTP endpoint. Node's own `fetch` is verified: the HTTP tests abandon a real loopback connection on a timeout and on a network change.
+- React Native HTTP clients other than `fetch` honoring abort through the HTTP endpoint. React Native's `fetch` aborted a request at its deadline on an emulator and a simulator, and Node's own `fetch` is verified: the HTTP tests abandon a real loopback connection on a timeout and on a network change.
 
 The packed packages are verified: `pnpm verify:packages` installs every tarball into a consumer without any native SDK, React or Query, imports each entry in Node without browser globals, and typechecks it.
