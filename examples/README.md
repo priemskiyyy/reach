@@ -29,4 +29,4 @@ The web tour runs everything inside the page, so it needs no device, no server a
 
 ## Tests
 
-`pnpm test:unit` runs the `example-shared`, `example-react` and `example-server` projects with everything else. `pnpm test:examples` builds the tour and drives it in Chromium with Playwright at 375 and 1280 px, including Chromium's own offline mode reaching the real browser adapter. The Expo app is typechecked by `pnpm lint:typescript` and bundled for web by `pnpm check:release`; nothing here runs it on a device.
+`pnpm test:unit` runs the `example-shared`, `example-react` and `example-server` projects with everything else. `pnpm test:examples` builds the tour and drives it in Chromium with Playwright at 375 and 1280 px, including Chromium's own offline mode reaching the real browser adapter. The Expo app is typechecked by `pnpm lint:typescript` and bundled for web by `pnpm check:release`, and no workflow runs it. It was run by hand as Release builds on an Android emulator and an iOS simulator, and never on a physical device: see [the verification matrix](../docs/verification.md#run-on-an-android-emulator-and-an-ios-simulator).

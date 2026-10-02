@@ -11,6 +11,8 @@ pnpm --filter example-expo dev
 
 The iOS simulator and the web export reach the server at `localhost`. The Android emulator reaches your computer at `10.0.2.2`, so set `EXPO_PUBLIC_API_URL` in `.env` to `http://10.0.2.2:4401`. On a physical device, use your computer's LAN address, such as `http://192.168.1.20:4401`; `localhost` on the phone is the phone.
 
+The fixture server speaks http. An Android Release build blocks cleartext traffic, which the debug manifest alone allows, so it cannot reach the server: use a debug build, or allow cleartext in the Android manifest for the fixture server. A Release build on an emulator passed once `android:usesCleartextTraffic="true"` was added, with `10.0.2.2` as the emulator's alias of your computer. iOS reached `localhost` through `NSAllowsLocalNetworking`.
+
 How it fits together:
 
 - `src/network/reach.ts` declares the one Reach: NetInfo as the source, and the API through `@priemskiyyy/reach-http`, scoped to the signed-in account and monitored on start, network changes, a new account and the return to the foreground. The conditions are the shared Darkroom ones.
@@ -44,4 +46,4 @@ curl -X POST localhost:4401/api/control \
 
 `offline` and `degraded` take a boolean, and `latency` takes `0`, `400` or `6000` milliseconds. At 6 seconds the check outlives its 3 second timeout, so it fails without an answer, and the server logs the request as aborted when Reach hangs up. A degraded API answers, but not ready, so the check fails its test with an answer received.
 
-`pnpm lint:typescript` typechecks the app, and `pnpm --filter example-expo build` and `build:native` bundle it for web, iOS and Android. Nothing in this repository runs it on a device.
+`pnpm lint:typescript` typechecks the app, and `pnpm --filter example-expo build` and `build:native` bundle it for web, iOS and Android. No workflow runs it. It was run by hand as Release builds on an Android emulator and an iOS simulator on 2026-10-02, and not on a physical device: [the verification matrix](../../docs/verification.md#run-on-an-android-emulator-and-an-ios-simulator) says what was seen.
