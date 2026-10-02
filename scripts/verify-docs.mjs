@@ -71,7 +71,15 @@ assert.deepEqual(
 // Every miss is collected rather than thrown at the first one: a single dead
 // link per run turns fixing a set of them into a set of round trips.
 const broken = [];
+const unpublishable = [];
 let checked = 0;
+
+// A package README is shown on npmjs.com, away from the repository, so only an
+// absolute link or a same-page anchor survives there.
+const isPackageReadme = (file) =>
+  /^packages\/(?:adapters\/)?[^/]+\/README\.md$/.test(
+    relative(file).split(path.sep).join("/"),
+  );
 
 for (const file of sources) {
   const markdown = readFileSync(file, "utf8");
@@ -102,6 +110,14 @@ for (const file of sources) {
   const prose = markdown.replace(/```[\s\S]*?```/g, "");
 
   for (const [, target] of prose.matchAll(/\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g)) {
+    if (
+      isPackageReadme(file) &&
+      !/^https?:\/\//i.test(target) &&
+      !target.startsWith("#")
+    ) {
+      unpublishable.push(`${relative(file)} -> ${target}`);
+    }
+
     if (/^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith("#")) {
       continue;
     }
@@ -122,6 +138,11 @@ for (const file of sources) {
   }
 }
 
+assert.deepEqual(
+  unpublishable,
+  [],
+  `Package READMEs need absolute links, since npmjs.com cannot resolve a relative one:\n  ${unpublishable.join("\n  ")}\n`,
+);
 assert.deepEqual(
   broken,
   [],
