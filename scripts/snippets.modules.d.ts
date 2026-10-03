@@ -6,7 +6,7 @@ declare module "react-native" {
     "active" | "background" | "inactive" | "unknown" | "extension";
 
   export const AppState: {
-    currentState: AppStateStatus;
+    currentState: string | null | undefined;
     addEventListener: (
       type: "change",
       listener: (state: AppStateStatus) => void,
