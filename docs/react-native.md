@@ -57,8 +57,20 @@ const ACTIVITIES: Record<AppStateStatus, Activity> = {
   unknown: "unknown",
 };
 
+// React Native types the current state as a plain string from 0.87, and a later release can add a status.
+const isStatus = (state: string): state is AppStateStatus =>
+  Object.prototype.hasOwnProperty.call(ACTIVITIES, state);
+
+const readActivity = (state: string | null | undefined): Activity => {
+  if (state === null || state === undefined || !isStatus(state)) {
+    return "unknown";
+  }
+
+  return ACTIVITIES[state];
+};
+
 export const appActivity: ObservableValue<Activity> = {
-  get: () => ACTIVITIES[AppState.currentState],
+  get: () => readActivity(AppState.currentState),
   subscribe: (listener) => {
     const subscription = AppState.addEventListener("change", listener);
 
